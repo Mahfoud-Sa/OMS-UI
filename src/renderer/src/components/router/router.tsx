@@ -16,6 +16,11 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <ProtectedRoute element={<Home />} />
+        // element: <Home />
+      },
+      {
+        path: '/users',
+        element: <div>users</div>
       }
     ]
   }
