@@ -5,7 +5,7 @@ import {
   TooltipTrigger
 } from '@renderer/components/ui/tooltip'
 import { cn } from '@renderer/lib/utils'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { NavItem } from '../../types/index'
@@ -30,7 +30,7 @@ export default function DashboardNav({ items, expanded = false, onItemClick }: D
     if (href === '/dashboard') {
       return path === href
     }
-    return path.includes(href)
+    return path === href
   }
 
   if (!items?.length) {
@@ -75,11 +75,11 @@ export default function DashboardNav({ items, expanded = false, onItemClick }: D
                             isGroup && toggleGroup(i)
                           }}
                         >
-                          <Icon className="mr-2 h-5 w-5" />
+                          <Icon className="mx-2 h-5 w-5" />
                           {expanded && (
                             <span className="min-w-max text-lg font-medium flex items-center justify-between w-full">
                               {nav.label}
-                              {isGroup && <ChevronDown />}
+                              {isGroup && (expandedGroups[i] ? <ChevronUp /> : <ChevronDown />)}
                             </span>
                           )}
                         </div>
@@ -100,7 +100,7 @@ export default function DashboardNav({ items, expanded = false, onItemClick }: D
                             isGroup && toggleGroup(i)
                           }}
                         >
-                          <Icon className="mr-2 h-5 w-5" />
+                          <Icon className="mx-2 h-5 w-5" />
                           {expanded && (
                             <span className="min-w-max text-lg font-medium flex items-center justify-between w-full">
                               {nav.label}
@@ -118,16 +118,14 @@ export default function DashboardNav({ items, expanded = false, onItemClick }: D
                   </Tooltip>
                 </TooltipProvider>
                 {isGroup && expandedGroups[i] && (
-                  <div>
+                  <div className="ms-4">
                     {nav.subLinks?.map((subLink, j) => (
                       <Link
                         key={j}
                         to={subLink.href}
                         className={cn(
                           ' mb-1 flex items-center gap-1 ps-8 py-3 text-sm font-medium hover:bg-[#e6dcee] hover:text-[#8150AB]',
-                          isSelected(subLink.href)
-                            ? 'bg-[#e6dcee] text-primary border-l-4 border-primary'
-                            : 'transparent',
+                          'transparent',
                           subLink.disabled && 'cursor-not-allowed opacity-80',
                           !expanded && 'justify-center'
                         )}

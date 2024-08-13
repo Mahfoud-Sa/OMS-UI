@@ -34,6 +34,7 @@ const LoginForm = () => {
   // login
   const onSubmit = async (data: UserFormValue) => {
     try {
+      setDelayedSubmitting(true)
       const res = await postApi<LogInResponse>('/login', {
         ...data,
         twoFactorCode: 'string',
@@ -145,11 +146,15 @@ const LoginForm = () => {
               نسيت كلمة المرور ؟
             </Link>
             <Button
-              // onClick={(e) => e.preventDefault()}
               className="!mt-4 !h-12 w-full hover:bg-[#ca8d2a]"
               type="submit"
+              disabled={delayedSubmitting}
             >
-              تسجيل الدخول
+              {delayedSubmitting ? (
+                <span className="loader"></span> // You can replace this with an actual loader component or spinner
+              ) : (
+                'تسجيل الدخول'
+              )}
             </Button>
           </form>
         </Form>

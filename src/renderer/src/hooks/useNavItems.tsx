@@ -7,40 +7,64 @@ export default function useNavItems() {
         {
           href: '/',
           icon: 'category',
-          label: 'fdffd الرئيسية'
+          label: ' ddالصفحة الرئيسية'
+        },
+        {
+          href: '/orders/',
+          icon: 'bell',
+          label: 'الطلبات',
+          disabled: true
+        },
+        {
+          href: '/factories/',
+          icon: 'factory',
+          label: 'المصانع',
+          disabled: true
+        },
+        {
+          href: '/production_lines/',
+          icon: 'package',
+          label: 'خطوط الانتاج',
+          disabled: true
+        },
+        {
+          href: '/products/',
+          icon: 'shoppingBag',
+          label: 'العناصر',
+          disabled: true
+        },
+        {
+          href: '/reports',
+          icon: 'clipboardList',
+          label: 'التقارير',
+          disabled: true
         },
         {
           href: '',
-          icon: 'taskSquare',
-          label: 'إدارة القبول والتسجيل',
+          icon: 'idCard',
+          label: 'ادارة المستخدمين',
           type: 'group',
           subLinks: [
-            { label: 'بنين', href: '/dashboard/admission-and-registration?gender=boys' },
-            { label: 'بنات', href: '/dashboard/admission-and-registration?gender=girls' }
+            {
+              label: 'المستخدمين',
+              href: '/users'
+            },
+            {
+              label: 'الموطفين',
+              href: '/employees',
+              disabled: true
+            },
+            {
+              label: 'ضبط كلمة المرور',
+              href: '/reset-password',
+              disabled: true
+            }
           ]
         },
         {
-          href: '/dashboard/levels',
-          icon: 'bookmark',
-          label: 'إدارة المستويات والصفوف',
-          disabled: true
-        },
-        {
-          href: '/dashboard/attendance',
-          icon: 'calendarTick',
-          label: 'إدارة الحضور والغياب',
-          disabled: true
-        },
-        {
-          href: '/dashboard/invoices',
-          icon: 'archive',
-          label: 'إدارة الفواتير',
-          disabled: true
-        },
-        {
-          href: '/dashboard/users',
-          icon: 'profileUser',
-          label: 'إدارة المستخدمين',
+          href: '/backup',
+          icon: 'databaseBackup',
+          label: 'النسخ الاحتياطي',
           disabled: true
         }
       ]
