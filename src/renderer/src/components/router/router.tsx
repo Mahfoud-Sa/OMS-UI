@@ -3,6 +3,7 @@ import RootLayout from '../layouts/layout'
 import ProtectedRoute from '../layouts/protected-route'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
+import Orders from '../pages/orders/orders'
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: '/users',
         element: <div>users</div>
+      },
+      {
+        path: '/orders',
+        element: <ProtectedRoute element={<Orders />} />
       }
     ]
   }
