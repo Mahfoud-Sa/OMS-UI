@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 // import ThemeToggle from "@/components/layout/ThemeToggle/theme-toggle";
-import { DoubleArrowRightIcon } from '@radix-ui/react-icons'
 import useCurrentNav from '@renderer/hooks/useCurrentNav'
 import { MenuIcon, X } from 'lucide-react'
 import NotificationIcon from '../icons/notification'
@@ -9,6 +8,8 @@ import { UserNav } from './user-nav'
 
 export default function Header() {
   const currentPath = useCurrentNav()
+  console.log(currentPath)
+
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const toggleSidebar = () => {
@@ -27,7 +28,7 @@ export default function Header() {
           </div>
 
           <div className="hidden items-center sm:flex gap-1">
-            <DoubleArrowRightIcon />
+            {/* <DoubleArrowRightIcon /> */}
             <h1 className="text-xl font-bold">{currentPath?.label}</h1>
           </div>
 
