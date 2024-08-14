@@ -4,3 +4,9 @@ export type LogInResponse = {
   refreshToken: string
   tokenType: string
 }
+
+export type StatisticalUserCards = {
+  active: number
+  inactive: number
+  allUser: number
+}

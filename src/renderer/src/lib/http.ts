@@ -35,7 +35,7 @@ export function getApi<T>(url: string, config?: Config) {
 
 export function postApi<T>(url: string, data: any, config?: Config) {
   // if (isAuth()) return
-  console.log(url)
+  // console.log(url)
   return axiosInstance.post<T>(url, data, config)
 }
 
