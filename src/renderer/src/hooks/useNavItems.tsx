@@ -7,7 +7,7 @@ export default function useNavItems() {
         {
           href: '/',
           icon: 'category',
-          label: ' ddالصفحة الرئيسية'
+          label: 'الصفحة الرئيسية'
         },
         {
           href: '/orders/',
