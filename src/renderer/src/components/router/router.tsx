@@ -4,6 +4,7 @@ import ProtectedRoute from '../layouts/protected-route'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import Orders from '../pages/orders/orders'
+import Users from '../pages/users/users'
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/users',
-        element: <div>users</div>
+        element: <ProtectedRoute element={<Users />} />
       },
       {
         path: '/orders',
