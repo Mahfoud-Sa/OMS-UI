@@ -8,6 +8,7 @@ import { useSignIn } from 'react-auth-kit'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import * as z from 'zod'
+import Loader from '../layouts/loader'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
@@ -48,7 +49,6 @@ const LoginForm = () => {
           tokenType: res.data.tokenType
           // authState:res.data["key"],
         })
-        console.log(signInResult)
         if (signInResult) {
           toast({
             title: 'مرحباً مجدداً',
@@ -151,7 +151,7 @@ const LoginForm = () => {
               disabled={delayedSubmitting}
             >
               {delayedSubmitting ? (
-                <span className="loader"></span> // You can replace this with an actual loader component or spinner
+                <Loader color="#fff" size={20} /> // You can replace this with an actual loader component or spinner
               ) : (
                 'تسجيل الدخول'
               )}
