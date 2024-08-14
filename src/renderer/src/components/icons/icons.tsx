@@ -16,6 +16,7 @@ import {
   CopyCheck,
   CreditCard,
   DatabaseBackup,
+  Ellipsis,
   Factory,
   File,
   FileText,
@@ -37,6 +38,7 @@ import {
   Moon,
   MoreVertical,
   Package,
+  Phone,
   Pizza,
   Plus,
   Presentation,
@@ -97,7 +99,8 @@ export const Icons = {
   media: Image,
   settings: Settings,
   billing: CreditCard,
-  ellipsis: MoreVertical,
+  moreVertical: MoreVertical,
+  ellipsis: Ellipsis,
   add: Plus,
   warning: AlertTriangle,
   user: User,
@@ -119,6 +122,7 @@ export const Icons = {
   presentation: Presentation,
   idCard: IdCard,
   databaseBackup: DatabaseBackup,
+  phone: Phone,
 
   gitHub: ({ ...props }: LucideProps) => (
     <svg
