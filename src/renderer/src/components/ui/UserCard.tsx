@@ -18,23 +18,23 @@ import {
   DropdownMenuTrigger
 } from '../ui/dropdown-menu'
 
-interface DeliveryAgentCardProps {
-  agentId: string
-  agentInfo: AgentInfoProps
+interface DeliveryUserCardProps {
+  userId: string
+  userInfo: UserInfoProps
   contactInfo: ContactInfoProps
-  removeSelectedAgent: (id: string) => void
+  removeSelectedUser: (id: string) => Promise<void>
 }
 interface ContactInfoProps {
   phone: string
   date: string
 }
-interface AgentInfoProps {
+interface UserInfoProps {
   name: string
   role: string
   imageSrc: string
 }
 
-const AgentInfo: React.FC<AgentInfoProps> = ({ name, role, imageSrc }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ name, role, imageSrc }) => {
   return (
     <div className="flex gap-2 items-center w-full text-right">
       <img
@@ -69,11 +69,11 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ phone, date }) => {
   )
 }
 
-export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({
-  agentInfo,
+export const UserCard: React.FC<DeliveryUserCardProps> = ({
+  userInfo,
   contactInfo,
-  agentId,
-  removeSelectedAgent
+  userId,
+  removeSelectedUser
 }) => {
   const MoreVerticalIcon = Icons.ellipsis
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
@@ -83,7 +83,7 @@ export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({
         <div className="flex flex-col justify-center self-stretch my-auto rounded-xl border border-solid border-slate-400 min-h-[165px] w-[250px] p-2">
           <div className="flex justify-center items-start w-full">
             <div className="flex flex-col w-auto">
-              <AgentInfo {...agentInfo} />
+              <UserInfo {...userInfo} />
               <ContactInfo {...contactInfo} />
             </div>
             <DropdownMenu>
@@ -92,7 +92,7 @@ export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <Link to={`/users/${agentId}`}>
+                  <Link to={`/users/${userId}`}>
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem
@@ -124,8 +124,8 @@ export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({
           <DialogDescription>هل انت متاكد من حذف المستخدم؟</DialogDescription>
           <DialogFooter className="gap-4">
             <button
-              onClick={() => {
-                removeSelectedAgent(agentId)
+              onClick={async () => {
+                await removeSelectedUser(userId)
                 setIsDialogOpen(false)
               }}
               className="bg-red-500 hover:bg-red-800 text-white font-bold py-2 px-4 rounded"
