@@ -2,7 +2,7 @@ type propTypes = {
   size?: number
   color?: string
 }
-const NotificationIcon = ({ size = 24, color = '#f3eef7' }: propTypes) => (
+const NotificationIcon = ({ size = 24 }: propTypes) => (
   <svg
     width={size}
     height={size}

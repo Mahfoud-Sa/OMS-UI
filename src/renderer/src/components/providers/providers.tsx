@@ -7,12 +7,7 @@ import { ReactQueryClientProvider } from './ReactQueryClientProvider'
 const Providers = () => {
   return (
     <ReactQueryClientProvider>
-      <AuthProvider
-        authType={'cookie'}
-        authName={'_auth'}
-        cookieDomain={window.location.hostname}
-        cookieSecure={window.location.protocol === 'https:'}
-      >
+      <AuthProvider authType={'localstorage'} authName={'_auth'}>
         <DirectionProvider dir="rtl">
           <RouterProvider router={router} />
         </DirectionProvider>
