@@ -1,16 +1,17 @@
+import userIcon from '@renderer/components/icons/user.svg'
 import CreateBtn from '@renderer/components/layouts/create-btn'
-import { DeliveryAgentCard } from '@renderer/components/ui/DeliveryAgentCard'
+import { useToast } from '@renderer/components/ui/use-toast'
+import { UserCard } from '@renderer/components/ui/UserCard'
 import { useState } from 'react'
-import userIcon from '../../icons/user.svg'
 import Statistics from './_components/statistics'
 import UsersSearch from './_components/users-search'
 import './users.css'
 
 const Users = () => {
-  const initialAgentData = [
+  const initialUserData = [
     {
       id: '1',
-      name: 'Agent 1',
+      name: 'User 1',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -18,7 +19,7 @@ const Users = () => {
     },
     {
       id: '2',
-      name: 'Agent 2',
+      name: 'User 2',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -26,7 +27,7 @@ const Users = () => {
     },
     {
       id: '3',
-      name: 'Agent 3',
+      name: 'User 3',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -34,7 +35,7 @@ const Users = () => {
     },
     {
       id: '4',
-      name: 'Agent 4',
+      name: 'User 4',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -42,7 +43,7 @@ const Users = () => {
     },
     {
       id: '5',
-      name: 'Agent 5',
+      name: 'User 5',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -50,7 +51,7 @@ const Users = () => {
     },
     {
       id: '6',
-      name: 'Agent 6',
+      name: 'User 6',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -58,7 +59,7 @@ const Users = () => {
     },
     {
       id: '7',
-      name: 'Agent 7',
+      name: 'User 7',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -66,7 +67,7 @@ const Users = () => {
     },
     {
       id: '8',
-      name: 'Agent 8',
+      name: 'User 8',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -74,7 +75,7 @@ const Users = () => {
     },
     {
       id: '9',
-      name: 'Agent 9',
+      name: 'User 9',
       role: 'manager',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -82,7 +83,7 @@ const Users = () => {
     },
     {
       id: '10',
-      name: 'Agent 10',
+      name: 'User 10',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -90,7 +91,7 @@ const Users = () => {
     },
     {
       id: '11',
-      name: 'Agent 11',
+      name: 'User 11',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -98,7 +99,7 @@ const Users = () => {
     },
     {
       id: '12',
-      name: 'Agent 12',
+      name: 'User 12',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -106,7 +107,7 @@ const Users = () => {
     },
     {
       id: '13',
-      name: 'Agent 13',
+      name: 'User 13',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -114,7 +115,7 @@ const Users = () => {
     },
     {
       id: '14',
-      name: 'Agent 14',
+      name: 'User 14',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -122,7 +123,7 @@ const Users = () => {
     },
     {
       id: '15',
-      name: 'Agent 15',
+      name: 'User 15',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -130,7 +131,7 @@ const Users = () => {
     },
     {
       id: '16',
-      name: 'Agent 16',
+      name: 'User 16',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
@@ -138,35 +139,50 @@ const Users = () => {
     },
     {
       id: '17',
-      name: 'Agent 17',
+      name: 'User 17',
       role: 'retailer',
       imageSrc: userIcon,
       phone: '123-456-7890',
       date: '2000-02-12'
     }
-    // Add more agent data as needed
+    // Add more user data as needed
   ]
 
-  const [agentData, setAgentData] = useState(initialAgentData)
+  const [usersData, setUsersData] = useState(initialUserData)
   const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined)
+  const { toast } = useToast()
 
-  const removeSelectedAgent = (id: string) => {
-    const updatedAgentData = agentData.filter((agent) => agent.id !== id)
-    setAgentData(updatedAgentData)
+  const removeSelectedUser = (id: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const deletedUserData = usersData.find((user) => user.id === id)
+        const updateUsersData = usersData.filter((user) => user.id !== id)
+        setUsersData(updateUsersData)
+        toast({
+          title: 'تم الحذف بنجاح',
+          description: `تم حذف ${deletedUserData?.name} بنجاح`,
+          variant: 'success'
+        })
+
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
-  const filterAgentsByRole = (role: string | undefined) => {
+  const filterUsersByRole = (role: string | undefined) => {
     if (!role) {
-      setAgentData(initialAgentData)
+      setUsersData(initialUserData)
       setSelectedRole(undefined)
       return
     }
-    const updatedAgentData = initialAgentData.filter((agent) => agent.role === role)
-    setAgentData(updatedAgentData)
+    const updateUsersData = initialUserData.filter((user) => user.role === role)
+    setUsersData(updateUsersData)
     setSelectedRole(role)
   }
   return (
     <section className="p-5">
-      <Statistics selectedRole={selectedRole} filterData={(role) => filterAgentsByRole(role)} />
+      <Statistics selectedRole={selectedRole} filterData={(role) => filterUsersByRole(role)} />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <div className="flex gap-3 flex-row h-[50px]">
           <UsersSearch />
@@ -174,13 +190,13 @@ const Users = () => {
         </div>
         <div className="p-4 h-96 overflow-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {agentData.map((agent) => (
-              <DeliveryAgentCard
-                key={agent.id}
-                agentId={agent.id}
-                agentInfo={{ name: agent.name, role: agent.role, imageSrc: agent.imageSrc }}
-                contactInfo={{ phone: agent.phone, date: agent.date }}
-                removeSelectedAgent={(id) => removeSelectedAgent(id)}
+            {usersData.map((user) => (
+              <UserCard
+                key={user.id}
+                userId={user.id}
+                userInfo={{ name: user.name, role: user.role, imageSrc: user.imageSrc }}
+                contactInfo={{ phone: user.phone, date: user.date }}
+                removeSelectedUser={(id) => removeSelectedUser(id)}
               />
             ))}
           </div>
