@@ -1,9 +1,28 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Icons } from '../icons/icons'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../ui/dropdown-menu'
 
 interface DeliveryAgentCardProps {
+  agentId: string
   agentInfo: AgentInfoProps
   contactInfo: ContactInfoProps
+  removeSelectedAgent: (id: string) => void
 }
 interface ContactInfoProps {
   phone: string
@@ -50,19 +69,75 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ phone, date }) => {
   )
 }
 
-export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({ agentInfo, contactInfo }) => {
+export const DeliveryAgentCard: React.FC<DeliveryAgentCardProps> = ({
+  agentInfo,
+  contactInfo,
+  agentId,
+  removeSelectedAgent
+}) => {
   const MoreVerticalIcon = Icons.ellipsis
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   return (
-    <section className="flex gap-4 items-center">
-      <div className="flex flex-col justify-center self-stretch my-auto rounded-xl border border-solid border-slate-400 min-h-[165px] w-[250px] p-2">
-        <div className="flex justify-center items-start w-full">
-          <div className="flex flex-col w-auto">
-            <AgentInfo {...agentInfo} />
-            <ContactInfo {...contactInfo} />
+    <>
+      <section className="flex gap-4 items-center">
+        <div className="flex flex-col justify-center self-stretch my-auto rounded-xl border border-solid border-slate-400 min-h-[165px] w-[250px] p-2">
+          <div className="flex justify-center items-start w-full">
+            <div className="flex flex-col w-auto">
+              <AgentInfo {...agentInfo} />
+              <ContactInfo {...contactInfo} />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <MoreVerticalIcon className="object-contain shrink-0 w-6 aspect-square" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <Link to={`/users/${agentId}`}>
+                    <DropdownMenuItem>تعديل</DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setIsDialogOpen(true)
+                    }}
+                    backgroundColor="orange"
+                    color="white"
+                    className="btn"
+                  >
+                    حذف
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <MoreVerticalIcon className="object-contain shrink-0 w-6 aspect-square" />
         </div>
-      </div>
-    </section>
+      </section>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>حذف المستخدم</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>هل انت متاكد من حذف المستخدم؟</DialogDescription>
+          <DialogFooter className="gap-4">
+            <button
+              onClick={() => {
+                removeSelectedAgent(agentId)
+                setIsDialogOpen(false)
+              }}
+              className="bg-red-500 hover:bg-red-800 text-white font-bold py-2 px-4 rounded"
+            >
+              نعم
+            </button>
+            <DialogClose asChild>
+              <button>لا</button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
