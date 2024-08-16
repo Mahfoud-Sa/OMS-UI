@@ -3,7 +3,12 @@ import StatisticCard from '../../../layouts/statistic-card'
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // import { useState } from "react";
 
-export default function Statistics() {
+type StatisticsProps = {
+  selectedRole: string | undefined
+  filterData: (role: string | undefined) => void
+}
+
+export default function Statistics({ selectedRole, filterData }: StatisticsProps) {
   // const searchParams = useSearchParams();
 
   // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
@@ -43,18 +48,20 @@ export default function Statistics() {
       iconBgWrapperColor: 'bg-blue-100'
     },
     {
-      title: 'المستخدمين النشطين',
+      title: 'مدراء المصانع',
       icon: User2,
       value: 0,
       iconClassName: 'text-green-900',
-      iconBgWrapperColor: 'bg-green-100'
+      iconBgWrapperColor: 'bg-green-100',
+      role: 'manager'
     },
     {
-      title: 'المستخدمين غير النشطين',
+      title: 'اصحاب المعارض',
       icon: User2,
       value: 0,
       iconClassName: 'text-red-900',
-      iconBgWrapperColor: 'bg-red-100'
+      iconBgWrapperColor: 'bg-red-100',
+      role: 'retailer'
     }
   ]
 
@@ -64,16 +71,17 @@ export default function Statistics() {
         <StatisticCard
           key={i}
           // ${selectedCard?.id == i && 'border-2 border-primary'}
-          className={`w-full`}
+          className={`w-full ${selectedRole == item.role ? 'border-2 border-primary' : ''}`}
           title={item.title}
           total={item.value}
           icon={item.icon}
           iconWrapperClassName={`${item.iconBgWrapperColor}`}
           iconClassName={item.iconClassName}
-          // handleClick={() => {
-          //   filterData(i)
-          //   setSelectedCard({ id: i == 0 ? null : i, title: item.title })
-          // }}
+          handleClick={() => {
+            if (i == 0) filterData(undefined)
+            filterData(item?.role)
+            // setSelectedCard({ id: i == 0 ? null : i, title: item.title })
+          }}
         />
       ))}
     </div>
