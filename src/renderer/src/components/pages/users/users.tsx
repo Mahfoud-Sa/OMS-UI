@@ -5,7 +5,6 @@ import { UserCard } from '@renderer/components/ui/UserCard'
 import { useState } from 'react'
 import Statistics from './_components/statistics'
 import UsersSearch from './_components/users-search'
-import './users.css'
 
 const Users = () => {
   const initialUserData = [
@@ -188,7 +187,7 @@ const Users = () => {
           <UsersSearch />
           <CreateBtn title={'إضافة مستخدم'} href={'new'} className="w-[200px]" />
         </div>
-        <div className="p-4 h-96 overflow-auto">
+        <div className="p-4 h-96 overflow-auto mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {usersData.map((user) => (
               <UserCard

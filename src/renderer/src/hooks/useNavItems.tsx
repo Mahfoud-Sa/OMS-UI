@@ -13,7 +13,7 @@ export default function useNavItems() {
           href: '/orders/',
           icon: 'bell',
           label: 'الطلبات',
-          disabled: true
+          disabled: false
         },
         {
           href: '/factories/',
