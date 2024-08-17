@@ -24,7 +24,7 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'relative z-50  flex h-[100vh] shrink-0 flex-col rounded-none  border bg-background  shadow-xl   transition-all ease-in-out',
+        'z-50  sticky right-0 top-0 flex h-[100vh] shrink-0 flex-col rounded-none  border bg-background  shadow-xl   transition-all ease-in-out',
         expanded ? 'w-[270px]' : 'w-24'
       )}
     >
