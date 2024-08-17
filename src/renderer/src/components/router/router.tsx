@@ -5,6 +5,7 @@ import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
 import Orders from '../pages/orders/orders'
+import ResetPassword from '../pages/reset-password/reset-password'
 import NewUser from '../pages/users/new-user'
 import Users from '../pages/users/users'
 
@@ -31,6 +32,11 @@ export const router = createHashRouter([
         path: '/users/new',
         // element: <ProtectedRoute element={<Users />} />
         element: <NewUser />
+      },
+      // reset password page
+      {
+        path: '/users/:id/reset-password',
+        element: <ResetPassword />
       },
       {
         path: '/orders',

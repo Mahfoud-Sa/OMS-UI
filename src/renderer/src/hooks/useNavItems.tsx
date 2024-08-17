@@ -56,8 +56,7 @@ export default function useNavItems() {
             },
             {
               label: 'ضبط كلمة المرور',
-              href: '/reset-password',
-              disabled: true
+              href: '/users/1/reset-password'
             }
           ]
         },
