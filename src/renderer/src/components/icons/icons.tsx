@@ -34,6 +34,7 @@ import {
   LogIn,
   LucideIcon,
   LucideProps,
+  MapPin,
   MonitorCheck,
   Moon,
   MoreVertical,
@@ -123,6 +124,7 @@ export const Icons = {
   idCard: IdCard,
   databaseBackup: DatabaseBackup,
   phone: Phone,
+  mapPin: MapPin,
 
   gitHub: ({ ...props }: LucideProps) => (
     <svg

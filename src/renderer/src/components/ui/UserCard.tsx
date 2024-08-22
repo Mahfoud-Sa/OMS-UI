@@ -1,3 +1,4 @@
+import { UserIcon } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Icons } from '../icons/icons'
@@ -25,21 +26,22 @@ interface DeliveryUserCardProps {
   removeSelectedUser: (id: string) => Promise<void>
 }
 interface ContactInfoProps {
+  fullName: string
   phone: string
-  date: string
+  workPlace: string
 }
 interface UserInfoProps {
   name: string
   role: string
-  imageSrc: string
+  imagePath?: string
 }
 
-const UserInfo: React.FC<UserInfoProps> = ({ name, role, imageSrc }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ name, role, imagePath }) => {
   return (
     <div className="flex gap-2 items-center w-full text-right">
       <img
         loading="lazy"
-        src={imageSrc}
+        src={imagePath || 'https://via.placeholder.com/50'}
         className="object-contain shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
         alt={`${name} - ${role}`}
       />
@@ -51,19 +53,22 @@ const UserInfo: React.FC<UserInfoProps> = ({ name, role, imageSrc }) => {
   )
 }
 
-const ContactInfo: React.FC<ContactInfoProps> = ({ phone, date }) => {
+const ContactInfo: React.FC<ContactInfoProps> = ({ fullName, phone, workPlace }) => {
   const PhoneIcon = Icons.phone
-  const CalendarIcon = Icons.calendarTick
+  const MapPin = Icons.mapPin
   return (
     <div className="flex flex-col items-start self-start mt-5 w-full text-sm leading-none text-center max-w-[153px] text-zinc-900">
-      <div className="flex gap-1.5 items-center self-stretch w-full"></div>
+      <div className="flex gap-1.5 items-center self-stretch w-full">
+        <UserIcon className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square" />
+        <p className="self-stretch my-auto">{fullName}</p>
+      </div>
       <div className="flex gap-1.5 items-center mt-2 whitespace-nowrap">
         <PhoneIcon className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square" />
         <p className="self-stretch my-auto">{phone}</p>
       </div>
       <div className="flex gap-1.5 items-center mt-2">
-        <CalendarIcon className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square" />
-        <p className="self-stretch my-auto">{date}</p>
+        <MapPin className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square" />
+        <p className="self-stretch my-auto">{workPlace}</p>
       </div>
     </div>
   )

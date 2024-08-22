@@ -42,12 +42,13 @@ const LoginForm = () => {
         twoFactorRecoveryCode: 'string'
       })
 
+      console.log(res)
+
       if ([200, 201].includes(res?.status as number)) {
         const signInResult = signIn({
           token: res.data.accessToken,
           expiresIn: res.data.expiresIn,
           tokenType: res.data.tokenType
-          // authState:res.data["key"],
         })
         if (signInResult) {
           toast({
@@ -64,12 +65,30 @@ const LoginForm = () => {
           })
         }
       }
-    } catch (error) {
-      toast({
-        title: 'حصل خطأ',
-        description: 'حاول تسجيل الدخول مجدداً',
-        variant: 'destructive'
-      })
+    } catch (error: any) {
+      console.error('Login error:', error)
+
+      if (error.response) {
+        // Server responded with a status other than 2xx
+      } else if (error.request) {
+        // Request was made but no response received
+        toast({
+          title: 'حصل خطأ',
+          description: 'لم يتم تلقي رد من الخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.',
+          variant: 'destructive'
+        })
+      }
+      // if the evn is development you can login using default token
+      if (process.env.NODE_ENV === 'development') {
+        signIn({
+          token: 'default-token',
+          expiresIn: 3600,
+          tokenType: 'Bearer'
+        })
+        navigate('/')
+      }
+    } finally {
+      setDelayedSubmitting(false)
     }
   }
 
@@ -142,7 +161,7 @@ const LoginForm = () => {
               />
             </div>
 
-            <Link to="#" className="text-sm font-medium text-primary">
+            <Link to="/" className="text-sm font-medium text-primary">
               نسيت كلمة المرور ؟
             </Link>
             <Button

@@ -1,165 +1,83 @@
-import userIcon from '@renderer/components/icons/user.svg'
 import CreateBtn from '@renderer/components/layouts/create-btn'
+import { Skeleton } from '@renderer/components/ui/skeleton'
 import { useToast } from '@renderer/components/ui/use-toast'
 import { UserCard } from '@renderer/components/ui/UserCard'
-import { useState } from 'react'
+import { deleteApi, getApi } from '@renderer/lib/http'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import Statistics from './_components/statistics'
 import UsersSearch from './_components/users-search'
 
 const Users = () => {
-  const initialUserData = [
-    {
-      id: '1',
-      name: 'User 1',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '2',
-      name: 'User 2',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '3',
-      name: 'User 3',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '4',
-      name: 'User 4',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '5',
-      name: 'User 5',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '6',
-      name: 'User 6',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '7',
-      name: 'User 7',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '8',
-      name: 'User 8',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '9',
-      name: 'User 9',
-      role: 'manager',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '10',
-      name: 'User 10',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '11',
-      name: 'User 11',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '12',
-      name: 'User 12',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '13',
-      name: 'User 13',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '14',
-      name: 'User 14',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '15',
-      name: 'User 15',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '16',
-      name: 'User 16',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    },
-    {
-      id: '17',
-      name: 'User 17',
-      role: 'retailer',
-      imageSrc: userIcon,
-      phone: '123-456-7890',
-      date: '2000-02-12'
-    }
-    // Add more user data as needed
-  ]
+  interface DeliveryUserCardProps {
+    id: string
+    fullName: string
+    userName: string
+    userType: string
+    imagePath?: string
+    phone: string
+    workPlace: string
+  }
 
-  const [usersData, setUsersData] = useState(initialUserData)
+  // Add more user data as needed
+  const {
+    data: fetchedData,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['users'],
+    queryFn: () =>
+      getApi<{ users: DeliveryUserCardProps[] }>('/api/Users', { params: { page: 1, pageSize: 2 } })
+  })
+  useEffect(() => {
+    if (fetchedData?.data.users) {
+      setUsersData(fetchedData.data.users)
+    }
+  }, [fetchedData])
+
+  console.log(fetchedData)
+
+  const [usersData, setUsersData] = useState<DeliveryUserCardProps[] | undefined>(undefined)
+  console.log(usersData)
   const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined)
   const { toast } = useToast()
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: (id: string) => {
+      return deleteApi(`/api/Users/${id}`)
+    }
+    // onMutate: async (id) => {
+    //   // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+    //   await queryClient.cancelQueries(['users'])
+    //   // Snapshot the previous value
+    //   const previousUsers = queryClient.getQueryData('Users')
+    //   // Optimistically update to the new value
+    //   queryClient.setQueryData('Users', (old) => {
+    //     return old.filter((user) => user.id !== id)
+    //   })
+    //   // Return a context object with the snapshotted value
+    //   return { previousUsers }
+    // },
+    // onError: (err, variables, context) => {
+    //   // If the mutation failed, use the context value to roll back
+    //   queryClient.setQueryData('users', context.previousUsers)
+    // },
+    // onSettled: () => {
+    //   queryClient.invalidateQueries('users')
+    // }
+  })
 
-  const removeSelectedUser = (id: string): Promise<void> => {
+  const removeSelectedUser = async (id: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       try {
-        const deletedUserData = usersData.find((user) => user.id === id)
-        const updateUsersData = usersData.filter((user) => user.id !== id)
+        // request to delete user by id
+        mutation.mutate(id)
+        const deletedUserData = usersData?.find((user) => user.id === id)
+        const updateUsersData = usersData?.filter((user) => user.id !== id)
         setUsersData(updateUsersData)
         toast({
           title: 'تم الحذف بنجاح',
-          description: `تم حذف ${deletedUserData?.name} بنجاح`,
+          description: `تم حذف ${deletedUserData?.fullName} بنجاح`,
           variant: 'success'
         })
 
@@ -171,11 +89,11 @@ const Users = () => {
   }
   const filterUsersByRole = (role: string | undefined) => {
     if (!role) {
-      setUsersData(initialUserData)
+      setUsersData(usersData)
       setSelectedRole(undefined)
       return
     }
-    const updateUsersData = initialUserData.filter((user) => user.role === role)
+    const updateUsersData = usersData?.filter((user) => user.userType === role)
     setUsersData(updateUsersData)
     setSelectedRole(role)
   }
@@ -188,13 +106,18 @@ const Users = () => {
           <CreateBtn title={'إضافة مستخدم'} href={'new'} className="w-[200px]" />
         </div>
         <div className="p-4 h-96 overflow-auto mt-4">
+          {isLoading && <Skeleton className="h-96" />}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {usersData.map((user) => (
+            {usersData?.map((user) => (
               <UserCard
                 key={user.id}
                 userId={user.id}
-                userInfo={{ name: user.name, role: user.role, imageSrc: user.imageSrc }}
-                contactInfo={{ phone: user.phone, date: user.date }}
+                userInfo={{ name: user.userName, role: user.userType, imagePath: user.imagePath }}
+                contactInfo={{
+                  fullName: user.fullName,
+                  phone: user.phone,
+                  workPlace: user.workPlace
+                }}
                 removeSelectedUser={(id) => removeSelectedUser(id)}
               />
             ))}

@@ -43,6 +43,7 @@ export function postApi<T>(url: string, data: any, config?: Config) {
 //   if (isAuth()) return axiosInstance.patch<T>(url, data, config)
 // }
 
-// export function deleteApi<T>(url: string, config?: Config) {
-//   if (isAuth()) return axiosInstance.delete<T>(url, config)
-// }
+export function deleteApi<T>(url: string, config?: Config) {
+  // if (isAuth()) return axiosInstance.delete<T>(url, config)
+  return axiosInstance.delete<T>(url, config)
+}
