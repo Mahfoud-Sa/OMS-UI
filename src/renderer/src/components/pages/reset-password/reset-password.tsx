@@ -45,7 +45,7 @@ const ResetPassword = ({ initValues }: { initValues?: Schema }) => {
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="bg-white p-5 rounded-lg shadow-sm min-h-[300px]">
+            <div className="bg-white p-5 rounded-lg shadow-sm min-h-[400px]">
               <h1 className="font-bold">إعادة تعيين كلمة المرور</h1>
 
               <div className="mt-4 grid grid-cols-3 gap-3">

@@ -1,16 +1,22 @@
-import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
+import { Pagination, PaginationContent, PaginationItem } from '../../components/ui/pagination'
 import { Button } from '../ui/button'
 
 interface TablePaginationProps {
   total: number
   page: number
   pageSize: number
+  onPageChange?: (page: number) => void
 }
 
-const TablePagination: React.FC<TablePaginationProps> = ({ total, page, pageSize }) => {
+const TablePagination: React.FC<TablePaginationProps> = ({
+  total,
+  page,
+  pageSize,
+  onPageChange
+}) => {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
@@ -24,7 +30,10 @@ const TablePagination: React.FC<TablePaginationProps> = ({ total, page, pageSize
     if (newPage === page) return
     const params = new URLSearchParams(searchParams.toString())
     params.set('page', newPage.toString())
-    router.replace(`${pathname}?${params.toString()}`)
+    // router.replace(`${pathname}?${params.toString()}`)
+    if (onPageChange) {
+      onPageChange(newPage || 1)
+    }
   }
 
   const handlePreviousPage = () => {
@@ -40,7 +49,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({ total, page, pageSize
   }
 
   const getPageItems = () => {
-    const items: any[] = []
+    const items: (number | string)[] = []
     if (page > 2) items.push(1, '...')
     if (page > 1) items.push(page - 1)
     items.push(page)
