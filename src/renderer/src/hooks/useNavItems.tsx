@@ -18,8 +18,7 @@ export default function useNavItems() {
         {
           href: '/factories/',
           icon: 'factory',
-          label: 'المصانع',
-          disabled: true
+          label: 'المصانع'
         },
         {
           href: '/production_lines/',
@@ -56,8 +55,7 @@ export default function useNavItems() {
             },
             {
               label: 'ضبط كلمة المرور',
-              href: '/reset-password',
-              disabled: true
+              href: '/users/1/reset-password'
             }
           ]
         },
