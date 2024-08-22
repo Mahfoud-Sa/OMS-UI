@@ -1,6 +1,5 @@
 import { cn } from '@renderer/lib/utils'
 import { useEffect, useState } from 'react'
-import logo from '../../assets/images/logo.svg'
 import useNavItems from '../../hooks/useNavItems'
 import useScreenSize from '../../hooks/useScreenSize'
 import SidebarToggleIcon from '../icons/sidebar-toggler-icon'
@@ -32,9 +31,17 @@ export default function Sidebar() {
 
       <div className={cn('flex w-full flex-col items-center justify-center p-4 gap-2', {})}>
         {expanded ? (
-          <img src={logo} alt="logo" className="w-[155px] h-[79px]" />
+          <img
+            src="https://lh3.googleusercontent.com/d/1B6Gb0VLYkqJM1OW6w4QKjfOoSEhtRKTR=s220?authuser=0"
+            alt="logo"
+            className="w-[9.688rem] h-[9.688rem]"
+          />
         ) : (
-          <img src={logo} alt="logo" className="w-[62px] h-[62px]" />
+          <img
+            src="https://lh3.googleusercontent.com/d/1B6Gb0VLYkqJM1OW6w4QKjfOoSEhtRKTR=s220?authuser=0"
+            alt="logo"
+            className="w-[62px] h-[62px]"
+          />
         )}
 
         <Separator className="mt-6 " />

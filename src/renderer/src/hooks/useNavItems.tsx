@@ -18,8 +18,7 @@ export default function useNavItems() {
         {
           href: '/factories/',
           icon: 'factory',
-          label: 'المصانع',
-          disabled: true
+          label: 'المصانع'
         },
         {
           href: '/production_lines/',
