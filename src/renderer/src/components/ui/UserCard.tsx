@@ -23,7 +23,7 @@ interface DeliveryUserCardProps {
   userId: string
   userInfo: UserInfoProps
   contactInfo: ContactInfoProps
-  removeSelectedUser: (id: string) => Promise<void>
+  removeSelectedUser: (id: string) => void
 }
 interface ContactInfoProps {
   fullName: string
@@ -129,8 +129,8 @@ export const UserCard: React.FC<DeliveryUserCardProps> = ({
           <DialogDescription>هل انت متاكد من حذف المستخدم؟</DialogDescription>
           <DialogFooter className="gap-4">
             <button
-              onClick={async () => {
-                await removeSelectedUser(userId)
+              onClick={() => {
+                removeSelectedUser(userId)
                 setIsDialogOpen(false)
               }}
               className="bg-red-500 hover:bg-red-800 text-white font-bold py-2 px-4 rounded"

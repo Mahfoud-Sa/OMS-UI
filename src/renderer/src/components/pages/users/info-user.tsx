@@ -1,13 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import BackBtn from '@renderer/components/layouts/back-btn'
+import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
-import { Eye, EyeOff } from 'lucide-react'
+import { getApi } from '@renderer/lib/http'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useParams } from 'react-router-dom'
 import * as z from 'zod'
 import imageProfile from '../../../assets/images/profile.jpg'
 
@@ -53,22 +56,28 @@ const schema = z.object({
 
 export type Schema = z.infer<typeof schema>
 
-const NewUser = ({ initValues }: { initValues?: Schema }) => {
-  //   const { data: departments } = useQuery<Department[]>({
-  //     queryKey: ['departments'],
-  //     queryFn: () => getApi('/Department')
-  //   })
+const InfoUser = () => {
+  const [isEdit, setIsEdit] = useState(false)
+  const { id } = useParams()
 
-  const [showPassword, setShowPassword] = useState(false)
-  const handleShowPassword = () => {
-    setShowPassword((prev) => !prev)
-  }
+  const { data, isPending } = useQuery({
+    queryKey: ['users', id],
+    queryFn: () => getApi<Schema>(`users/${id}`)
+  })
+
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: initValues
+    defaultValues: data?.data
   })
 
   const onSubmit = () => {}
+
+  if (isPending)
+    return (
+      <div className="flex justify-center items-center bg-white rounded-lg min-h-[800px] shadow-sm">
+        <Loader size={50} color="#DA972E" />
+      </div>
+    )
 
   return (
     <section className="p-5">
@@ -77,7 +86,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="bg-white p-5 rounded-lg shadow-sm">
-              <h1 className="text-2xl font-bold">المعلومات الشخصية</h1>
+              <div className="flex justify-between">
+                <h1 className="text-2xl font-bold">المعلومات الشخصية</h1>
+                <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
+                  {!isEdit ? 'تعديل' : 'عرض'}
+                </Button>
+              </div>
 
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <div className="col-span-3 mb-1">
@@ -116,7 +130,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="الاسم الاول" martial label="الاسم الاول" />
+                        <Input
+                          disabled={!isEdit}
+                          {...field}
+                          placeholder="الاسم الاول"
+                          martial
+                          label="الاسم الاول"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -129,7 +149,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="اسم العائلة" martial label="اسم العائلة" />
+                        <Input
+                          disabled={!isEdit}
+                          {...field}
+                          placeholder="اسم العائلة"
+                          martial
+                          label="اسم العائلة"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,44 +168,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="اسم المستخدم" martial label="اسم المستخدم" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="Password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            {...field}
-                            placeholder="كلمة السر"
-                            martial
-                            type={showPassword ? 'text' : 'password'}
-                            label={
-                              <span>
-                                كلمة السر
-                                <span className="text-lg font-bold text-red-600">*</span>
-                              </span>
-                            }
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleShowPassword()}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
-                          >
-                            {showPassword ? (
-                              <EyeOff size={23} color="#434749" />
-                            ) : (
-                              <Eye size={23} color="#434749" />
-                            )}
-                          </button>
-                        </div>
+                        <Input
+                          disabled={!isEdit}
+                          {...field}
+                          placeholder="اسم المستخدم"
+                          martial
+                          label="اسم المستخدم"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -192,7 +187,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="رقم الهاتف" martial label="رقم الهاتف" />
+                        <Input
+                          {...field}
+                          disabled={!isEdit}
+                          placeholder="رقم الهاتف"
+                          martial
+                          label="رقم الهاتف"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -211,7 +212,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="مكان العمل" martial label="مكان العمل" />
+                        <Input
+                          disabled={!isEdit}
+                          {...field}
+                          placeholder="مكان العمل"
+                          martial
+                          label="مكان العمل"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -225,6 +232,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                     <FormItem>
                       <FormControl>
                         <Input
+                          disabled={!isEdit}
                           type="date"
                           {...field}
                           placeholder="تاربخ التوظيف"
@@ -250,6 +258,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                     <FormItem>
                       <FormControl>
                         <Dropdown
+                          disabled={!isEdit}
                           label="نوع المستخدم"
                           getLabel={(option) => option.label}
                           getValue={(option) => option.value}
@@ -287,6 +296,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                     <FormItem>
                       <FormControl>
                         <Dropdown
+                          disabled={!isEdit}
                           label="المسمى الوظيفي"
                           getLabel={(option) => option.name || ''}
                           getValue={(option) => option.id || ''}
@@ -307,11 +317,13 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" size="lg">
-                حفظ
-              </Button>
-            </div>
+            {isEdit && (
+              <div className="flex justify-end">
+                <Button type="submit" size="lg">
+                  حفظ
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </div>
@@ -319,4 +331,4 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   )
 }
 
-export default NewUser
+export default InfoUser
