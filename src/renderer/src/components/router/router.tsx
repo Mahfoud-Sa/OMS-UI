@@ -2,6 +2,7 @@ import { createHashRouter } from 'react-router-dom'
 import RootLayout from '../layouts/layout'
 import ProtectedRoute from '../layouts/protected-route'
 import Factories from '../pages/factories/factories'
+import FactoryDetails from '../pages/factories/factory-details/factory-details'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
@@ -53,6 +54,10 @@ export const router = createHashRouter([
         path: '/factories',
         // element: <ProtectedRoute element={<Orders />} />
         element: <Factories />
+      },
+      {
+        path: '/factories/:factoryId',
+        element: <ProtectedRoute element={<FactoryDetails />} />
       }
     ]
   }
