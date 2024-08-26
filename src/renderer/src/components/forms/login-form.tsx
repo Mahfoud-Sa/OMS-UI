@@ -82,7 +82,7 @@ const LoginForm = () => {
       if (process.env.NODE_ENV === 'development') {
         signIn({
           token: 'default-token',
-          expiresIn: 3600,
+          expiresIn: 360000,
           tokenType: 'Bearer'
         })
         navigate('/')
