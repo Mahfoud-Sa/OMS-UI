@@ -62,12 +62,12 @@ const CardInfo: React.FC<CardInfoProps> = ({ infoItems, logoSrc }) => {
 }
 
 interface ActionButtonProps {
-  actionType: string
+  actionType?: string
   id?: string
   url?: string
   // action method is used from the parent component
   actionMethod?: () => void
-  buttonText: string
+  buttonText?: string
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({
@@ -106,9 +106,11 @@ interface CardInformationProps {
   logoSrc: string
   infoItems: InfoItemData[]
   buttonAction?: () => void
-  buttonText: string
+  buttonText?: string
   url?: string
-  actionType: 'method' | 'link'
+  actionType?: 'method' | 'link'
+  displayButton?: boolean
+  className?: string
 }
 
 const InformationCard: React.FC<CardInformationProps> = ({
@@ -118,18 +120,22 @@ const InformationCard: React.FC<CardInformationProps> = ({
   url,
   logoSrc,
   actionType,
-  infoItems
+  infoItems,
+  displayButton = true,
+  className
 }) => {
   return (
-    <main className="flex my-1 flex-wrap gap-10 items-end justify-between mb-2">
+    <main className={`flex my-1 flex-wrap gap-10 items-end justify-between mb-2 ${className}`}>
       <CardInfo logoSrc={logoSrc} id={id} infoItems={infoItems} />
-      <ActionButton
-        actionMethod={buttonAction}
-        url={url}
-        id={id}
-        actionType={actionType}
-        buttonText={buttonText}
-      />
+      {displayButton && (
+        <ActionButton
+          actionMethod={buttonAction}
+          url={url}
+          id={id}
+          actionType={actionType}
+          buttonText={buttonText}
+        />
+      )}
     </main>
   )
 }

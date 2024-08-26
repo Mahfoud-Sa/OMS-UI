@@ -4,6 +4,7 @@ import {
   Baby,
   BarChartBig,
   Bell,
+  BriefcaseBusiness,
   Building,
   Building2,
   Check,
@@ -125,6 +126,7 @@ export const Icons = {
   databaseBackup: DatabaseBackup,
   phone: Phone,
   mapPin: MapPin,
+  briefcaseBusiness:BriefcaseBusiness,
 
   gitHub: ({ ...props }: LucideProps) => (
     <svg
