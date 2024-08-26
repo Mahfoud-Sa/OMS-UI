@@ -34,3 +34,13 @@ export interface FooterItem {
 export type MainNavItem = NavItemWithOptionalChildren
 
 export type SidebarNavItem = NavItemWithChildren
+
+export interface DeliveryUserCardProps {
+  id: string
+  fullName: string
+  userName: string
+  userType: string
+  imagePath?: string
+  phone: string
+  workPlace: string
+}
