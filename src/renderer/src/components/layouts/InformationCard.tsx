@@ -22,7 +22,7 @@ interface InfoItemData {
   iconSrc?: string
 }
 interface CardInfoProps {
-  id: string
+  id?: string
   infoItems: InfoItemData[]
   logoSrc: string
 }
@@ -102,7 +102,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 }
 
 interface CardInformationProps {
-  id: string
+  id?: string
   logoSrc: string
   infoItems: InfoItemData[]
   buttonAction?: () => void
@@ -125,7 +125,7 @@ const InformationCard: React.FC<CardInformationProps> = ({
   className
 }) => {
   return (
-    <main className={`flex my-1 flex-wrap gap-10 items-end justify-between mb-2 ${className}`}>
+    <main className={`flex my-1 flex-wrap gap-10 items-end justify-between mb-4 ${className}`}>
       <CardInfo logoSrc={logoSrc} id={id} infoItems={infoItems} />
       {displayButton && (
         <ActionButton
