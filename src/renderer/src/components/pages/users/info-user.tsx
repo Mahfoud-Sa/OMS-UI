@@ -137,14 +137,14 @@ const InfoUser = () => {
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="bg-white p-5 custom-margin rounded-lg shadow-sm">
+            <div className="bg-white p-5 rounded-lg shadow-sm">
               <div className="flex justify-end">
                 <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
                   {!isEdit ? 'تعديل' : 'عرض'}
                 </Button>
               </div>
 
-              <Tabs value={currentTab} defaultValue="personalInfo" className="custom-margin">
+              <Tabs value={currentTab} defaultValue="personalInfo">
                 <TabsList
                   style={{
                     width: '100%',
