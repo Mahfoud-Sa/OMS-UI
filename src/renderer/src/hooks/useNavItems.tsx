@@ -30,7 +30,7 @@ export default function useNavItems() {
           href: '/products/',
           icon: 'shoppingBag',
           label: 'العناصر',
-          disabled: true
+          disabled: false
         },
         {
           href: '/reports',
