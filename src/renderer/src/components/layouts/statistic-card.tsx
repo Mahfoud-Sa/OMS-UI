@@ -24,10 +24,7 @@ const StatisticCard = ({
     <div
       className={cn(
         'flex items-center justify-start gap-5 rounded-[8px] bg-background p-4 shadow-lg  ',
-        className,
-        {
-          'cursor-pointer': handleClick
-        }
+        className
       )}
       onClick={handleClick}
     >
