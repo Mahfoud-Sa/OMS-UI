@@ -30,6 +30,7 @@ export function getApi<T>(url: string, config?: Config) {
 }
 
 export function putApi<T>(url: string, data: any, config?: Config) {
+  // if (isAuth()) return axiosInstance.put<T>(url, data, config)
   return axiosInstance.put<T>(url, data, config)
 }
 
