@@ -79,6 +79,8 @@ export const router = createHashRouter([
         path: '/products/:id',
         // element: <ProtectedRoute element={<Orders />} />
         element: <InfoProduct />
+      },
+      {
         path: '/factories/:factoryId',
         element: <FactoryDetails />
       },

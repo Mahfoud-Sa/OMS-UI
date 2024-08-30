@@ -11,7 +11,7 @@ import UsersSearch from './_components/users-search'
 
 const Users = () => {
   const [usersData, setUsersData] = useState<DeliveryUserCardProps[] | undefined>(undefined)
-  const [selectedRole, setSelectedRole] = useState<string | undefined>(undefined)
+  const [totalUsers, setTotalUsers] = useState<number>(0)
   const { toast } = useToast()
 
   // get users
@@ -23,7 +23,9 @@ const Users = () => {
   } = useQuery({
     queryKey: ['users'],
     queryFn: () =>
-      getApi<{ users: DeliveryUserCardProps[] }>('/api/Users', { params: { page: 1, pageSize: 2 } })
+      getApi<{ users: DeliveryUserCardProps[]; totalCount: number }>('/users/getallusers', {
+        params: { pageNumber: 1, pageSize: 10 }
+      })
   })
 
   useEffect(() => {
@@ -31,12 +33,17 @@ const Users = () => {
       setUsersData(fetchedData.data.users)
     }
   }, [fetchedData])
+  useEffect(() => {
+    if (fetchedData?.data.totalCount) {
+      setTotalUsers(fetchedData.data.totalCount)
+    }
+  }, [fetchedData])
 
   // delete users
   const queryClient = useQueryClient()
   const { mutate } = useMutation({
     mutationFn: (id: string) => {
-      return deleteApi(`/api/Users/${id}`)
+      return deleteApi(`/Users/${id}`)
     },
     onSuccess: () => {
       toast({
@@ -56,20 +63,10 @@ const Users = () => {
   })
 
   // filter users
-  const filterUsersByRole = (role: string | undefined) => {
-    if (!role) {
-      setUsersData(usersData)
-      setSelectedRole(undefined)
-      return
-    }
-    const updateUsersData = usersData?.filter((user) => user.userType === role)
-    setUsersData(updateUsersData)
-    setSelectedRole(role)
-  }
 
   return (
     <section className="p-5">
-      <Statistics selectedRole={selectedRole} filterData={(role) => filterUsersByRole(role)} />
+      <Statistics totalUsers={totalUsers} />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <div className="flex gap-3 flex-row h-[50px]">
           <UsersSearch />
@@ -87,7 +84,7 @@ const Users = () => {
                 userInfo={{ name: user.userName, role: user.userType, imagePath: user.imagePath }}
                 contactInfo={{
                   fullName: user.fullName,
-                  phone: user.phone,
+                  phone: user.phoneNumber,
                   workPlace: user.workPlace
                 }}
                 removeSelectedUser={(id) => mutate(id)}

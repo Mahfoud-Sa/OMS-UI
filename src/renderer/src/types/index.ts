@@ -41,6 +41,6 @@ export interface DeliveryUserCardProps {
   userName: string
   userType: string
   imagePath?: string
-  phone: string
+  phoneNumber: string
   workPlace: string
 }
