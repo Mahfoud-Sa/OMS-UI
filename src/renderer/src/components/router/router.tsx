@@ -6,6 +6,9 @@ import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
 import Orders from '../pages/orders/orders'
+import InfoProduct from '../pages/products/info-product'
+import NewProduct from '../pages/products/new-product'
+import Products from '../pages/products/products'
 import ResetPassword from '../pages/reset-password/reset-password'
 import InfoUser from '../pages/users/info-user'
 import NewUser from '../pages/users/new-user'
@@ -59,6 +62,21 @@ export const router = createHashRouter([
         path: '/factories',
         // element: <ProtectedRoute element={<Orders />} />
         element: <Factories />
+      },
+      {
+        path: '/products',
+        // element: <ProtectedRoute element={<Orders />} />
+        element: <Products />
+      },
+      {
+        path: '/products/new',
+        // element: <ProtectedRoute element={<Orders />} />
+        element: <NewProduct />
+      },
+      {
+        path: '/products/:id',
+        // element: <ProtectedRoute element={<Orders />} />
+        element: <InfoProduct />
       }
     ]
   }

@@ -10,3 +10,9 @@ export type StatisticalUserCards = {
   inactive: number
   allUser: number
 }
+
+export type Product = {
+  id: number
+  name: string
+  quantity: number
+}
