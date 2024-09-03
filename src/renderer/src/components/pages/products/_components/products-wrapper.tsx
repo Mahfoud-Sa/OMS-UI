@@ -8,13 +8,20 @@ import ProductsTable from './products-table'
 const ProductsWrapper = () => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query')
+  const page = searchParams.get('page')
 
   const { data, isPending } = useQuery({
-    queryKey: ['products', query],
+    queryKey: ['products', query, page],
     queryFn: () =>
-      getApi<Product[]>(`/Products`, {
+      getApi<{
+        products: Product[]
+        current_page: number
+        page_size: number
+        total: number
+      }>(`/Products`, {
         params: {
-          query
+          query,
+          page
         }
       })
   })
@@ -26,7 +33,7 @@ const ProductsWrapper = () => {
       </div>
     )
 
-  return <ProductsTable data={data?.data || []} />
+  return <ProductsTable data={data?.data! || []} />
 }
 
 export default ProductsWrapper
