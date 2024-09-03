@@ -22,7 +22,7 @@ interface DataTableProps<TData, TValue> {
 export function StructureTable<TData, TValue>({
   columns,
   data,
-  title,
+  // title, 
   className
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])

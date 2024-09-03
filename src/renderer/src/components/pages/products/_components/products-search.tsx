@@ -1,5 +1,5 @@
 import { getApi } from '@renderer/lib/http'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -13,7 +13,7 @@ const ProductsSearch = () => {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
 
   const pathname = location.pathname
   const selectedVal = searchParams.get('query')
