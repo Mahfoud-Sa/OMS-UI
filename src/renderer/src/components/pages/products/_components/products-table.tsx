@@ -1,5 +1,6 @@
 import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table '
+import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,
@@ -9,12 +10,17 @@ import {
 } from '@renderer/components/ui/dropdown-menu'
 import { Product } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 type Props = {
-  data: Product[]
+  data: {
+    products: Product[]
+    current_page: number
+    page_size: number
+    total: number
+  }
 }
 
 const ProductsTable = ({ data }: Props) => {
@@ -31,7 +37,31 @@ const ProductsTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'quantity',
-        header: 'الكمية'
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              الكمية
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        }
+      },
+      {
+        accessorKey: 'creatAt',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              تاريخ التسجيل
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        }
       },
       {
         id: 'actions',
@@ -58,7 +88,12 @@ const ProductsTable = ({ data }: Props) => {
     []
   )
 
-  return <StructureTable columns={columns} data={data} />
+  return (
+    <div>
+      <StructureTable columns={columns} data={data.products} />
+      <TablePagination total={data.total} page={data.current_page} pageSize={data.page_size} />
+    </div>
+  )
 }
 
 export default ProductsTable
