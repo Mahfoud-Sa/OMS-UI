@@ -8,62 +8,94 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'; // Adjust the import path as needed
+import { getApi } from '@renderer/lib/http'
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 
-const chartConfig = {
-  desktop: {
-    label: 'Desktop',
-    color: 'hsl(var(--chart-1))'
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'hsl(var(--chart-2))'
-  }
-} satisfies ChartConfig
+interface ApiResponse {
+  monthe: string
+  sales: {
+    name: string
+    sales: number
+  }[]
+}
+
+interface TransformedData {
+  month: string
+  [key: string]: number | string
+}
+
+const transformData = (data: ApiResponse[]): TransformedData[] => {
+  return data.map((item) => {
+    const salesData = item.sales.reduce(
+      (acc, sale) => {
+        acc[sale.name] = sale.sales
+        return acc
+      },
+      {} as { [key: string]: number }
+    )
+
+    return {
+      month: item.monthe,
+      ...salesData
+    }
+  })
+}
 
 const LineCharter = ({
   id,
   year,
-  onChangeYear
+  onChangeYear,
+  onManyValues
 }: {
   id: string
   year: number
   onChangeYear: (year: number) => void
+  onManyValues: (hasManyValues: boolean) => void
 }) => {
   const { data, isLoading } = useQuery({
     queryKey: ['browserLineChartData', id, year],
-    queryFn: () =>
-      getApi<{ month: string; desktop: number; mobile: number }[]>(
-        `Products/GetLineChar?id=${id}&year=${year}`
-      )
+    queryFn: () => getApi<ApiResponse[]>(`Products/Chars/LineChar/${id}?year=${year}`)
   })
+
+  const chartData = useMemo(() => {
+    if (data) {
+      return transformData(data.data)
+    }
+
+    return []
+  }, [data])
+
+  const chartConfig = useMemo(() => {
+    if (chartData.length > 0) {
+      const keys = Object.keys(chartData[0]).filter((key) => key !== 'month')
+      return keys.reduce((acc, key, index) => {
+        acc[key] = {
+          label: key,
+          color: `hsl(${index * 30}, 70%, 50%)` // Generate a color based on the index
+        }
+        return acc
+      }, {} as ChartConfig)
+    }
+    return {}
+  }, [chartData])
+
+  useEffect(() => {
+    if (chartData && chartData.length > 0) {
+      const numberOfFields = Object.keys(chartData[0]).filter((key) => key !== 'month').length
+      const hasManyValues = numberOfFields > 10
+      console.log(chartData)
+      console.log(numberOfFields)
+      onManyValues(hasManyValues)
+    }
+  }, [chartData, onManyValues])
 
   if (isLoading) return <Skeleton className="h-min-[220px]"></Skeleton>
 
-  let chartData = [
-    { month: 'January', desktop: 186, mobile: 80 },
-    { month: 'February', desktop: 305, mobile: 200 },
-    { month: 'March', desktop: 237, mobile: 120 },
-    { month: 'April', desktop: 73, mobile: 190 },
-    { month: 'May', desktop: 209, mobile: 130 },
-    { month: 'June', desktop: 214, mobile: 140 },
-    { month: 'July', desktop: 214, mobile: 140 },
-    { month: 'August', desktop: 214, mobile: 140 },
-    { month: 'September', desktop: 214, mobile: 140 },
-    { month: 'October', desktop: 214, mobile: 140 },
-    { month: 'November', desktop: 214, mobile: 140 },
-    { month: 'December', desktop: 214, mobile: 140 }
-  ]
-
-  if (data) {
-    chartData = data?.data || chartData
-  }
-
   return (
-    <Card>
-      <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between">
+    <Card className="min-h-[260px]">
+      <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between  ">
         <h5 className="text-sm font-semibold">مبيعات التصاميم</h5>
         <select
           onChange={(e) => {
@@ -80,20 +112,15 @@ const LineCharter = ({
           ))}
         </select>
       </CardHeader>
-      <CardContent className="mt-2">
-        <ChartContainer
-          dir="ltr"
-          lang="ar"
-          config={chartConfig}
-          className="w-full min-h-[220px] min-w-[290px]"
-        >
+      <CardContent className="mt-2 pr-0">
+        <ChartContainer dir="ltr" lang="ar" config={chartConfig} className="w-full pr-0">
           <LineChart
             accessibilityLayer
             data={chartData}
-            margin={{
-              left: 12,
-              right: 12
-            }}
+            // margin={{
+            //   left: 12,
+            //   right: 12
+            // }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -105,20 +132,16 @@ const LineCharter = ({
             />
             <YAxis orientation="right" />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Line
-              dataKey="desktop"
-              type="monotone"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              dataKey="mobile"
-              type="monotone"
-              stroke="var(--color-mobile)"
-              strokeWidth={2}
-              dot={false}
-            />
+            {Object.keys(chartConfig).map((key) => (
+              <Line
+                key={key}
+                dataKey={key}
+                type="monotone"
+                stroke={chartConfig[key].color}
+                strokeWidth={2}
+                dot={false}
+              />
+            ))}
           </LineChart>
         </ChartContainer>
       </CardContent>

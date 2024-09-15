@@ -6,7 +6,7 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'; // Adjust the import path as needed
+import { getApi } from '@renderer/lib/http'
 import { useQuery } from '@tanstack/react-query'
 import React, { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
@@ -30,7 +30,7 @@ const BarCharter: React.FC<BarCharterProps> = ({ productName, id, onChangeYear, 
   const { data, isLoading, error } = useQuery({
     queryKey: ['productBarChartData', id, year],
     queryFn: () =>
-      getApi<{ month: string; sales: number }[]>(`Products/GetBarChar/?id=${id}&year=${year}`)
+      getApi<{ month: string; sales: number }[]>(`Products/Chars/BarChar/${id}?year=${year}`)
   })
 
   useEffect(() => {
