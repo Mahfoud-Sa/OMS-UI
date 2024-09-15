@@ -22,7 +22,7 @@ const ProfileUploader = ({
   const [previewUrl, setPreviewUrl] = useState<string | ArrayBuffer | null>(null)
 
   const handelChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
-    let files = null
+    let files: FileList | null = null
     if (event.target.files && event.target.files[0]) {
       files = event?.target?.files
       const reader = new FileReader()

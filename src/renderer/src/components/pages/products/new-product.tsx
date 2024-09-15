@@ -50,6 +50,7 @@ const NewProduct = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',

@@ -72,7 +72,7 @@ const Factories = () => {
 
   const [factoriesData, setFactoriesData] = useState(fetchedData?.data.factories)
   const { toast } = useToast()
-  const [page, setPage] = useState(1)
+  const [page] = useState(1)
   const pageSize = 10
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedFactoryId, setSelectedFactoryId] = useState<string | null>(null)
