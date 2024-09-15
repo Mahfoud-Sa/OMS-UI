@@ -91,8 +91,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="اسم البائع"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option: { name: string; id: string }) => option.name || ''}
+                          getValue={(option: { name: string; id: string }) => option.id || ''}
                           onChange={onChange}
                           groups={[
                             {
@@ -142,8 +142,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="فرقة العمل"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option: { name: string; id: string }) => option.name || ''}
+                          getValue={(option: { name: string; id: string }) => option.id || ''}
                           onChange={onChange}
                           groups={[
                             {
@@ -173,8 +173,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="اسم الصنف"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option: { name: string; id: string }) => option.name || ''}
+                          getValue={(option: { name: string; id: string }) => option.id || ''}
                           onChange={onChange}
                           groups={[
                             {
@@ -198,8 +198,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="نوع الصنف"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option: { name: string; id: string }) => option.name || ''}
+                          getValue={(option: { name: string; id: string }) => option.id || ''}
                           onChange={onChange}
                           groups={[
                             {

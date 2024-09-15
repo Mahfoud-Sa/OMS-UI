@@ -7,7 +7,7 @@ const Orders = () => {
     <section className="p-5">
       <Statistics
         selectedRole={undefined}
-        filterData={function (role: string | undefined): void {
+        filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
       />
