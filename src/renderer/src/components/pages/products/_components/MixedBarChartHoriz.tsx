@@ -8,14 +8,14 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'; // Adjust the import path as needed
+import { getApi } from '@renderer/lib/http'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 const generateChartConfig = (dataKeys: string[]) => {
   const config: ChartConfig = {}
-  dataKeys.forEach((key, index) => {
+  dataKeys.forEach((key) => {
     config[key] = {
       label: key.charAt(0).toUpperCase() + key.slice(1),
       color: getRandomColor()
@@ -56,25 +56,20 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
     queryKey: ['nameBarChartData', id, selectedMonth, year],
     queryFn: () =>
       getApi<{ name: string; sales: number }[]>(
-        `Products/GetHorizantalBarChar/?id=${id}&month=${selectedMonth}&year=${year}`
+        `Products/Chars/HorizantalBarChar/${id}?year=${year}&month=${selectedMonth}`
       )
   })
 
   useEffect(() => {
     if (data) {
-      let updatedChartData = data.data.map((item) => ({
-        ...item,
-        label: item.name,
-        fill: getRandomColor()
-      }))
-
-      // Duplicate the data until the length is 20
-      while (updatedChartData.length < 20) {
-        updatedChartData = updatedChartData.concat(updatedChartData)
-      }
-
-      // Slice to ensure exactly 20 items
-      updatedChartData = updatedChartData.slice(0, 20)
+      const updatedChartData = data.data
+        .map((item) => ({
+          ...item,
+          label: item.name,
+          fill: getRandomColor()
+        }))
+        .sort((a, b) => b.sales - a.sales) // Sort by sales in descending order
+        .slice(0, 3) // Take the top 3 items
 
       setChartData(updatedChartData)
     }
@@ -87,7 +82,7 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
 
   const chartConfig = generateChartConfig(chartData.map((data) => data.name))
 
-  if (isLoading) return <Skeleton className="h-[220px]"></Skeleton>
+  if (isLoading) return <Skeleton className="min-h-[220px]"></Skeleton>
 
   return (
     <Card>
@@ -107,7 +102,7 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
           ))}
         </select>
       </CardHeader>
-      <CardContent className="mt-2">
+      <CardContent className="mt-2 pr-0">
         <ChartContainer config={chartConfig} className="w-full min-h-[190px] min-w-[290px]">
           <BarChart
             accessibilityLayer
@@ -124,10 +119,12 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
               tickLine={false}
               tickMargin={30}
               axisLine={false}
-              tickFormatter={(value) => chartConfig[value as keyof typeof chartConfig]?.label}
+              tickFormatter={(value) =>
+                chartConfig[value as keyof typeof chartConfig]?.label || value.toString()
+              }
               orientation="right"
             />
-            <XAxis dataKey="sales" type="number" orient="right" />
+            <XAxis dataKey="sales" type="number" />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent nameKey="name" hideLabel />}

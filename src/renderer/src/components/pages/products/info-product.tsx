@@ -39,6 +39,7 @@ const InfoProduct = () => {
   const queryClient = useQueryClient()
   const [currentTab, setCurrentTab] = useState('general')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [hasManyValues, setHasManyValues] = useState(false)
 
   const {
     data,
@@ -61,6 +62,7 @@ const InfoProduct = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
@@ -91,6 +93,11 @@ const InfoProduct = () => {
       })
     }
   }, [data?.data])
+
+  const handleManyValues = (hasMany: boolean) => {
+    console.log(hasMany)
+    setHasManyValues(hasMany)
+  }
 
   const handleNext = () => {
     if (currentTab === 'reports') {
@@ -136,9 +143,33 @@ const InfoProduct = () => {
                     backgroundColor: 'transparent'
                   }}
                 >
-                  <TabsTrigger value="general">المعلومات العامة</TabsTrigger>
-                  <TabsTrigger value="productStats">احصائيات الصنف</TabsTrigger>
-                  <TabsTrigger value="reports">تقارير المنتج</TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('general')
+                    }}
+                    value="general"
+                  >
+                    المعلومات العامة
+                  </TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('productStats')
+                    }}
+                    value="productStats"
+                  >
+                    احصائيات الصنف
+                  </TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('reports')
+                    }}
+                    value="reports"
+                  >
+                    تقارير المنتج
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
                   <div className="mt-4 grid grid-cols-2 gap-3">
@@ -163,7 +194,7 @@ const InfoProduct = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="productStats">
-                  {/* a grid of one cloumn inside it tow row, inside the second row two columns */
+                  {/* a grid of one column inside it two rows, inside the second row two columns */
                   /* the first row contains a BarChart */
                   /* the second row contains two columns, the first column contains a PieChart */
                   /* the second column contains a LineChart */
@@ -181,17 +212,20 @@ const InfoProduct = () => {
                         productName={form.getValues('name')}
                       />
                     </div>
-                    <div className="grid grid-cols-1 gap-2">
-                      <MixedBarChartHoriz year={selectedYear} id={id || ''} />
-                    </div>
-                    <div className="grid grid-cols-1 gap-2">
-                      <LineCharter
-                        onChangeYear={(year) => {
-                          setSelectedYear(year)
-                        }}
-                        year={selectedYear}
-                        id={id || ''}
-                      />
+                    <div className={hasManyValues ? 'grid grid-rows-2' : 'grid grid-cols-2 gap-2'}>
+                      <div>
+                        <MixedBarChartHoriz year={selectedYear} id={id || ''} />
+                      </div>
+                      <div>
+                        <LineCharter
+                          onChangeYear={(year) => {
+                            setSelectedYear(year)
+                          }}
+                          year={selectedYear}
+                          id={id || ''}
+                          onManyValues={handleManyValues}
+                        />
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -202,40 +236,42 @@ const InfoProduct = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-              <div className="flex mt-2 flex-row gap-2 justify-end">
-                {currentTab !== 'general' && (
-                  <div className="hover:marker:" onClick={handleBack}>
-                    <div className="flex justify-end">
-                      <Button type="button" size="lg">
-                        السابق
-                      </Button>
+              {isEdit && (
+                <div className="flex mt-2 flex-row gap-2 justify-end">
+                  {currentTab !== 'general' && (
+                    <div className="hover:marker:" onClick={handleBack}>
+                      <div className="flex justify-end">
+                        <Button type="button" size="lg">
+                          السابق
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {currentTab !== 'reports' && (
-                  <div className="hover:marker:" onClick={handleNext}>
-                    <div className="flex justify-end">
-                      <Button type="button" size="lg">
-                        التالي
-                      </Button>
+                  )}
+                  {currentTab !== 'reports' && (
+                    <div className="hover:marker:" onClick={handleNext}>
+                      <div className="flex justify-end">
+                        <Button type="button" size="lg">
+                          التالي
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {currentTab === 'reports' && isEdit && (
-                  <div className="hover:marker:" onClick={handleNext}>
-                    <div className="flex justify-end">
-                      <Button
-                        disabled={isPending}
-                        className="bg-green-500 hover:bg-green-700"
-                        type="submit"
-                        size="lg"
-                      >
-                        {isPending ? <Loader color="black" /> : 'حفظ'}
-                      </Button>
+                  )}
+                  {currentTab === 'reports' && isEdit && (
+                    <div className="hover:marker:" onClick={handleNext}>
+                      <div className="flex justify-end">
+                        <Button
+                          disabled={isPending}
+                          className="bg-green-500 hover:bg-green-700"
+                          type="submit"
+                          size="lg"
+                        >
+                          {isPending ? <Loader color="black" /> : 'حفظ'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </form>
         </Form>

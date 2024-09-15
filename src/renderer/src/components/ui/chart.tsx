@@ -1,11 +1,8 @@
-'use client'
-
 import * as React from 'react'
 import * as RechartsPrimitive from 'recharts'
 
 import { cn } from '@renderer/lib/utils'
 
-// Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const
 
 export type ChartConfig = {
@@ -38,8 +35,7 @@ const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
     config: ChartConfig
-    children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>
-    ['children']
+    children: React.ReactNode
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId()
@@ -62,7 +58,7 @@ const ChartContainer = React.forwardRef<
     </ChartContext.Provider>
   )
 })
-ChartContainer.displayName = 'Chart'
+ChartContainer.displayName = 'ChartContainer'
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color)
