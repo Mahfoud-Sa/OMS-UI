@@ -12,12 +12,23 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import * as z from 'zod'
+import BarCharter from './_components/BarChart'
+import LineCharter from './_components/LineChart'
+import MixedBarChartHoriz from './_components/MixedBarChartHoriz'
 
 const schema = z.object({
   name: z
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  designs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string()
+      })
+    )
+    .optional()
 })
 
 export type Schema = z.infer<typeof schema>
@@ -27,6 +38,8 @@ const InfoProduct = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
   const [currentTab, setCurrentTab] = useState('general')
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [hasManyValues, setHasManyValues] = useState(false)
 
   const {
     data,
@@ -49,6 +62,7 @@ const InfoProduct = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
@@ -80,6 +94,11 @@ const InfoProduct = () => {
     }
   }, [data?.data])
 
+  const handleManyValues = (hasMany: boolean) => {
+    console.log(hasMany)
+    setHasManyValues(hasMany)
+  }
+
   const handleNext = () => {
     if (currentTab === 'reports') {
       return
@@ -105,7 +124,7 @@ const InfoProduct = () => {
   return (
     <section className="p-5">
       <BackBtn href="/products" />
-      <div className="mt-10">
+      <div className="mt-2">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="bg-white p-5 rounded-lg shadow-sm">
@@ -124,9 +143,33 @@ const InfoProduct = () => {
                     backgroundColor: 'transparent'
                   }}
                 >
-                  <TabsTrigger value="general">المعلومات العامة</TabsTrigger>
-                  <TabsTrigger value="productStats">احصائيات الصنف</TabsTrigger>
-                  <TabsTrigger value="reports">تقارير المنتج</TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('general')
+                    }}
+                    value="general"
+                  >
+                    المعلومات العامة
+                  </TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('productStats')
+                    }}
+                    value="productStats"
+                  >
+                    احصائيات الصنف
+                  </TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => {
+                      if (isEdit) return
+                      setCurrentTab('reports')
+                    }}
+                    value="reports"
+                  >
+                    تقارير المنتج
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
                   <div className="mt-4 grid grid-cols-2 gap-3">
@@ -151,9 +194,39 @@ const InfoProduct = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="productStats">
-                  <div className="">
-                    <h1 className="text-2xl font-bold">احصائيات الصنف</h1>
-                    {/* Add your productStats form fields here */}
+                  {/* a grid of one column inside it two rows, inside the second row two columns */
+                  /* the first row contains a BarChart */
+                  /* the second row contains two columns, the first column contains a PieChart */
+                  /* the second column contains a LineChart */
+                  /* the BarChart, PieChart, LineChart are imported from the library */
+                  /* the data of the charts are fetched from the API */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <div>
+                      {/* <Skeleton className="h-36" /> */}
+                      <BarCharter
+                        onChangeYear={(year) => {
+                          setSelectedYear(year)
+                        }}
+                        year={selectedYear}
+                        id={id || ''}
+                        productName={form.getValues('name')}
+                      />
+                    </div>
+                    <div className={hasManyValues ? 'grid grid-rows-2' : 'grid grid-cols-2 gap-2'}>
+                      <div>
+                        <MixedBarChartHoriz year={selectedYear} id={id || ''} />
+                      </div>
+                      <div>
+                        <LineCharter
+                          onChangeYear={(year) => {
+                            setSelectedYear(year)
+                          }}
+                          year={selectedYear}
+                          id={id || ''}
+                          onManyValues={handleManyValues}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="reports">
@@ -163,40 +236,42 @@ const InfoProduct = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-              <div className="flex mt-2 flex-row gap-2 justify-end">
-                {currentTab !== 'general' && (
-                  <div className="hover:marker:" onClick={handleBack}>
-                    <div className="flex justify-end">
-                      <Button type="button" size="lg">
-                        السابق
-                      </Button>
+              {isEdit && (
+                <div className="flex mt-2 flex-row gap-2 justify-end">
+                  {currentTab !== 'general' && (
+                    <div className="hover:marker:" onClick={handleBack}>
+                      <div className="flex justify-end">
+                        <Button type="button" size="lg">
+                          السابق
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {currentTab !== 'reports' && (
-                  <div className="hover:marker:" onClick={handleNext}>
-                    <div className="flex justify-end">
-                      <Button type="button" size="lg">
-                        التالي
-                      </Button>
+                  )}
+                  {currentTab !== 'reports' && (
+                    <div className="hover:marker:" onClick={handleNext}>
+                      <div className="flex justify-end">
+                        <Button type="button" size="lg">
+                          التالي
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {currentTab === 'reports' && isEdit && (
-                  <div className="hover:marker:" onClick={handleNext}>
-                    <div className="flex justify-end">
-                      <Button
-                        disabled={isPending}
-                        className="bg-green-500 hover:bg-green-700"
-                        type="submit"
-                        size="lg"
-                      >
-                        {isPending ? <Loader color="black" /> : 'حفظ'}
-                      </Button>
+                  )}
+                  {currentTab === 'reports' && isEdit && (
+                    <div className="hover:marker:" onClick={handleNext}>
+                      <div className="flex justify-end">
+                        <Button
+                          disabled={isPending}
+                          className="bg-green-500 hover:bg-green-700"
+                          type="submit"
+                          size="lg"
+                        >
+                          {isPending ? <Loader color="black" /> : 'حفظ'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </form>
         </Form>

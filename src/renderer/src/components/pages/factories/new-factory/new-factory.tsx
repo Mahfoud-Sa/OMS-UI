@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import Loader from '@renderer/components/layouts/loader'
+import { StructureTable } from '@renderer/components/tables/structure-table '
 import { Button } from '@renderer/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
@@ -8,6 +9,7 @@ import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
 import { postApi } from '@renderer/lib/http'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -24,13 +26,22 @@ const schema = z.object({
   creationDate: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   totalTeams: z.string().min(3, 'يجب أن يكون أكبر من 1 حرف'),
   notes: z.string().optional(),
-  logoSrc: z.string().url('يجب أن يكون رابط صالح').optional()
+  logoSrc: z.string().url('يجب أن يكون رابط صالح').optional(),
+  productionLines: z.array(
+    z.object({
+      name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف')
+    })
+  )
 })
 
 type Schema = z.infer<typeof schema>
 
 const NewFactory: React.FunctionComponent = () => {
   const [currentTab, setCurrentTab] = React.useState('account')
+  const [productionLinesArray, setProductionLinesArray] = React.useState<Schema['productionLines']>(
+    []
+  )
+  const [name, setName] = React.useState('')
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
@@ -41,6 +52,7 @@ const NewFactory: React.FunctionComponent = () => {
 
   React.useEffect(() => {
     if (Object.keys(errors).length > 0) {
+      console.log(errors)
       toast({
         title: 'خطأ في التحقق',
         description: 'يرجى التحقق من الحقول المدخلة',
@@ -85,6 +97,25 @@ const NewFactory: React.FunctionComponent = () => {
     console.log(data)
     mutate(data)
   }
+
+  const addProductionLine = () => {
+    setProductionLinesArray([...productionLinesArray, { name }])
+    form.setValue('productionLines', [...productionLinesArray, { name }])
+    setName('')
+  }
+
+  const columns: ColumnDef<Schema['productionLines'][number], unknown>[] = [
+    {
+      accessorKey: 'name',
+      header: 'اسم خط الانتاج',
+      cell: (info) => info.getValue()
+    },
+    {
+      accessorKey: 'phoneNumber',
+      header: 'رقم الهاتف',
+      cell: (info) => info.getValue()
+    }
+  ]
 
   return (
     <>
@@ -166,7 +197,40 @@ const NewFactory: React.FunctionComponent = () => {
                   </section>
                 </main>
               </TabsContent>
-              <TabsContent value="productionLines">Change your productionLines here.</TabsContent>
+              <TabsContent value="productionLines">
+                <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
+                  <FormField
+                    control={form.control}
+                    name={`productionLines.${productionLinesArray.length}.name`}
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="اسم خط الانتاج"
+                            label="اسم خط الانتاج"
+                          />
+                        </FormControl>
+                        <FormMessage>{fieldState?.error?.message}</FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex justify-end mt-2">
+                  <Button type="button" onClick={addProductionLine}>
+                    إضافة خط انتاج
+                  </Button>
+                </div>
+                <div className="mt-5">
+                  <StructureTable
+                    columns={columns}
+                    data={productionLinesArray}
+                    title="خطوط الانتاج المضافة"
+                  />
+                </div>
+              </TabsContent>
             </Tabs>
           </section>
           <div className="flex mt-2 flex-row gap-2 justify-end">

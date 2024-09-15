@@ -288,8 +288,8 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="المسمى الوظيفي"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option: { name: string; id: string }) => option.name || ''}
+                          getValue={(option: { name: string; id: string }) => option.id || ''}
                           onChange={onChange}
                           groups={[
                             {
