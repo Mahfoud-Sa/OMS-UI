@@ -1,4 +1,5 @@
 import CreateBtn from '@renderer/components/layouts/create-btn'
+import TablePagination from '@renderer/components/tables/table-pagination'
 import { Skeleton } from '@renderer/components/ui/skeleton'
 import { useToast } from '@renderer/components/ui/use-toast'
 import { UserCard } from '@renderer/components/ui/UserCard'
@@ -6,6 +7,7 @@ import { deleteApi, getApi } from '@renderer/lib/http'
 import { DeliveryUserCardProps } from '@renderer/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Statistics from './_components/statistics'
 import UsersSearch from './_components/users-search'
 
@@ -13,6 +15,9 @@ const Users = () => {
   const [usersData, setUsersData] = useState<DeliveryUserCardProps[] | undefined>(undefined)
   const [totalUsers, setTotalUsers] = useState<number>(0)
   const { toast } = useToast()
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('query')
+  const page = searchParams.get('page')
 
   // get users
   const {
@@ -21,10 +26,20 @@ const Users = () => {
     isError,
     error
   } = useQuery({
-    queryKey: ['users'],
+    queryKey: ['users', query],
     queryFn: () =>
-      getApi<{ users: DeliveryUserCardProps[]; totalCount: number }>('/users/getallusers', {
-        params: { pageNumber: 1, pageSize: 10 }
+      getApi<{
+        users: DeliveryUserCardProps[]
+        totalCount: number
+        page_number: number
+        size: number
+        pages: number
+      }>('/users', {
+        params: {
+          page,
+          size: 8,
+          firstName: query
+        }
       })
   })
 
@@ -33,6 +48,7 @@ const Users = () => {
       setUsersData(fetchedData.data.users)
     }
   }, [fetchedData])
+
   useEffect(() => {
     if (fetchedData?.data.totalCount) {
       setTotalUsers(fetchedData.data.totalCount)
@@ -43,7 +59,7 @@ const Users = () => {
   const queryClient = useQueryClient()
   const { mutate } = useMutation({
     mutationFn: (id: string) => {
-      return deleteApi(`/Users/${id}`)
+      return deleteApi(`/users/${id}`)
     },
     onSuccess: () => {
       toast({
@@ -92,6 +108,12 @@ const Users = () => {
             ))}
           </div>
         </div>
+
+        <TablePagination
+          total={fetchedData?.data.pages || 1}
+          page={fetchedData?.data.page_number || 1}
+          pageSize={fetchedData?.data.size || 10}
+        />
       </div>
     </section>
   )

@@ -1,51 +1,59 @@
-'use client'
-
-import AsyncSelect from 'react-select/async'
-// import { usePathname, useRouter, useSearchParams } from "next/navigation";
-// import { useQuery } from "@tanstack/react-query";
-// import { getApi } from "@/lib/http";
+import { getApi } from '@renderer/lib/http'
+import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
-
-interface Organization {
-  arabicName: string
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import AsyncSelect from 'react-select/async'
+interface Users {
+  users: {
+    firstName: string
+  }[]
 }
-
-const UsersSearch = () => {
+interface User {
+  firstName: string
+}
+const ProductsSearch = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  // const pathname = usePathname();
-  // const { replace } = useRouter();
-  // const searchParams = useSearchParams();
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  // const queryClient = useQueryClient()
 
-  // const selectedVal = searchParams?.getAll("search");
+  const pathname = location.pathname
+  const selectedVal = searchParams.get('query')
 
-  // const { data: organizations } = useQuery<Organization[]>({
-  //   queryKey: ["organizations"],
-  //   queryFn: () => getApi("/Organization"),
-  // });
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => getApi<Users>('/users')
+  })
 
-  // const loadOptions = async (value: string) => {
-  //   if (!value) return [];
-  //   const data = await getApi<Organization[]>("/Organization", {
-  //     "arabicName[contains]": value,
-  //   });
-  //   return data || [];
-  // };
+  const loadOptions = async (value: string) => {
+    if (!value) return []
+    const data = await getApi<Users>('/users', {
+      params: {
+        firstName: value
+      }
+    })
+    return data.data.users || []
+  }
 
   const customComponents = {
     DropdownIndicator: () => null,
     IndicatorSeparator: () => null
   }
 
-  // const onChange = (val: { arabicName: string } | null) => {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   if (val?.arabicName) {
-  //     params.set("search", val.arabicName);
-  //   } else {
-  //     params.delete("search");
-  //   }
-  //   replace(`${pathname}?${params.toString()}`);
-  // };
+  const onChange = (val: { firstName: string } | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (val?.firstName) {
+      params.set('query', val.firstName)
+    } else {
+      params.delete('query')
+    }
+    params.set('page', '1')
+
+    // queryClient.invalidateQueries({ queryKey: ['products'] })
+    navigate(`${pathname}?${params.toString()}`, { replace: true })
+  }
 
   const customStyles = {
     control: (provided: any) => ({
@@ -75,18 +83,18 @@ const UsersSearch = () => {
   return (
     <section className="flex w-full items-center justify-center rounded-lg border border-[#7d7875]">
       <Search className="mr-2 text-gray-500" />
-      <AsyncSelect<Organization>
+      <AsyncSelect<User>
         placeholder="ابحث عن.."
         loadingMessage={() => 'جارٍ البحث ...'}
         noOptionsMessage={() => 'لا توجد نتائج'}
         cacheOptions
-        instanceId="local-org-search"
-        // value={selectedVal?.length ? { arabicName: selectedVal[0] } : undefined}
-        // defaultOptions={organizations}
-        // loadOptions={loadOptions}
-        // onChange={onChange}
-        getOptionLabel={({ arabicName }) => arabicName}
-        getOptionValue={({ arabicName }) => arabicName}
+        instanceId="products-search"
+        value={selectedVal?.length ? { firstName: selectedVal } : undefined}
+        defaultOptions={users?.data.users}
+        loadOptions={loadOptions}
+        onChange={onChange}
+        getOptionLabel={({ firstName }) => firstName}
+        getOptionValue={({ firstName }) => firstName}
         components={customComponents}
         isClearable
         menuIsOpen={isMenuOpen}
@@ -100,4 +108,4 @@ const UsersSearch = () => {
   )
 }
 
-export default UsersSearch
+export default ProductsSearch

@@ -1,13 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import BackBtn from '@renderer/components/layouts/back-btn'
+import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import { toast } from '@renderer/components/ui/use-toast'
+import { postApi } from '@renderer/lib/http'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import imageProfile from '../../../assets/images/profile.jpg'
 
@@ -17,43 +22,38 @@ const schema = z.object({
   Username: z
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+    .max(100, 'يجب أن يكون أقل من 100 حرف')
+    .regex(/^[a-z]+$/, {
+      message: 'يجب ان تكون حروف إنجليزية صغيرة وبدون مسافة'
+    }),
   FirstName: z
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  LastName: z
-    .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  LastName: z.string().optional(),
   Password: z
     .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .min(6, 'يجب أن يكون أكبر من 6 أحرف')
     .max(10, 'يجب أن يكون أقل من 10 حرف'),
-  PhoneNumber: z.string({ message: 'مطلوب' }),
-  UserType: z.string({ message: 'مطلوب' }), // 1 = Admin , 2 = b, 3= منسق طلبات
-  EmployDate: z.string({ message: 'مطلوب' }),
-  WorkPlace: z
-    .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(10, 'يجب أن يكون أقل من 10 حرف'),
+  PhoneNumber: z.string().optional(),
+  UserType: z.string().optional(),
+  EmployDate: z.string().optional(),
+  WorkPlace: z.string({ message: 'مطلوب' }),
   UserRole: z.string({ message: 'مطلوب' }),
   ImageFile: z
     .instanceof(File)
-    .refine(
-      (file) => {
-        return file.size <= MAX_FILE_SIZE
-      },
-      {
-        message: `جم الصور يجب أن يكون أقل من 5 ميجابايت`
-      }
-    )
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    })
     .optional()
 })
 
 export type Schema = z.infer<typeof schema>
 
 const NewUser = ({ initValues }: { initValues?: Schema }) => {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
   //   const { data: departments } = useQuery<Department[]>({
   //     queryKey: ['departments'],
   //     queryFn: () => getApi('/Department')
@@ -68,7 +68,53 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     defaultValues: initValues
   })
 
-  const onSubmit = () => {}
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data: Schema) => {
+      const formData = new FormData()
+      formData.set('firstName', data.FirstName)
+
+      data.LastName && formData.set('Lastname', data.LastName)
+      formData.set('userName', data.Username)
+      formData.set('password', data.Password)
+      data.EmployDate && formData.set('employDate', data.EmployDate)
+      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
+      formData.set('workPlace', data.WorkPlace)
+      formData.set('userRole', data.UserRole)
+      data.UserType && formData.set('userType', data.UserType)
+      if (data.ImageFile) {
+        formData.set('imageFile', data.ImageFile)
+      }
+
+      await postApi('/users', formData)
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'success',
+        title: `تم إضافة ${form.getValues('Username')} بنجاح`
+      })
+      // form.setValue('EmployDate', '')
+      // form.setValue('ImageFile', undefined)
+      // form.setValue('Username', '')
+      // form.setValue('LastName', '')
+      // form.setValue('FirstName', '')
+      // form.setValue('Password', '')
+      // form.setValue('WorkPlace', '')
+      // form.setValue('PhoneNumber', '')
+      // form.setValue('UserRole', '')
+      // form.setValue('UserType', '')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      navigate('/users')
+    },
+    onError: (error: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+
+  const onSubmit = (data: Schema) => mutate(data)
 
   return (
     <section className="p-5">
@@ -90,7 +136,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           <div>
                             <ProfileUploader
                               className="h-[180px] w-[180px]"
-                              inputId="file"
+                              inputId="ImageFile"
                               setValue={form.setValue}
                               onChange={async (files) => {
                                 try {
@@ -244,7 +290,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <FormField
-                  name="UserType"
+                  name="UserRole"
                   control={form.control}
                   render={({ field: { onChange, value } }) => (
                     <FormItem>
@@ -281,20 +327,33 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   )}
                 />
                 <FormField
-                  name="UserRole"
+                  name="UserType"
                   control={form.control}
                   render={({ field: { onChange, value } }) => (
                     <FormItem>
                       <FormControl>
                         <Dropdown
                           label="المسمى الوظيفي"
-                          getLabel={(option) => option.name || ''}
-                          getValue={(option) => option.id || ''}
+                          getLabel={(option) => option.label}
+                          getValue={(option) => option.value}
                           onChange={onChange}
                           groups={[
                             {
                               label: 'المسمى الوظيفي',
-                              options: []
+                              options: [
+                                {
+                                  label: 'مشرف',
+                                  value: 'مشرف'
+                                },
+                                {
+                                  label: 'بائع',
+                                  value: 'بائع'
+                                },
+                                {
+                                  label: 'منسق طلبات',
+                                  value: 'منسق طلبات'
+                                }
+                              ]
                             }
                           ]}
                           value={value}
@@ -308,8 +367,8 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" size="lg">
-                حفظ
+              <Button type="submit" disabled={isPending} size="lg">
+                {isPending ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
               </Button>
             </div>
           </form>
