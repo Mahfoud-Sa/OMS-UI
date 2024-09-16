@@ -1,17 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@renderer/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, putApi } from '@renderer/lib/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { PlusCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import * as z from 'zod'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from '../../ui/dialog'
 import BarCharter from './_components/BarChart'
 import LineCharter from './_components/LineChart'
 import MixedBarChartHoriz from './_components/MixedBarChartHoriz'
@@ -24,8 +35,9 @@ const schema = z.object({
   designs: z
     .array(
       z.object({
-        id: z.string(),
-        name: z.string()
+        id: z.number().optional(),
+        name: z.string(),
+        isDelete: z.boolean()
       })
     )
     .optional()
@@ -40,6 +52,14 @@ const InfoProduct = () => {
   const [currentTab, setCurrentTab] = useState('general')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [hasManyValues, setHasManyValues] = useState(false)
+  const [designs, setDesigns] = useState<
+    {
+      isDelete: boolean
+      name: string
+      id?: number
+    }[]
+  >([])
+  const [design, setDesign] = useState<string | null>(null)
 
   const {
     data,
@@ -88,11 +108,63 @@ const InfoProduct = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      form.reset({
-        name: data.data.name
+      const newData = data.data.designs?.map((el) => {
+        return {
+          name: el.name,
+          id: el.id,
+          isDelete: false
+        }
       })
+      form.reset({
+        name: data.data.name,
+        designs: newData
+      })
+      setDesigns([...newData!])
     }
   }, [data?.data])
+
+  const handleAddDesign = () => {
+    if (design != null) {
+      setDesigns([...designs, { name: design, isDelete: false }])
+    }
+  }
+
+  const handleRemoveDesign = (indx: number) => {
+    const filterDesign = designs
+      .map((el, index) => {
+        if (index == indx) {
+          if (el.id != null) {
+            el.isDelete = true
+            return el
+          }
+
+          return null
+        }
+        return el
+      })
+      .filter((el) => el != null)
+
+    form.setValue('designs', filterDesign)
+
+    setDesigns(filterDesign)
+
+    console.log(form.getValues('designs'))
+  }
+
+  const designsWatcher = form.watch('designs')
+
+  useEffect(() => {
+    // Clear the error when designs change
+    if (form.formState.errors.designs && designsWatcher && designsWatcher.length > 0) {
+      form.clearErrors('designs')
+    }
+  }, [designsWatcher, form.formState.errors.designs, form.clearErrors])
+
+  useEffect(() => {
+    form.setValue('designs', designs)
+    setDesign(null)
+    console.log(form.getValues('designs'))
+  }, [designs])
 
   const handleManyValues = (hasMany: boolean) => {
     console.log(hasMany)
@@ -191,6 +263,78 @@ const InfoProduct = () => {
                         </FormItem>
                       )}
                     />
+                  </div>
+                  <div className="flex justify-between items-center mt-3">
+                    <h1 className="text-xl font-bold">التصاميم</h1>
+                    <div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="link"
+                            className="text-lg text-primary flex items-center gap-1"
+                            disabled={!isEdit}
+                          >
+                            <PlusCircle />
+                            إضافة تصميم
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader className="!text-center text-primary text-lg font-bold">
+                            إضافة تصميم
+                          </DialogHeader>
+                          <Input
+                            placeholder="اسم التصميم"
+                            onChange={(e) => setDesign(e.target.value)}
+                            martial
+                            label="اسم التصميم"
+                            value={design || ''}
+                          />
+
+                          <DialogFooter>
+                            <Button type="button" onClick={() => handleAddDesign()}>
+                              إضافة
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                  <div>
+                    {designs.filter((el) => el.isDelete != true).length > 0 && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-right">الرقم</TableHead>
+                            <TableHead className="text-right">اسم التصميم</TableHead>
+                            <TableHead></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {designs.map(
+                            (d, index) =>
+                              !d.isDelete && (
+                                <TableRow key={index}>
+                                  <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
+                                  <TableCell>{d.name}</TableCell>
+                                  <TableCell className="flex justify-end ">
+                                    <Button
+                                      type="button"
+                                      onClick={() => handleRemoveDesign(index)}
+                                      variant="ghost"
+                                      disabled={!isEdit}
+                                    >
+                                      <TrushSquare />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+                    {form.formState.errors.designs && (
+                      <p className="text-destructive">يجب أن يكون لديك تصميم واحد على الأقل</p>
+                    )}
                   </div>
                 </TabsContent>
                 <TabsContent value="productStats">
