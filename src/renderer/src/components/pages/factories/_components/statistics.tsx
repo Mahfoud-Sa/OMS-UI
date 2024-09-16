@@ -3,11 +3,7 @@ import StatisticCard from '../../../layouts/statistic-card'
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // import { useState } from "react";
 
-type StatisticsProps = {
-  selectedRole?: string | undefined
-}
-
-export default function Statistics({ selectedRole }: StatisticsProps) {
+export default function Statistics() {
   // const searchParams = useSearchParams();
 
   // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
