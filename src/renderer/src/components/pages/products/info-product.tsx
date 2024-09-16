@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, putApi } from '@renderer/lib/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { PlusCircle } from 'lucide-react'
+import { Edit, PlusCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
@@ -52,6 +52,7 @@ const InfoProduct = () => {
   const [currentTab, setCurrentTab] = useState('general')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [hasManyValues, setHasManyValues] = useState(false)
+  const [showDialog, setShowDialog] = useState(false)
   const [designs, setDesigns] = useState<
     {
       isDelete: boolean
@@ -126,6 +127,13 @@ const InfoProduct = () => {
   const handleAddDesign = () => {
     if (design != null) {
       setDesigns([...designs, { name: design, isDelete: false }])
+    }
+  }
+  const handleEditDesign = (id: number) => {
+    if (design != null) {
+      setDesigns((prevDesigns) =>
+        prevDesigns.map((d) => (d.id === id ? { ...d, name: design } : d))
+      )
     }
   }
 
@@ -317,6 +325,45 @@ const InfoProduct = () => {
                                   <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
                                   <TableCell>{d.name}</TableCell>
                                   <TableCell className="flex justify-end ">
+                                    <Dialog open={showDialog}>
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          type="button"
+                                          onClick={() => {
+                                            setDesign(d.name)
+                                            setShowDialog(true)
+                                          }}
+                                          variant="ghost"
+                                          disabled={!isEdit}
+                                        >
+                                          <Edit color="green" />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader className="!text-center text-primary text-lg font-bold">
+                                          تعديل تصميم
+                                        </DialogHeader>
+                                        <Input
+                                          placeholder="اسم التصميم"
+                                          onChange={(e) => setDesign(e.target.value)}
+                                          martial
+                                          label="اسم التصميم"
+                                          value={design || ''}
+                                        />
+
+                                        <DialogFooter>
+                                          <Button
+                                            type="button"
+                                            onClick={() => {
+                                              handleEditDesign(d.id || 0)
+                                              setShowDialog(false)
+                                            }}
+                                          >
+                                            تعديل
+                                          </Button>
+                                        </DialogFooter>
+                                      </DialogContent>
+                                    </Dialog>
                                     <Button
                                       type="button"
                                       onClick={() => handleRemoveDesign(index)}

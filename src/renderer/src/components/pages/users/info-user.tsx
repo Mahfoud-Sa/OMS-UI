@@ -118,6 +118,7 @@ const InfoUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
