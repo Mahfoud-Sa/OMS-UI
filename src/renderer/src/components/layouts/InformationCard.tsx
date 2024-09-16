@@ -47,7 +47,7 @@ const CardInfo: React.FC<CardInfoProps> = ({ infoItems, logoSrc }) => {
       <img
         loading="lazy"
         src={logoSrc}
-        className="object-contain shrink-0 rounded-lg aspect-square w-[100px]"
+        className="object-cover shrink-0 rounded-lg aspect-square w-[100px]"
         alt="Card logo"
       />
       <div className="flex flex-col items-start min-w-[240px] w-[245px]">
