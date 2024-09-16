@@ -17,9 +17,9 @@ import { Link } from 'react-router-dom'
 type Props = {
   data: {
     products: Product[]
-    current_page: number
-    page_size: number
-    total: number
+    pageNumber: number
+    pageSize: number
+    pages: number
   }
 }
 
@@ -62,7 +62,9 @@ const ProductsTable = ({ data }: Props) => {
             </Button>
           )
         }
+        // cell: ({ row }) => new Date(row.original.creatAt)
       },
+
       {
         id: 'actions',
         cell: ({ row }) => (
@@ -91,7 +93,7 @@ const ProductsTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.products} />
-      <TablePagination total={data.total} page={data.current_page} pageSize={data.page_size} />
+      <TablePagination total={data.pages} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
   )
 }

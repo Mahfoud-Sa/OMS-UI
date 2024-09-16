@@ -4,10 +4,14 @@ import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import AsyncSelect from 'react-select/async'
+interface Products {
+  products: {
+    name: string
+  }[]
+}
 interface Product {
   name: string
 }
-
 const ProductsSearch = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
@@ -20,17 +24,17 @@ const ProductsSearch = () => {
 
   const { data: products } = useQuery({
     queryKey: ['products'],
-    queryFn: () => getApi<Product[]>('/Products')
+    queryFn: () => getApi<Products>('/Products')
   })
 
   const loadOptions = async (value: string) => {
     if (!value) return []
-    const data = await getApi<Product[]>('/Products', {
+    const data = await getApi<Products>('/Products', {
       params: {
         query: value
       }
     })
-    return data.data || []
+    return data.data.products || []
   }
 
   const customComponents = {
@@ -45,6 +49,8 @@ const ProductsSearch = () => {
     } else {
       params.delete('query')
     }
+    params.set('page', '1')
+
     // queryClient.invalidateQueries({ queryKey: ['products'] })
     navigate(`${pathname}?${params.toString()}`, { replace: true })
   }
@@ -84,7 +90,7 @@ const ProductsSearch = () => {
         cacheOptions
         instanceId="products-search"
         value={selectedVal?.length ? { name: selectedVal } : undefined}
-        defaultOptions={products?.data}
+        defaultOptions={products?.data.products}
         loadOptions={loadOptions}
         onChange={onChange}
         getOptionLabel={({ name }) => name}

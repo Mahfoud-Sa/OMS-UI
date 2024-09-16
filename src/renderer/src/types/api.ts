@@ -17,3 +17,16 @@ export type Product = {
   quantity: number
   creatAt: string
 }
+
+export type User = {
+  roles: string[] // Assuming roles is an array of strings
+  id: string
+  userName: string
+  firstName: string
+  lastName: string
+  employDate: string // Date string in ISO format
+  phoneNumber: string
+  userType: string // User type is a string (e.g., "مشرف")
+  workPlace: string
+  imagePath: string
+}

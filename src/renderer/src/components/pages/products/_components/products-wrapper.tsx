@@ -15,9 +15,9 @@ const ProductsWrapper = () => {
     queryFn: () =>
       getApi<{
         products: Product[]
-        current_page: number
-        page_size: number
-        total: number
+        pageNumber: number
+        pageSize: number
+        pages: number
       }>(`/Products`, {
         params: {
           query,

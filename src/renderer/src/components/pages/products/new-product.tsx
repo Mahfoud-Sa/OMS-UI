@@ -36,7 +36,9 @@ const NewProduct = () => {
   const queryClient = useQueryClient()
   const [designs, setDesigns] = useState<string[]>([])
   const [design, setDesign] = useState<string | null>(null)
-
+  const form = useForm<Schema>({
+    resolver: zodResolver(schema)
+  })
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
       await postApi('/Products', data)
@@ -46,7 +48,9 @@ const NewProduct = () => {
         variant: 'success',
         title: `تم إضافة ${form.getValues('name')} بنجاح`
       })
+      setDesigns([])
       form.setValue('name', '')
+      form.setValue('designs', [])
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
     onError: (error: any) => {
@@ -57,9 +61,6 @@ const NewProduct = () => {
         description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
       })
     }
-  })
-  const form = useForm<Schema>({
-    resolver: zodResolver(schema)
   })
 
   const onSubmit = (data: Schema) => mutate(data)
@@ -76,12 +77,14 @@ const NewProduct = () => {
   const handleAddDesign = () => {
     if (design != null) {
       setDesigns([...designs, design])
-      form.setValue('designs', designs)
-      setDesign(null)
-
-      console.log(form.getValues('designs'))
     }
   }
+
+  useEffect(() => {
+    form.setValue('designs', designs)
+    setDesign(null)
+    console.log(form.getValues('designs'))
+  }, [designs])
 
   const handleRemoveDesign = (indx: number) => {
     const filterDesign = designs.filter((_el, index) => index != indx)

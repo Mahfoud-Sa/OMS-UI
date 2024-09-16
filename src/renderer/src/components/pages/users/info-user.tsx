@@ -8,9 +8,11 @@ import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { getApi } from '@renderer/lib/http'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { toast } from '@renderer/components/ui/use-toast'
+import { getApi, putApi } from '@renderer/lib/http'
+import { User } from '@renderer/types/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import * as z from 'zod'
@@ -28,69 +30,104 @@ const schema = z.object({
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  LastName: z
-    .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  Password: z
-    .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(10, 'يجب أن يكون أقل من 10 حرف')
-    .optional(),
-  PhoneNumber: z.string({ message: 'مطلوب' }),
-  UserType: z.string({ message: 'مطلوب' }), // 1 = Admin , 2 = b, 3= منسق طلبات
-  EmployDate: z.string({ message: 'مطلوب' }),
-  WorkPlace: z
-    .string({ message: 'مطلوب' })
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(10, 'يجب أن يكون أقل من 10 حرف'),
+  LastName: z.string().optional(),
+  PhoneNumber: z.string().optional(),
+  UserType: z.string().optional(),
+  EmployDate: z.string().optional(),
+  WorkPlace: z.string({ message: 'مطلوب' }),
   UserRole: z.string({ message: 'مطلوب' }),
   ImageFile: z
     .instanceof(File)
-    .refine(
-      (file) => {
-        return file.size <= MAX_FILE_SIZE
-      },
-      {
-        message: `جم الصور يجب أن يكون أقل من 5 ميجابايت`
-      }
-    )
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    })
     .optional()
 })
-
 export type Schema = z.infer<typeof schema>
 
 const InfoUser = () => {
   const [isEdit, setIsEdit] = useState(false)
+  const [oldImage, setOldImage] = useState('')
+  const queryClient = useQueryClient()
+
   const { id } = useParams()
   const [currentTab, setCurrentTab] = useState('personalInfo')
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isSuccess } = useQuery({
     queryKey: ['users', id],
-    queryFn: () => getApi<Schema>(`users/${id}`)
+    queryFn: () => getApi<User>(`/users/${id}`)
   })
 
   const form = useForm<Schema>({
-    resolver: zodResolver(schema),
-    defaultValues: data?.data
+    resolver: zodResolver(schema)
+    // defaultValues: data?.data
   })
 
-  const onSubmit = () => {
-    console.log('form.getValues()', form.getValues())
-  }
+  // const userTypes = [
+  //   { label: 'آدمن', value: 1 },
+  //   { label: 'بائع', value: 2 },
+  //   { label: 'منسق طلبات', value: 3 }
+  // ]
+  // const getLabelByValue = (value: number) => {
+  //   const userType = userTypes.find((type) => {
+  //     return type.value === value
+  //   })
 
-  const userTypes = [
-    { label: 'آدمن', value: 1 },
-    { label: 'بائع', value: 2 },
-    { label: 'منسق طلبات', value: 3 }
-  ]
-  const getLabelByValue = (value: number) => {
-    const userType = userTypes.find((type) => {
-      return type.value === value
-    })
+  //   return userType ? userType.label : 'Unknown'
+  // }
 
-    return userType ? userType.label : 'Unknown'
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      form.reset({
+        FirstName: data.data.firstName,
+        LastName: data.data.lastName,
+        Username: data.data.userName,
+        WorkPlace: data.data.workPlace,
+        EmployDate: data.data.employDate,
+        UserRole: data.data.roles[0] || '1',
+        UserType: data.data.userType,
+        PhoneNumber: data.data.phoneNumber
+      })
+      setOldImage(data.data.imagePath)
+    }
+  }, [data?.data])
+
+  const { mutate, isPending: isPendingSubmit } = useMutation({
+    mutationFn: async (data: Schema) => {
+      const formData = new FormData()
+      formData.set('firstName', data.FirstName)
+      data.LastName && formData.set('Lastname', data.LastName)
+      formData.set('userName', data.Username)
+      data.EmployDate && formData.set('employDate', data.EmployDate)
+      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
+      formData.set('workPlace', data.WorkPlace)
+      formData.set('userRole', data.UserRole)
+      data.UserType && formData.set('userType', data.UserType)
+      if (data.ImageFile) {
+        formData.set('imageFile', data.ImageFile)
+      }
+
+      await putApi(`/users/${id}`, formData)
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'success',
+        title: `تم تعديل ${form.getValues('Username')} بنجاح`
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (error: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+
+  const onSubmit = (data: Schema) => mutate(data)
+
   const handleNext = () => {
     if (currentTab === 'permissions') {
       return
@@ -116,27 +153,27 @@ const InfoUser = () => {
       <BackBtn href="/users" />
       <InformationCard
         displayButton={false}
-        logoSrc={imageProfile}
+        logoSrc={oldImage}
         infoItems={[
           {
-            text: form.getValues('FirstName') + ' ' + form.getValues('LastName') || 'الاسم الاول'
+            text: `${form.getValues('FirstName')} ${form.getValues('LastName')}` || 'الاسم الاول'
           },
           {
-            text: form.getValues('Username') || 'الاسم الاول',
+            text: form.getValues('Username') || 'أسم المستخدم',
             iconSrc: 'user'
           },
           {
-            text: getLabelByValue(Number(form.getValues('UserType'))) || 'المسمى الوظيفي',
+            text: form.getValues('UserType') || 'المسمى الوظيفي',
             iconSrc: 'briefcaseBusiness'
           }
         ]}
         id={id || ''}
-        className="mb-14"
+        className="mb-14 mt-4"
       />
 
       <div className="mt-10">
         <Form {...form}>
-          <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
+          <form className="flex gap-4 flex-col" id="form-1" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <div className="flex justify-end">
                 <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
@@ -314,9 +351,9 @@ const InfoUser = () => {
                 <TabsContent value="permissions">
                   <div className="mt-4 grid grid-cols-3 gap-3">
                     <FormField
-                      name="UserType"
+                      name="UserRole"
                       control={form.control}
-                      render={({ field: { onChange, value } }) => (
+                      render={({ field: { onChange } }) => (
                         <FormItem>
                           <FormControl>
                             <Dropdown
@@ -331,20 +368,20 @@ const InfoUser = () => {
                                   options: [
                                     {
                                       label: 'آدمن',
-                                      value: 1
+                                      value: '1'
                                     },
                                     {
                                       label: 'بائع',
-                                      value: 2
+                                      value: '2'
                                     },
                                     {
                                       label: 'منسق طلبات',
-                                      value: 3
+                                      value: '3'
                                     }
                                   ]
                                 }
                               ]}
-                              value={value}
+                              value={data?.data.roles[0] || '1'}
                             />
                           </FormControl>
                           <FormMessage />
@@ -352,39 +389,41 @@ const InfoUser = () => {
                       )}
                     />
                     <FormField
-                      name="UserRole"
+                      name="UserType"
                       control={form.control}
-                      render={({ field: { onChange, value } }) => (
+                      render={({ field: { onChange } }) => (
                         <FormItem>
                           <FormControl>
                             <Dropdown
                               disabled={!isEdit}
                               label="المسمى الوظيفي"
-                              getLabel={(option: { label: string; id: string }) =>
+                              getLabel={(option: { label: string; value: string }) =>
                                 option.label || ''
                               }
-                              getValue={(option: { label: string; id: string }) => option.id || ''}
+                              getValue={(option: { label: string; value: string }) =>
+                                option.value || ''
+                              }
                               onChange={onChange}
                               groups={[
                                 {
                                   label: 'المسمى الوظيفي',
                                   options: [
                                     {
-                                      label: 'مدير',
-                                      id: '1'
+                                      label: 'مشرف',
+                                      value: 'مشرف'
                                     },
                                     {
-                                      label: 'موظف',
-                                      id: '2'
+                                      label: 'بائع',
+                                      value: 'بائع'
                                     },
                                     {
-                                      label: 'منسق',
-                                      id: '3'
+                                      label: 'منسق طلبات',
+                                      value: 'منسق طلبات'
                                     }
                                   ]
                                 }
                               ]}
-                              value={value}
+                              value={data?.data.userType}
                             />
                           </FormControl>
                           <FormMessage />
@@ -416,8 +455,8 @@ const InfoUser = () => {
               )}
               {isEdit && currentTab === 'permissions' && (
                 <div className="flex justify-end">
-                  <Button type="submit" size="lg">
-                    حفظ
+                  <Button type="submit" form="form-1" disabled={isPendingSubmit} size="lg">
+                    {isPendingSubmit ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
                   </Button>
                 </div>
               )}
