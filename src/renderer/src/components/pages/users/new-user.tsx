@@ -297,8 +297,8 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="نوع المستخدم"
-                          getLabel={(option) => option.label}
-                          getValue={(option) => option.value}
+                          getLabel={(option): { label: string; value: string }) => option.label}
+                          getValue={(option): { label: string; value: string }) => option.value}
                           onChange={onChange}
                           groups={[
                             {
@@ -334,8 +334,8 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       <FormControl>
                         <Dropdown
                           label="المسمى الوظيفي"
-                          getLabel={(option) => option.label}
-                          getValue={(option) => option.value}
+                          getLabel={(option: { label: string; value: string }) => option.label || ''}
+                          getValue={(option: { label: string; value: string }) => option.value || ''}
                           onChange={onChange}
                           groups={[
                             {
