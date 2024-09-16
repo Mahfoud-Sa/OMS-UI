@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import AddProductionLineDialog from '@renderer/components/layouts/add-production-line-dialog'
 import Loader from '@renderer/components/layouts/loader'
-import { StructureTable } from '@renderer/components/tables/structure-table '
 import { Button } from '@renderer/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
@@ -9,10 +9,10 @@ import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
 import { postApi } from '@renderer/lib/http'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { ProductionLineProps, StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
   factoryName: z
@@ -29,7 +29,19 @@ const schema = z.object({
   logoSrc: z.string().url('يجب أن يكون رابط صالح').optional(),
   productionLines: z.array(
     z.object({
-      name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف')
+      productionLineName: z
+        .string()
+        .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+        .max(100, 'يجب أن يكون أقل من 100 حرف'),
+      productionTeams: z.array(
+        z.object({
+          name: z
+            .string()
+            .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+            .max(100, 'يجب أن يكون أقل من 100 حرف'),
+          phoneNumber: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف')
+        })
+      )
     })
   )
 })
@@ -38,15 +50,10 @@ type Schema = z.infer<typeof schema>
 
 const NewFactory: React.FunctionComponent = () => {
   const [currentTab, setCurrentTab] = React.useState('account')
-  const [productionLinesArray, setProductionLinesArray] = React.useState<Schema['productionLines']>(
-    []
-  )
-  const [name, setName] = React.useState('')
+  const [productionLinesArray, setProductionLinesArray] = React.useState<ProductionLineProps[]>([])
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
-    // defaultValues: factory
-    // Uncomment and set default values if available
   })
   const { errors } = form.formState
 
@@ -71,6 +78,7 @@ const NewFactory: React.FunctionComponent = () => {
     if (currentTab === 'account') return
     else if (currentTab === 'productionLines') setCurrentTab('account')
   }
+
   const queryClient = useQueryClient()
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Schema) => {
@@ -98,22 +106,34 @@ const NewFactory: React.FunctionComponent = () => {
     mutate(data)
   }
 
-  const addProductionLine = () => {
-    setProductionLinesArray([...productionLinesArray, { name }])
-    form.setValue('productionLines', [...productionLinesArray, { name }])
-    setName('')
-  }
+  const addProductionLine = (productionLine: {
+    productionLineName: string
+    productionTeams: { productionTeamName: string; phoneNumber: string }[]
+  }) => {
+    const newProductionLine: ProductionLineProps = {
+      productionLineName: productionLine.productionLineName,
+      productionTeams: productionLine.productionTeams || [], // Ensure productionTeams is always defined
+      id: ''
+    }
 
-  const columns: ColumnDef<Schema['productionLines'][number], unknown>[] = [
+    setProductionLinesArray([...productionLinesArray, newProductionLine])
+    form.setValue('productionLines', [...productionLinesArray, newProductionLine])
+  }
+  const columns = [
     {
-      accessorKey: 'name',
+      accessorKey: 'productionLineName',
       header: 'اسم خط الانتاج',
-      cell: (info) => info.getValue()
+      cell: (info: any) => info.getValue()
     },
     {
       accessorKey: 'phoneNumber',
       header: 'رقم الهاتف',
-      cell: (info) => info.getValue()
+      cell: (info: any) => info.getValue()
+    },
+    {
+      accessorKey: 'teamsCount',
+      header: 'عدد الفرق',
+      cell: (info: any) => info.getValue()
     }
   ]
 
@@ -198,36 +218,15 @@ const NewFactory: React.FunctionComponent = () => {
                 </main>
               </TabsContent>
               <TabsContent value="productionLines">
-                <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
-                  <FormField
-                    control={form.control}
-                    name={`productionLines.${productionLinesArray.length}.name`}
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="اسم خط الانتاج"
-                            label="اسم خط الانتاج"
-                          />
-                        </FormControl>
-                        <FormMessage>{fieldState?.error?.message}</FormMessage>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex justify-end mt-2">
-                  <Button type="button" onClick={addProductionLine}>
-                    إضافة خط انتاج
-                  </Button>
-                </div>
+                <AddProductionLineDialog onSave={addProductionLine} />
                 <div className="mt-5">
                   <StructureTable
                     columns={columns}
                     data={productionLinesArray}
                     title="خطوط الانتاج المضافة"
+                    onDeleteProductionLineTeam={(productionLineId, productionLineTeamIds) => {
+                      console.log(productionLineId, productionLineTeamIds)
+                    }}
                   />
                 </div>
               </TabsContent>
@@ -270,5 +269,4 @@ const NewFactory: React.FunctionComponent = () => {
     </>
   )
 }
-
 export default NewFactory

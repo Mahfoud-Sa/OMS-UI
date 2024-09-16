@@ -38,7 +38,7 @@ export interface FactoryInterface {
 
 const initialFactoryData: FactoryInterface[] = [
   {
-    id: '1',
+    id: '4131324242429',
     factoryName: 'Factory 1',
     factoryLocation: 'Location 1',
     createdAt: '2000-01-01',
@@ -110,7 +110,9 @@ const Factories = () => {
       cell: (info) => (
         <>
           <div>{info.row.original.factoryName}</div>
-          <div style={{ fontSize: '0.8em', color: 'gray' }}>#{info.row.original.id}</div>
+          <div style={{ fontSize: '0.8em', color: 'gray' }}>
+            ...#{info.row.original.id.slice(0, 8)}
+          </div>
         </>
       )
     },

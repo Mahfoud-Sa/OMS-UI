@@ -91,7 +91,7 @@ const LineCharter = ({
     }
   }, [chartData, onManyValues])
 
-  if (isLoading) return <Skeleton className="h-min-[220px]"></Skeleton>
+  if (isLoading) return <Skeleton className="min-h-[220px]"></Skeleton>
 
   return (
     <Card className="min-h-[260px]">

@@ -1,29 +1,29 @@
 import { Icons } from '@renderer/components/icons/icons'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from '@renderer/components/ui/table'
 import { cn } from '@renderer/lib/utils'
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getSortedRowModel,
-  Header,
-  SortingState,
-  useReactTable
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    getExpandedRowModel,
+    getSortedRowModel,
+    Header,
+    SortingState,
+    useReactTable
 } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import React, { useState } from 'react'
@@ -36,18 +36,18 @@ interface DataTableProps<TData, TValue> {
   className?: string
   onDeleteProductionLineTeam: (productionLineId: string, productionLineTeamIds: string[]) => void
 }
-interface ProductionTeam {
-  id: string
+export interface ProductionTeam {
+  id?: string
   productionTeamName: string
   phoneNumber: string
-  employsCount: number
+  employsCount?: number
 }
 
-interface ProductionLineProps {
+export interface ProductionLineProps {
   id: string
   productionLineName: string
-  phoneNumber: string
-  teamsCount: number
+  phoneNumber?: string
+  teamsCount?: number
   productionTeams?: ProductionTeam[] // Include productionTeams here
 }
 
@@ -141,9 +141,9 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                           </div>
                         )}
                         {cellIndex === 1 && <p style={{ direction: 'ltr' }}>{team.phoneNumber}</p>}
-                        {cellIndex === 2 && <p>{team.employsCount}</p>}
+                        {cellIndex === 2 && team.employsCount && <p>{team.employsCount}</p>}
                         {/* last column showed be the dropdown menu */}
-                        {cellIndex === 3 && (
+                        {cellIndex === 3 && team.employsCount && (
                           <DropdownMenu>
                             <DropdownMenuTrigger>
                               <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
@@ -155,7 +155,9 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                                 </Link>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    onDeleteProductionLineTeam(row.original.id, [team.id])
+                                    if (team.id) {
+                                      onDeleteProductionLineTeam(row.original.id, [team.id])
+                                    }
                                   }}
                                   style={{ backgroundColor: 'orange', color: 'white' }}
                                   color="white"

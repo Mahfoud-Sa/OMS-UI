@@ -127,7 +127,7 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
             <XAxis dataKey="sales" type="number" />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent nameKey="name" hideLabel />}
+              content={<ChartTooltipContent hideLabel nameKey="name" forceText="المبيعات" />}
             />
             <Bar dataKey="sales" barSize={13} layout="vertical" radius={5}></Bar>
           </BarChart>

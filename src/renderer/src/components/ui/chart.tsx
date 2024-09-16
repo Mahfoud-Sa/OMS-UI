@@ -100,6 +100,7 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: 'line' | 'dot' | 'dashed'
       nameKey?: string
       labelKey?: string
+      forceText?: string
     }
 >(
   (
@@ -116,7 +117,8 @@ const ChartTooltipContent = React.forwardRef<
       formatter,
       color,
       nameKey,
-      labelKey
+      labelKey,
+      forceText
     },
     ref
   ) => {
@@ -215,7 +217,7 @@ const ChartTooltipContent = React.forwardRef<
                       <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
                         <span className="text-muted-foreground">
-                          {itemConfig?.label || item.name}
+                          {forceText ? forceText : itemConfig?.label || item.name}
                         </span>
                       </div>
                       {item.value && (

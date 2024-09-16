@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 // import { redirect } from 'react-router-dom'
 
 export const axiosInstance = axios.create({
-  baseURL: 'https://mahfoudsabbah-001-site2.jtempurl.com/api/'
+  baseURL: import.meta.env.RENDERER_VITE_REACT_APP_API_URL
   // auth: {
   //   username: '11189255',
   //   password: '60-dayfreetrial'

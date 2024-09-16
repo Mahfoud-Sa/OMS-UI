@@ -95,7 +95,7 @@ const BarCharter: React.FC<BarCharterProps> = ({ productName, id, onChangeYear, 
               tickFormatter={(value) => value.slice(0, 3)}
             />
             <YAxis tickLine={false} axisLine={false} />
-            <ChartTooltip content={<ChartTooltipContent />} />
+            <ChartTooltip content={<ChartTooltipContent forceText="المبيعات" />} />
             <Bar dataKey={productName} fill={'#DA972E'} barSize={27} radius={5} />
           </BarChart>
         </ChartContainer>
