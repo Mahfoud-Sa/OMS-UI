@@ -42,7 +42,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ name, role, imagePath }) => {
       <img
         loading="lazy"
         src={imagePath || 'https://via.placeholder.com/50'}
-        className="object-contain shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
+        className="object-cover shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
         alt={`${name} - ${role}`}
       />
       <div className="flex flex-col self-stretch my-auto w-[107px]">
@@ -104,8 +104,8 @@ export const UserCard: React.FC<DeliveryUserCardProps> = ({
                     onClick={() => {
                       setIsDialogOpen(true)
                     }}
-                    backgroundColor="orange"
-                    color="white"
+                    // backgroundColor="orange"
+                    // color="white"
                     className="btn"
                   >
                     حذف
