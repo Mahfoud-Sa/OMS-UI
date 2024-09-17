@@ -1,4 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@renderer/components/ui/dialog'
 import { postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
 import { LogInResponse } from '@renderer/types/api'
@@ -14,8 +21,73 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { useToast } from '../ui/use-toast'
 
+const PasswordChangeDialog = ({
+  isOpen,
+  onClose,
+  onSubmit
+}: {
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (newPassword: string) => Promise<void>
+}) => {
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async () => {
+    // if (newPassword === confirmNewPassword) {
+    setIsSubmitting(true)
+    await onSubmit(newPassword)
+    setIsSubmitting(false)
+    // }
+  }
+  console.log('newPassword', newPassword)
+  console.log('confirmNewPassword', confirmNewPassword)
+  console.log(newPassword === confirmNewPassword)
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader className="text-center">
+          <DialogTitle>تعيين كلمة المرور</DialogTitle>
+        </DialogHeader>
+
+        <label className="text-center">عيين كلمة المرور الخاصة بك</label>
+        <Input
+          type="password"
+          label={'كلمة المرور الجديدة'}
+          placeholder="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Confirm New Password"
+          label={'تاكيد كلمة المرور الجديدة'}
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+        />
+        <DialogFooter>
+          <Button
+            className="w-full"
+            onClick={handleSubmit}
+            disabled={
+              newPassword === '' ||
+              confirmNewPassword === '' ||
+              newPassword !== confirmNewPassword ||
+              isSubmitting
+            }
+          >
+            {isSubmitting ? <Loader color="#fff" size={20} /> : 'حفظ'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 const Schema = z.object({
-  email: z.string().email({ message: 'يرجى أدخال أسم المستخدم' }),
+  userName: z.string().min(1, { message: 'يرجى أدخال أسم المستخدم' }),
   password: z.string().min(1, { message: 'يرجى أدخال كلمة المرور' })
 })
 
@@ -25,6 +97,8 @@ const LoginForm = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
+  const [isPasswordChangeRequired, setIsPasswordChangeRequired] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
   const signIn = useSignIn()
 
   const form = useForm<UserFormValue>({
@@ -36,13 +110,18 @@ const LoginForm = () => {
   const onSubmit = async (data: UserFormValue) => {
     try {
       setDelayedSubmitting(true)
-      const res = await postApi<LogInResponse>('/login', {
+      const res = await postApi<LogInResponse>('/Account/Login', {
         ...data,
         twoFactorCode: 'string',
         twoFactorRecoveryCode: 'string'
       })
 
       console.log(res)
+      if (res?.status === 200 && res.data.message === 'Password change required') {
+        setIsPasswordChangeRequired(true)
+        setUserId(res.data.userId ?? null)
+        return
+      }
 
       if ([200, 201].includes(res?.status as number)) {
         const signInResult = signIn({
@@ -91,6 +170,38 @@ const LoginForm = () => {
       setDelayedSubmitting(false)
     }
   }
+  const handlePasswordChangeSubmit = async (newPassword: string) => {
+    try {
+      const res = await postApi('/Account/SetPassword', {
+        userId,
+        newPassword
+      })
+
+      if (res?.status === 200) {
+        toast({
+          title: 'تم تغيير كلمة المرور',
+          description: 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة',
+          variant: 'success'
+        })
+        alert('تم تغيير كلمة المرور بنجاح')
+        setIsPasswordChangeRequired(false)
+        form.setValue('password', '')
+      } else {
+        toast({
+          title: 'حصل خطأ',
+          description: 'لم يتم تغيير كلمة المرور. يرجى المحاولة مرة أخرى',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      console.error('Password change error:', error)
+      toast({
+        title: 'Error',
+        description: 'There was an error changing your password. Please try again.',
+        variant: 'destructive'
+      })
+    }
+  }
 
   const handleShowPassword = () => {
     setShowPassword((prev) => !prev)
@@ -109,7 +220,7 @@ const LoginForm = () => {
             <div className="w-full mb-3 flex flex-col gap-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="userName"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl className="">
@@ -177,6 +288,11 @@ const LoginForm = () => {
             </Button>
           </form>
         </Form>
+        <PasswordChangeDialog
+          isOpen={isPasswordChangeRequired}
+          onClose={() => setIsPasswordChangeRequired(false)}
+          onSubmit={handlePasswordChangeSubmit}
+        />
       </div>
     </div>
   )

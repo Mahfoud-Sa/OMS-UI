@@ -3,6 +3,8 @@ export type LogInResponse = {
   expiresIn: number
   refreshToken: string
   tokenType: string
+  userId?: string
+  message?: string
 }
 
 export type StatisticalUserCards = {

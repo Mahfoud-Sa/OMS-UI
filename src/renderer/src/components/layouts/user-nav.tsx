@@ -1,6 +1,7 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronDown } from 'lucide-react'
 import { useIsAuthenticated, useSignOut } from 'react-auth-kit'
+import { useNavigate } from 'react-router-dom'
 import userIcon from '../icons/user.svg'
 import { Button } from '../ui/button'
 import {
@@ -21,8 +22,13 @@ export type userData = {
 }
 
 export function UserNav() {
+  const navigate = useNavigate()
   const issAuthenticated = useIsAuthenticated()
   const signOut = useSignOut()
+  const handleSignOut = () => {
+    signOut()
+    navigate('login')
+  }
   // const auth = useAuthUser()
 
   if (issAuthenticated()) {
@@ -46,7 +52,7 @@ export function UserNav() {
             <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut()}>تسجيل الخروج</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>تسجيل الخروج</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     )
