@@ -6,6 +6,7 @@ import { Button } from '@renderer/components/ui/button'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import { Input as Input2 } from '@renderer/components/ui/input_2'
 import { toast } from '@renderer/components/ui/use-toast'
 import { postApi } from '@renderer/lib/http'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -35,8 +36,11 @@ const schema = z.object({
     .string({ message: 'مطلوب' })
     .min(6, 'يجب أن يكون أكبر من 6 أحرف')
     .max(10, 'يجب أن يكون أقل من 10 حرف'),
-  PhoneNumber: z.string().optional(),
-  UserType: z.string().optional(),
+  PhoneNumber: z
+    .string()
+    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .optional(),
+  UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
   UserRole: z.string({ message: 'مطلوب' }),
@@ -77,10 +81,10 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       formData.set('userName', data.Username)
       formData.set('password', data.Password)
       data.EmployDate && formData.set('employDate', data.EmployDate)
-      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
+      data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
       formData.set('workPlace', data.WorkPlace)
       formData.set('userRole', data.UserRole)
-      data.UserType && formData.set('userType', data.UserType)
+      formData.set('userType', data.UserType)
       if (data.ImageFile) {
         formData.set('imageFile', data.ImageFile)
       }
@@ -208,12 +212,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                             placeholder="كلمة السر"
                             martial
                             type={showPassword ? 'text' : 'password'}
-                            label={
-                              <span>
-                                كلمة السر
-                                <span className="text-lg font-bold text-red-600">*</span>
-                              </span>
-                            }
+                            label={<span>كلمة السر</span>}
                           />
                           <button
                             type="button"
@@ -239,7 +238,20 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="رقم الهاتف" martial label="رقم الهاتف" />
+                        <div className="flex items-center w-full flex-wrap gap-2">
+                          <div className="w-[83%]">
+                            <Input2
+                              {...field}
+                              placeholder="5XX XXX XXX"
+                              martial={false}
+                              label="رقم الهاتف"
+                            />
+                          </div>
+
+                          <div className="bg-[#e0e0e0] font-bold w-[15%] h-[56px] flex items-center justify-center rounded-sm">
+                            966+
+                          </div>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
