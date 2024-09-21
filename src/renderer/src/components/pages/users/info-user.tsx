@@ -7,6 +7,7 @@ import { Button } from '@renderer/components/ui/button'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import { Input as Input2 } from '@renderer/components/ui/input_2'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, putApi } from '@renderer/lib/http'
@@ -31,8 +32,11 @@ const schema = z.object({
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
   LastName: z.string().optional(),
-  PhoneNumber: z.string().optional(),
-  UserType: z.string().optional(),
+  PhoneNumber: z
+    .string()
+    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .optional(),
+  UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
   UserRole: z.string({ message: 'مطلوب' }),
@@ -86,7 +90,7 @@ const InfoUser = () => {
         EmployDate: data.data.employDate,
         UserRole: data.data.roles[0] || '1',
         UserType: data.data.userType,
-        PhoneNumber: data.data.phoneNumber
+        PhoneNumber: data.data.phoneNumber.split('+966')[1]
       })
       setOldImage(data.data.imagePath)
     }
@@ -291,13 +295,21 @@ const InfoUser = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input
-                              {...field}
-                              disabled={!isEdit}
-                              placeholder="رقم الهاتف"
-                              martial
-                              label="رقم الهاتف"
-                            />
+                            <div className="flex items-center w-full flex-wrap gap-2">
+                              <div className="w-[83%]">
+                                <Input2
+                                  {...field}
+                                  disabled={!isEdit}
+                                  placeholder="5XX XXX XXX"
+                                  martial={false}
+                                  label="رقم الهاتف"
+                                />
+                              </div>
+
+                              <div className="bg-[#e0e0e0] font-bold w-[15%] h-[56px] flex items-center justify-center rounded-sm">
+                                966+
+                              </div>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
