@@ -106,37 +106,39 @@ const ResetPassword = () => {
               <h1 className="font-bold">إعادة تعيين كلمة المرور</h1>
 
               <div className="mt-4 grid grid-cols-3 gap-3">
-                <FormField
-                  control={form.control}
-                  name="userId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Dropdown
-                          {...field}
-                          label="اختر المستخدم"
-                          getLabel={(option) => option.userName || ''}
-                          getValue={(option) => option.id || ''}
-                          onChange={handleUserChange}
-                          groups={[
-                            {
-                              label: 'المستخدمين',
-                              options:
-                                users?.map((user) => ({
-                                  userName: user.userName,
-                                  id: user.id,
-                                  label: user.userName,
-                                  value: user.id
-                                })) || []
-                            }
-                          ]}
-                          value={field.value}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {users !== undefined && (
+                  <FormField
+                    control={form.control}
+                    name="userId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Dropdown
+                            {...field}
+                            label="اختر المستخدم"
+                            getLabel={(option) => option.userName || ''}
+                            getValue={(option) => option.id || ''}
+                            onChange={handleUserChange}
+                            groups={[
+                              {
+                                label: 'المستخدمين',
+                                options:
+                                  users?.map((user) => ({
+                                    userName: user.userName,
+                                    id: user.id,
+                                    label: user.userName,
+                                    value: user.id
+                                  })) || []
+                              }
+                            ]}
+                            value={field.value}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
