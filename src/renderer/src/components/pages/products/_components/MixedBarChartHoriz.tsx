@@ -56,7 +56,7 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
     queryKey: ['nameBarChartData', id, selectedMonth, year],
     queryFn: () =>
       getApi<{ name: string; sales: number }[]>(
-        `Products/Chars/HorizantalBarChar/${id}?year=${year}&month=${selectedMonth}`
+        `Products/${id}/Chars/HorizantalBar?year=${year}&month=${selectedMonth}`
       )
   })
 

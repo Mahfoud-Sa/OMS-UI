@@ -1,4 +1,5 @@
 import { Icons } from '@renderer/components/icons/icons'
+import { LucideProps } from 'lucide-react'
 import React from 'react'
 
 interface InfoItemProps {
@@ -68,15 +69,19 @@ interface ActionButtonProps {
   // action method is used from the parent component
   actionMethod?: () => void
   buttonText?: string
+  buttonIcon?: React.ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
+  >
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({
   actionType,
   url,
   actionMethod,
-  buttonText
+  buttonText,
+  buttonIcon = Icons.dashboard
 }) => {
-  const Icon = Icons.dashboard
+  const Icon = buttonIcon
   return (
     <>
       {actionType === 'method' && (
@@ -111,6 +116,9 @@ interface CardInformationProps {
   actionType?: 'method' | 'link'
   displayButton?: boolean
   className?: string
+  buttonIcon?: React.ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
+  >
 }
 
 const InformationCard: React.FC<CardInformationProps> = ({
@@ -122,7 +130,8 @@ const InformationCard: React.FC<CardInformationProps> = ({
   actionType,
   infoItems,
   displayButton = true,
-  className
+  className,
+  buttonIcon
 }) => {
   return (
     <main className={`flex my-1 flex-wrap gap-10 items-end justify-between mb-4 ${className}`}>
@@ -134,6 +143,7 @@ const InformationCard: React.FC<CardInformationProps> = ({
           id={id}
           actionType={actionType}
           buttonText={buttonText}
+          buttonIcon={buttonIcon}
         />
       )}
     </main>

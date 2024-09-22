@@ -1,9 +1,9 @@
 export type LogInResponse = {
-  accessToken: string
-  expiresIn: number
+  token: string
+  expireIn: number
   refreshToken: string
   tokenType: string
-  userId?: string
+  id?: string
   message?: string
 }
 
@@ -31,4 +31,18 @@ export type User = {
   userType: string // User type is a string (e.g., "مشرف")
   workPlace: string
   imagePath: string
+  createdAt?: string
+}
+export interface ProductionTeam {
+  id?: string
+  name: string
+  phone: string
+}
+
+export interface ProductionLineProps {
+  id?: string
+  name: string
+  phoneNumber?: string
+  teamsCount: number
+  productionTeams?: ProductionTeam[] // Include productionTeams here
 }
