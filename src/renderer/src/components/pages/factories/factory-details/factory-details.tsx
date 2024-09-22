@@ -16,8 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, putApi } from '@renderer/lib/http'
+import { ProductionLineProps } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
+import { Edit } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
@@ -25,26 +27,20 @@ import { z } from 'zod'
 import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
-  factoryName: z
-    .string()
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  factoryLocation: z
-    .string()
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  creationDate: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
+  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   notes: z.string().optional(),
   productionLines: z.array(
     z.object({
-      id: z.string(),
-      productionLineName: z.string(),
+      id: z.string().optional(),
+      name: z.string(),
       phoneNumber: z.string(),
       teamsCount: z.number(),
       productionTeams: z.array(
         z.object({
-          id: z.string(),
-          productionTeamName: z.string(),
+          id: z.string().optional(),
+          name: z.string(),
           phoneNumber: z.string(),
           employsCount: z.number()
         })
@@ -60,14 +56,14 @@ const schema = z.object({
     )
     .optional(),
   productionLinesToBeDeleted: z.array(z.string()).optional(),
-  logoSrc: z.string().url('يجب ان تكون الصورة صحيحة').optional()
+  image: z.string().url('يجب ان تكون الصورة صحيحة').optional()
 })
 
 type Schema = z.infer<typeof schema>
 
 const getFactoryDetails = async (factoryId?: string): Promise<Schema> => {
   if (!factoryId) throw new Error('Factory ID is required')
-  const response = await getApi(`/factory/${factoryId}`)
+  const response = await getApi(`/Factories/${factoryId}`)
   return response?.data as Schema // Extract the data from the AxiosResponse
 }
 
@@ -86,40 +82,49 @@ const FactoryDetails: React.FunctionComponent = () => {
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: factory
+    defaultValues: factory || {}
   })
+
   const { errors } = form.formState
+
+  React.useEffect(() => {
+    if (factory) {
+      // convert createdAt to a date
+      console.log(factory)
+      const creationDate = new Date(factory.createdAt)
+      console.log(creationDate)
+
+      // Extract year, month, and day
+      const year = creationDate.getFullYear()
+      const month = String(creationDate.getMonth() + 1).padStart(2, '0') // Months are zero-based
+      const day = String(creationDate.getDate()).padStart(2, '0')
+
+      // Format the date as yyyy/mm/dd
+      const formattedDate = `${year}-${month}-${day}`
+      console.log(formattedDate)
+      factory.createdAt = formattedDate
+      console.log(factory)
+
+      form.reset(factory)
+      console.log(form.getValues())
+    }
+  }, [factory, form])
 
   // table structure
 
-  interface ProductionTeam {
-    id: string
-    productionTeamName: string
-    phoneNumber: string
-    employsCount: number
-  }
-
-  interface ProductionLineProps {
-    id: string
-    productionLineName: string
-    phoneNumber: string
-    teamsCount: number
-    productionTeams?: ProductionTeam[]
-    expandable?: boolean
-  }
   const toBeDeleted = (id: string) => {
     console.log(form.getValues('productionLinesToBeDeleted'))
     return form.getValues('productionLinesToBeDeleted')?.includes(id) || false
   }
   const columns: ColumnDef<ProductionLineProps, unknown>[] = [
     {
-      accessorKey: 'productionLineName',
+      accessorKey: 'name',
       header: 'خط الانتاج',
       cell: (info) => {
         const { original } = info.row
         return original ? (
           <>
-            <div>{original.productionLineName}</div>
+            <div>{original.name}</div>
             <div style={{ fontSize: '0.8em', color: 'gray' }}>#{original.id}</div>
           </>
         ) : null
@@ -128,7 +133,11 @@ const FactoryDetails: React.FunctionComponent = () => {
     {
       accessorKey: 'phoneNumber',
       header: 'رقم التواصل مع الفرق',
-      cell: (info) => info.row.original.phoneNumber
+      cell: (info) => {
+        const { original } = info.row
+        // Return an empty string or placeholder for the phoneNumber column
+        return original.phoneNumber ? original.phoneNumber : ''
+      }
     },
     {
       accessorKey: 'teamsCount',
@@ -151,16 +160,15 @@ const FactoryDetails: React.FunctionComponent = () => {
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem
-                    key={toBeDeleted(original.id) ? 'cancel' : 'delete'}
                     onClick={() => {
                       // toggle the value in the list of productionLinesToBeDeleted
                       const productionLinesToBeDeleted =
                         form.getValues('productionLinesToBeDeleted') || []
-                      const index = productionLinesToBeDeleted.indexOf(original.id)
+                      const index = productionLinesToBeDeleted.indexOf(original.id || '')
                       if (index !== -1) {
                         productionLinesToBeDeleted.splice(index, 1)
                       } else {
-                        productionLinesToBeDeleted.push(original.id)
+                        productionLinesToBeDeleted.push(original.id || '')
                       }
                       form.setValue('productionLinesToBeDeleted', productionLinesToBeDeleted)
                       console.log(form.getValues('productionLinesToBeDeleted'))
@@ -169,7 +177,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                     color="white"
                     className="btn"
                   >
-                    {!toBeDeleted(original.id) ? 'حذف' : 'الغاء الحذف'}
+                    {!toBeDeleted(original.id || '') ? 'حذف' : 'الغاء الحذف'}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -199,41 +207,35 @@ const FactoryDetails: React.FunctionComponent = () => {
   const defaultTableData: ProductionLineProps[] = [
     {
       id: '1',
-      productionLineName: 'خط الانتاج 1',
-      phoneNumber: '',
+      name: 'خط الانتاج 1',
       teamsCount: 2,
       productionTeams: [
         {
           id: '1',
-          productionTeamName: 'Sub Line 1',
-          phoneNumber: '+966555531555',
-          employsCount: 3
+          name: 'Sub Line 1',
+          phone: '+966555531555'
         },
         {
           id: '2',
-          productionTeamName: 'Sub Line 2',
-          phoneNumber: '+966555532555',
-          employsCount: 3
+          name: 'Sub Line 2',
+          phone: '+966555532555'
         }
       ]
     },
     {
       id: '2',
-      productionLineName: 'خط الانتاج 2',
-      phoneNumber: '',
+      name: 'خط الانتاج 2',
       teamsCount: 2,
       productionTeams: [
         {
           id: '1',
-          productionTeamName: 'Sub Line 1',
-          phoneNumber: '+966555531555',
-          employsCount: 3
+          name: 'Sub Line 1',
+          phone: '+966555531555'
         },
         {
           id: '2',
-          productionTeamName: 'Sub Line 2',
-          phoneNumber: '+966555532555',
-          employsCount: 3
+          name: 'Sub Line 2',
+          phone: '+966555532555'
         }
       ]
     }
@@ -264,7 +266,7 @@ const FactoryDetails: React.FunctionComponent = () => {
   // update method
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Schema) => {
-      return putApi(`/factory/${factoryId}`, data)
+      return putApi(`/Factories/${factoryId}`, data)
     },
     onSuccess: () => {
       toast({
@@ -296,20 +298,21 @@ const FactoryDetails: React.FunctionComponent = () => {
         {factoryId && (
           <InformationCard
             id={factoryId}
-            logoSrc={factory?.logoSrc || 'https://via.placeholder.com/100'}
+            logoSrc={factory?.image || 'https://via.placeholder.com/100'}
             actionType="method"
-            buttonAction={() => console.log('Button action')}
-            buttonText="اطبع التقرير"
+            buttonAction={() => setIsEdit((prev) => !prev)}
+            buttonText={!isEdit ? 'تعديل' : 'الغاء التعديل'}
+            buttonIcon={Edit}
             infoItems={[
               {
-                text: factory?.factoryName || 'Factory Name'
+                text: factory?.name || 'Factory Name'
               },
               {
-                text: factory?.creationDate || '2021-09-01',
+                text: factory?.createdAt || '2021-09-01',
                 iconSrc: 'calendarTick'
               },
               {
-                text: factory?.factoryLocation || 'Factory Location',
+                text: factory?.location || 'Factory Location',
                 iconSrc: 'mapPin'
               }
             ]}
@@ -317,13 +320,6 @@ const FactoryDetails: React.FunctionComponent = () => {
         )}
       </section>
       <section className="bg-white p-5">
-        {factoryId && (
-          <div className="flex justify-end">
-            <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
-              {!isEdit ? 'تعديل' : 'الغاء التعديل'}
-            </Button>
-          </div>
-        )}
         <Form {...form}>
           <main className="flex flex-col text-base font-medium text-zinc-700">
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -369,7 +365,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                     <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
                       <FormField
                         control={form.control}
-                        name="factoryName"
+                        name="name"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
@@ -386,13 +382,13 @@ const FactoryDetails: React.FunctionComponent = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="creationDate"
+                        name="createdAt"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
                               <Input
                                 type="date"
-                                disabled={!isEdit}
+                                disabled
                                 {...field}
                                 placeholder="تاريخ الانشاء"
                                 label="تاريخ الانشاء"
@@ -404,7 +400,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="factoryLocation"
+                        name="location"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>

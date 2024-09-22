@@ -30,7 +30,7 @@ const Users = () => {
     queryFn: () =>
       getApi<{
         users: DeliveryUserCardProps[]
-        totalCount: number
+        total: number
         page_number: number
         size: number
         pages: number
@@ -50,8 +50,8 @@ const Users = () => {
   }, [fetchedData])
 
   useEffect(() => {
-    if (fetchedData?.data.totalCount) {
-      setTotalUsers(fetchedData.data.totalCount)
+    if (fetchedData?.data.total) {
+      setTotalUsers(fetchedData.data.total)
     }
   }, [fetchedData])
 

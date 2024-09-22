@@ -56,7 +56,7 @@ const LineCharter = ({
 }) => {
   const { data, isLoading } = useQuery({
     queryKey: ['browserLineChartData', id, year],
-    queryFn: () => getApi<ApiResponse[]>(`Products/Chars/LineChar/${id}?year=${year}`)
+    queryFn: () => getApi<ApiResponse[]>(`Products/${id}/Chars/Line?year=${year}`)
   })
 
   const chartData = useMemo(() => {

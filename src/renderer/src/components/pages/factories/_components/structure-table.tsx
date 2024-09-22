@@ -15,6 +15,7 @@ import {
   TableRow
 } from '@renderer/components/ui/table'
 import { cn } from '@renderer/lib/utils'
+import { ProductionLineProps } from '@renderer/types/api'
 import {
   ColumnDef,
   flexRender,
@@ -34,27 +35,14 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   title?: string
   className?: string
+  displayActions?: boolean
   onDeleteProductionLineTeam: (productionLineId: string, productionLineTeamIds: string[]) => void
 }
-interface ProductionTeam {
-  id: string
-  productionTeamName: string
-  phoneNumber: string
-  employsCount: number
-}
-
-interface ProductionLineProps {
-  id: string
-  productionLineName: string
-  phoneNumber: string
-  teamsCount: number
-  productionTeams?: ProductionTeam[] // Include productionTeams here
-}
-
 export function StructureTable<TData extends ProductionLineProps, TValue>({
   columns,
   data,
   className,
+  displayActions = true,
   onDeleteProductionLineTeam
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -136,14 +124,15 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                         {/* Render nested data based on the column */}
                         {cellIndex === 0 && (
                           <div className="flex flex-col gap-2">
-                            <div>{team.productionTeamName}</div>
-                            <div style={{ fontSize: '0.8em', color: 'gray' }}>#{team.id}</div>
+                            <div>{team.name}</div>
+                            {team.id && (
+                              <div style={{ fontSize: '0.8em', color: 'gray' }}>#{team.id}</div>
+                            )}
                           </div>
                         )}
-                        {cellIndex === 1 && <p style={{ direction: 'ltr' }}>{team.phoneNumber}</p>}
-                        {cellIndex === 2 && <p>{team.employsCount}</p>}
+                        {cellIndex === 1 && <p style={{ direction: 'ltr' }}>{team.phone}</p>}
                         {/* last column showed be the dropdown menu */}
-                        {cellIndex === 3 && (
+                        {cellIndex === 3 && displayActions && (
                           <DropdownMenu>
                             <DropdownMenuTrigger>
                               <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
@@ -155,7 +144,9 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                                 </Link>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    onDeleteProductionLineTeam(row.original.id, [team.id])
+                                    onDeleteProductionLineTeam(row.original.id || '', [
+                                      team.id || ''
+                                    ])
                                   }}
                                   style={{ backgroundColor: 'orange', color: 'white' }}
                                   color="white"
