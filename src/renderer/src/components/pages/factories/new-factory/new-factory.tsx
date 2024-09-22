@@ -1,52 +1,93 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Icons } from '@renderer/components/icons/icons'
 import Loader from '@renderer/components/layouts/loader'
-import { StructureTable } from '@renderer/components/tables/structure-table '
 import { Button } from '@renderer/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@renderer/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
 import { postApi } from '@renderer/lib/http'
+import { ProductionLineProps } from '@renderer/types/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ColumnDef } from '@tanstack/react-table'
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import ProductionLineDialog from '../_components/production-lines-dialog'
+import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
-  factoryName: z
-    .string()
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  factoryLocation: z
-    .string()
-    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  creationDate: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
-  totalTeams: z.string().min(3, 'يجب أن يكون أكبر من 1 حرف'),
+  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   notes: z.string().optional(),
-  logoSrc: z.string().url('يجب أن يكون رابط صالح').optional(),
   productionLines: z.array(
     z.object({
-      name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف')
+      id: z.string().optional(),
+      name: z.string(),
+      teamsCount: z.number(),
+      productionTeams: z.array(
+        z.object({
+          id: z.string().optional(),
+          name: z.string(),
+          phone: z.string()
+        })
+      )
     })
-  )
+  ),
+  image: z.string().url('يجب ان تكون الصورة صحيحة').optional()
 })
 
 type Schema = z.infer<typeof schema>
 
 const NewFactory: React.FunctionComponent = () => {
   const [currentTab, setCurrentTab] = React.useState('account')
-  const [productionLinesArray, setProductionLinesArray] = React.useState<Schema['productionLines']>(
-    []
-  )
-  const [name, setName] = React.useState('')
+  const [productionLinesArray, setProductionLinesArray] = useState<Schema['productionLines']>([])
+  const [openDialog, setOpenDialog] = useState(false)
+  const [productionLineToBeEdited, setProductionLineToBeEdited] = useState<
+    ProductionLineProps | undefined
+  >(undefined)
+
+  const addProductionLineWithTeams = (line, teams) => {
+    const newProductionLine = {
+      id: `${productionLinesArray.length + 1}`,
+      name: line,
+      phoneNumber: '', // Add appropriate value
+      teamsCount: teams.length,
+      productionTeams: teams
+    }
+    setProductionLinesArray([...productionLinesArray, newProductionLine])
+    console.log(productionLinesArray)
+    console.log(newProductionLine)
+  }
+  const editProductionLineWithTeams = (id, line, teams) => {
+    const newProductionLine = {
+      id,
+      name: line,
+      phoneNumber: '', // Add appropriate value
+      teamsCount: teams.length,
+      productionTeams: teams
+    }
+    const newProductionLines = productionLinesArray.map((l) => {
+      if (l.id === id) {
+        return newProductionLine
+      }
+      return l
+    })
+    setProductionLinesArray(newProductionLines)
+    console.log(productionLinesArray)
+    console.log(newProductionLine)
+  }
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
-    // defaultValues: factory
-    // Uncomment and set default values if available
   })
   const { errors } = form.formState
 
@@ -98,22 +139,88 @@ const NewFactory: React.FunctionComponent = () => {
     mutate(data)
   }
 
-  const addProductionLine = () => {
-    setProductionLinesArray([...productionLinesArray, { name }])
-    form.setValue('productionLines', [...productionLinesArray, { name }])
-    setName('')
+  const removeProductionLine = (line: ProductionLineProps) => {
+    const newProductionLines = productionLinesArray.filter((l) => l !== line)
+    setProductionLinesArray(newProductionLines)
   }
 
-  const columns: ColumnDef<Schema['productionLines'][number], unknown>[] = [
+  const columns = [
     {
       accessorKey: 'name',
       header: 'اسم خط الانتاج',
-      cell: (info) => info.getValue()
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <>
+            <div>{original.name}</div>
+          </>
+        ) : null
+      }
     },
     {
       accessorKey: 'phoneNumber',
-      header: 'رقم الهاتف',
-      cell: (info) => info.getValue()
+      header: 'رقم التواصل مع الفرق',
+      cell: (info) => {
+        const { original } = info.row
+        return original.phoneNumber ? original.phoneNumber : ''
+      }
+    },
+    {
+      accessorKey: 'teamsCount',
+      header: 'عدد الفرق',
+      cell: (info) => info.row.original.teamsCount
+    },
+    {
+      id: 'actions',
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <a
+                    onClick={() => {
+                      setOpenDialog(true)
+                      setProductionLineToBeEdited(original)
+                    }}
+                  >
+                    <DropdownMenuItem>تعديل</DropdownMenuItem>
+                  </a>
+                  <DropdownMenuItem
+                    onClick={() => removeProductionLine(original)}
+                    style={{ backgroundColor: 'orange', color: 'white' }}
+                    color="white"
+                    className="btn"
+                  >
+                    {'حذف'}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : null
+      }
+    },
+    {
+      id: 'expand',
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <span
+            className="mx-2"
+            onClick={() => {
+              info.row.toggleExpanded()
+            }}
+            {...info.row.getToggleExpandedHandler()}
+          >
+            {info.row.original.teamsCount > 0 ? (info.row.getIsExpanded() ? '▼' : '▶') : null}
+          </span>
+        ) : null
+      }
     }
   ]
 
@@ -140,7 +247,7 @@ const NewFactory: React.FunctionComponent = () => {
                     <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
                       <FormField
                         control={form.control}
-                        name="factoryName"
+                        name="name"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
@@ -152,7 +259,7 @@ const NewFactory: React.FunctionComponent = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="creationDate"
+                        name="createdAt"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
@@ -161,6 +268,11 @@ const NewFactory: React.FunctionComponent = () => {
                                 {...field}
                                 placeholder="تاريخ الانشاء"
                                 label="تاريخ الانشاء"
+                                value={
+                                  // current date as yyyy-mm-dd
+                                  new Date().toISOString().split('T')[0]
+                                }
+                                disabled
                               />
                             </FormControl>
                             <FormMessage>{fieldState?.error?.message}</FormMessage>
@@ -169,7 +281,7 @@ const NewFactory: React.FunctionComponent = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="factoryLocation"
+                        name="location"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
@@ -183,7 +295,7 @@ const NewFactory: React.FunctionComponent = () => {
                     <div className="items-center mt-5">
                       <FormField
                         control={form.control}
-                        name="totalTeams"
+                        name="notes"
                         render={({ field, fieldState }) => (
                           <FormItem>
                             <FormControl>
@@ -198,39 +310,31 @@ const NewFactory: React.FunctionComponent = () => {
                 </main>
               </TabsContent>
               <TabsContent value="productionLines">
-                <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
-                  <FormField
-                    control={form.control}
-                    name={`productionLines.${productionLinesArray.length}.name`}
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="اسم خط الانتاج"
-                            label="اسم خط الانتاج"
-                          />
-                        </FormControl>
-                        <FormMessage>{fieldState?.error?.message}</FormMessage>
-                      </FormItem>
-                    )}
+                <div className="flex justify-end mt-2">
+                  <ProductionLineDialog
+                    addProductionLineWithTeams={addProductionLineWithTeams}
+                    editProductionLineWithTeams={editProductionLineWithTeams}
+                    openDialog={openDialog}
+                    onClose={() => {
+                      console.log('closed')
+                      setOpenDialog(false)
+                      setProductionLineToBeEdited(undefined)
+                    }}
+                    productionLine={productionLineToBeEdited}
+                    isEdit={!!productionLineToBeEdited}
                   />
                 </div>
-                <div className="flex justify-end mt-2">
-                  <Button type="button" onClick={addProductionLine}>
-                    إضافة خط انتاج
-                  </Button>
-                </div>
                 <div className="mt-5">
-                  <StructureTable
+                  <StructureTable<ProductionLineProps, unknown>
                     columns={columns}
                     data={productionLinesArray}
                     title="خطوط الانتاج المضافة"
+                    displayActions={false}
+                    onDeleteProductionLineTeam={() => {}}
                   />
                 </div>
               </TabsContent>
+              <TabsContent value="reports">Change your reports here.</TabsContent>
             </Tabs>
           </section>
           <div className="flex mt-2 flex-row gap-2 justify-end">
