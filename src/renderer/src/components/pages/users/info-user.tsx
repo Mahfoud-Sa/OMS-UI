@@ -103,7 +103,7 @@ const InfoUser = () => {
       data.LastName && formData.set('Lastname', data.LastName)
       formData.set('userName', data.Username)
       data.EmployDate && formData.set('employDate', data.EmployDate)
-      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
+      data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
       formData.set('workPlace', data.WorkPlace)
       formData.set('userRole', data.UserRole)
       data.UserType && formData.set('userType', data.UserType)
