@@ -22,58 +22,29 @@ import { useToast } from '@renderer/components/ui/use-toast'
 import { deleteApi, getApi } from '@renderer/lib/http'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import FactoriesSearch from './_components/factories-search'
 import Statistics from './_components/statistics'
 
 export interface FactoryInterface {
   id: string
-  factoryName: string
-  factoryLocation: string
+  name: string
+  location: string
   createdAt: string
-  productionLinesCount: number
-  teamsCount: number
+  productionLinesCount?: number
+  teamsCount?: number
 }
 
-const initialFactoryData: FactoryInterface[] = [
-  {
-    id: '1',
-    factoryName: 'Factory 1',
-    factoryLocation: 'Location 1',
-    createdAt: '2000-01-01',
-    productionLinesCount: 100,
-    teamsCount: 100
-  },
-  {
-    id: '2',
-    factoryName: 'Factory 2',
-    factoryLocation: 'Location 2',
-    createdAt: '2005-05-05',
-    productionLinesCount: 200,
-    teamsCount: 200
-  }
-  // Add more factory data as needed
-]
-
 const Factories = () => {
-  const {
-    data: fetchedData,
-    isLoading,
-    error
-  } = useQuery({
+  const { data: fetchedData, isLoading } = useQuery({
     queryKey: ['factories'],
-    queryFn: () =>
-      getApi<{ factories: FactoryInterface[] }>('/api/Factories', {
-        params: { page: 1, pageSize: 2 }
-      })
+    queryFn: () => getApi<FactoryInterface[]>('/Factories')
   })
-  console.log(fetchedData)
+  console.log(fetchedData?.data)
 
-  const [factoriesData, setFactoriesData] = useState(fetchedData?.data.factories)
+  const [factoriesData, setFactoriesData] = useState<FactoryInterface[]>([])
   const { toast } = useToast()
-  const [page] = useState(1)
-  const pageSize = 10
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedFactoryId, setSelectedFactoryId] = useState<string | null>(null)
   const mutation = useMutation({
@@ -92,7 +63,7 @@ const Factories = () => {
         setFactoriesData(updateFactoriesData)
         toast({
           title: 'تم الحذف',
-          description: `تم حذف المصنع ${deletedFactoryData?.factoryName}`,
+          description: `تم حذف المصنع ${deletedFactoryData?.name}`,
           variant: 'success'
         })
 
@@ -105,11 +76,11 @@ const Factories = () => {
 
   const columns: ColumnDef<FactoryInterface, unknown>[] = [
     {
-      accessorKey: 'factoryName',
+      accessorKey: 'name',
       header: 'اسم المصنع',
       cell: (info) => (
         <>
-          <div>{info.row.original.factoryName}</div>
+          <div>{info.row.original.name}</div>
           <div style={{ fontSize: '0.8em', color: 'gray' }}>#{info.row.original.id}</div>
         </>
       )
@@ -121,20 +92,20 @@ const Factories = () => {
       enableSorting: true
     },
     {
-      accessorKey: 'factoryLocation',
+      accessorKey: 'location',
       header: 'موقع المصنع',
       cell: (info) => info.getValue()
     },
-    {
-      accessorKey: 'productionLinesCount',
-      header: 'عدد خطوط الانتاج',
-      cell: (info) => info.getValue()
-    },
-    {
-      accessorKey: 'teamsCount',
-      header: 'عدد الفرق',
-      cell: (info) => info.getValue()
-    },
+    // {
+    //   accessorKey: 'productionLinesCount',
+    //   header: 'عدد خطوط الانتاج',
+    //   cell: (info) => info.getValue()
+    // },
+    // {
+    //   accessorKey: 'teamsCount',
+    //   header: 'عدد الفرق',
+    //   cell: (info) => info.getValue()
+    // },
     {
       id: 'actions',
       cell: (info) => (
@@ -166,12 +137,14 @@ const Factories = () => {
       )
     }
   ]
+  useEffect(() => {
+    if (fetchedData?.data) {
+      setFactoriesData(fetchedData.data)
+    }
+  }, [fetchedData])
 
-  let paginatedData = factoriesData?.slice((page - 1) * pageSize, page * pageSize)
-  if (error) {
-    console.log(error)
-    paginatedData = initialFactoryData?.slice((page - 1) * pageSize, page * pageSize)
-  }
+  const paginatedData = factoriesData
+  console.log('paginatedData', paginatedData)
 
   return (
     <section className="p-5">

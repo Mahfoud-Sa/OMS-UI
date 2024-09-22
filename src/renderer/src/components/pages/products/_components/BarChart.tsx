@@ -30,7 +30,7 @@ const BarCharter: React.FC<BarCharterProps> = ({ productName, id, onChangeYear, 
   const { data, isLoading, error } = useQuery({
     queryKey: ['productBarChartData', id, year],
     queryFn: () =>
-      getApi<{ month: string; sales: number }[]>(`Products/Chars/BarChar/${id}?year=${year}`)
+      getApi<{ month: string; sales: number }[]>(`Products/${id}/Chars/Bar?year=${year}`)
   })
 
   useEffect(() => {

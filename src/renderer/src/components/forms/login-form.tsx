@@ -6,9 +6,9 @@ import {
   DialogHeader,
   DialogTitle
 } from '@renderer/components/ui/dialog'
-import { postApi } from '@renderer/lib/http'
+import { getApi, postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
-import { LogInResponse } from '@renderer/types/api'
+import { LogInResponse, User } from '@renderer/types/api'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useSignIn } from 'react-auth-kit'
@@ -28,18 +28,18 @@ const PasswordChangeDialog = ({
 }: {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (newPassword: string) => Promise<void>
+  onSubmit: (newPassword: string, confirmPassword: string) => Promise<void>
 }) => {
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
-    // if (newPassword === confirmNewPassword) {
-    setIsSubmitting(true)
-    await onSubmit(newPassword)
-    setIsSubmitting(false)
-    // }
+    if (newPassword === confirmNewPassword) {
+      setIsSubmitting(true)
+      await onSubmit(newPassword, confirmNewPassword)
+      setIsSubmitting(false)
+    }
   }
   console.log('newPassword', newPassword)
   console.log('confirmNewPassword', confirmNewPassword)
@@ -98,7 +98,7 @@ const LoginForm = () => {
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [isPasswordChangeRequired, setIsPasswordChangeRequired] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
+  const [id, setUserId] = useState<string | null>(null)
   const signIn = useSignIn()
 
   const form = useForm<UserFormValue>({
@@ -119,16 +119,22 @@ const LoginForm = () => {
       console.log(res)
       if (res?.status === 200 && res.data.message === 'Password change required') {
         setIsPasswordChangeRequired(true)
-        setUserId(res.data.userId ?? null)
+        setUserId(res.data.id ?? null)
         return
       }
 
       if ([200, 201].includes(res?.status as number)) {
+        const userData = await getApi<User>(`/users/${res.data.id}`)
+
         const signInResult = signIn({
-          token: res.data.accessToken,
-          expiresIn: res.data.expiresIn,
-          tokenType: res.data.tokenType
+          token: res.data.token,
+          expiresIn: res.data.expireIn,
+          tokenType: 'Bearer',
+          authState: {
+            ...userData.data
+          }
         })
+        // debugger
         if (signInResult) {
           toast({
             title: 'مرحباً مجدداً',
@@ -170,11 +176,11 @@ const LoginForm = () => {
       setDelayedSubmitting(false)
     }
   }
-  const handlePasswordChangeSubmit = async (newPassword: string) => {
+  const handlePasswordChangeSubmit = async (newPassword: string, confirmPassword: string) => {
     try {
-      const res = await postApi('/Account/SetPassword', {
-        userId,
-        newPassword
+      const res = await postApi(`/Account/ChangePassword/${form.getValues('userName')}`, {
+        newPassword,
+        confirmPassword
       })
 
       if (res?.status === 200) {

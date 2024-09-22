@@ -1,6 +1,6 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronDown } from 'lucide-react'
-import { useIsAuthenticated, useSignOut } from 'react-auth-kit'
+import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom'
 import userIcon from '../icons/user.svg'
 import { Button } from '../ui/button'
@@ -29,7 +29,7 @@ export function UserNav() {
     signOut()
     navigate('login')
   }
-  // const auth = useAuthUser()
+  const auth = useAuthUser()
 
   if (issAuthenticated()) {
     return (
@@ -37,11 +37,19 @@ export function UserNav() {
         <DropdownMenuTrigger asChild className="justify-between w-44 border">
           <Button variant="ghost" className="relative flex gap-1">
             {/* <Avatar className=''> */}
-            <img className="w-[35px] h-[35px]" src={userIcon} alt={'Unknown User'} />
+            <img
+              className="w-[35px] h-[35px]"
+              src={auth()?.imagePath || userIcon}
+              alt={'Unknown User'}
+            />
             {/* {!session.user?.image && <span>{session.user?.employeeName}</span>}  */}
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{'Unknown User'}</p>
-              <p className="text-xs leading-none text-muted-foreground">{'Unknown User'}</p>
+              <p className="text-sm font-medium leading-none">
+                {auth()?.userName || 'Unknown User'}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {auth()?.userType || 'Unknown User'}
+              </p>
             </div>
             <ChevronDown size={15} />
           </Button>
