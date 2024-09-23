@@ -139,6 +139,11 @@ const Factories = () => {
   ]
   useEffect(() => {
     if (fetchedData?.data) {
+      // formate the createdAt string date to this formate yyyy-mm-dd
+      fetchedData.data.forEach((factory) => {
+        const date = new Date(factory.createdAt)
+        factory.createdAt = date.toISOString().split('T')[0]
+      })
       setFactoriesData(fetchedData.data)
     }
   }, [fetchedData])
@@ -148,7 +153,7 @@ const Factories = () => {
 
   return (
     <section className="p-5">
-      <Statistics />
+      <Statistics factoriesTotal={factoriesData?.length} productionLinesTotal={0} />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <div className="flex gap-3 flex-row h-[50px]">
           <FactoriesSearch />
