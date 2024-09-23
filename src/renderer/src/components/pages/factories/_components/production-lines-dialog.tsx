@@ -33,6 +33,10 @@ const ProductionLineDialog = ({
   const [teamPhone, setTeamPhone] = useState('')
   const [teams, setTeams] = useState<ProductionTeam[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(openDialog)
+  const [lineNameError, setLineNameError] = useState('')
+  const [teamNameError, setTeamNameError] = useState('')
+  const [teamPhoneError, setTeamPhoneError] = useState('')
+  const [teamsError, setTeamsError] = useState('')
   const { id } = productionLine || {}
 
   useEffect(() => {
@@ -48,25 +52,89 @@ const ProductionLineDialog = ({
     }
   }, [isEdit, productionLine])
 
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^5\d{8}$/
+    return phoneRegex.test(phone)
+  }
+
   const addTeam = () => {
-    setTeams([...teams, { name: teamName, phone: teamPhone }])
-    setTeamName('')
-    setTeamPhone('')
+    let valid = true
+    if (!lineName) {
+      setLineNameError('اسم خط الانتاج مطلوب')
+      valid = false
+    } else {
+      setLineNameError('')
+    }
+    if (!teamName) {
+      console.log('s')
+      setTeamNameError('اسم الفريق مطلوب')
+      valid = false
+    } else {
+      setTeamNameError('')
+    }
+
+    if (!teamPhone) {
+      setTeamPhoneError('رقم الهاتف مطلوب')
+      valid = false
+    } else if (!validatePhone(teamPhone)) {
+      setTeamPhoneError('رقم الهاتف يجب أن يكون 9 أرقام تبدأ بـ 5')
+      valid = false
+    } else {
+      setTeamPhoneError('')
+    }
+
+    if (valid) {
+      setTeams([...teams, { name: teamName, phone: teamPhone }])
+      setTeamName('')
+      setTeamPhone('')
+      setLineNameError('')
+    }
   }
 
   const handleAddProductionLine = () => {
-    addProductionLineWithTeams(lineName, teams)
-    setLineName('')
-    setTeams([])
+    let valid = true
+    if (!lineName) {
+      setLineNameError('اسم خط الانتاج مطلوب')
+      valid = false
+    } else {
+      setLineNameError('')
+    }
+
+    if (teams.length === 0) {
+      setTeamsError('يجب إضافة فريق واحد على الأقل')
+      valid = false
+    } else {
+      setTeamsError('')
+    }
+
+    if (valid) {
+      addProductionLineWithTeams(lineName, teams)
+      setLineName('')
+      setTeams([])
+    }
   }
 
   const handleEditProductionLine = () => {
-    console.log('editProductionLineWithTeams', lineName, teams)
-    if (editProductionLineWithTeams && id) {
-      editProductionLineWithTeams(id, lineName, teams)
+    let valid = true
+    if (!lineName) {
+      setLineNameError('اسم خط الانتاج مطلوب')
+      valid = false
+    } else {
+      setLineNameError('')
     }
-    setLineName('')
-    setTeams([])
+
+    if (teams.length === 0) {
+      setTeamsError('يجب إضافة فريق واحد على الأقل')
+      valid = false
+    } else {
+      setTeamsError('')
+    }
+
+    if (valid && editProductionLineWithTeams && id) {
+      editProductionLineWithTeams(id, lineName, teams)
+      setLineName('')
+      setTeams([])
+    }
   }
 
   const handleAddEditProductionLine = () => {
@@ -75,8 +143,6 @@ const ProductionLineDialog = ({
     } else {
       handleAddProductionLine()
     }
-    setLineName('')
-    setTeams([])
   }
 
   const removeProductionTeam = (team: ProductionTeam) => {
@@ -144,24 +210,37 @@ const ProductionLineDialog = ({
             placeholder="اسم خط الانتاج"
             label="اسم خط الانتاج"
           />
+          {lineNameError && <small className="text-red-500">{lineNameError}</small>}
           <div className="mt-4">
             <label>فرق الإنتاج</label>
-            <Input
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              placeholder="اسم فريق الإنتاج"
-              label="اسم فريق الإنتاج"
-            />
-            <Input
-              value={teamPhone}
-              onChange={(e) => setTeamPhone(e.target.value)}
-              placeholder="رقم هاتف فريق الإنتاج"
-              label="رقم هاتف فريق الإنتاج"
-            />
+            <div className="flex justify-between gap-4 my-2">
+              <div className="flex-1">
+                <Input
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="اسم فريق الإنتاج"
+                  label="اسم فريق الإنتاج"
+                />
+                {teamNameError && <small className="text-red-500">{teamNameError}</small>}
+              </div>
+              <div className="flex-1">
+                <Input
+                  value={teamPhone}
+                  onChange={(e) => setTeamPhone(e.target.value)}
+                  placeholder="رقم هاتف فريق الإنتاج"
+                  label="رقم هاتف فريق الإنتاج"
+                  type="tel"
+                  maxLength={9}
+                  prefix="+966"
+                />
+                {teamPhoneError && <small className="text-red-500">{teamPhoneError}</small>}
+              </div>
+            </div>
             <Button type="button" onClick={addTeam}>
               إضافة فريق الإنتاج
             </Button>
           </div>
+          {teamsError && <small className="text-red-500">{teamsError}</small>}
           <div className="mt-4">
             <StructureTable<ProductionTeam, unknown>
               columns={columns}
