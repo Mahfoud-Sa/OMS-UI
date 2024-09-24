@@ -6,8 +6,9 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'
+import { NoneMixedBarCharterProps } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
@@ -16,6 +17,11 @@ interface BarCharterProps {
   id: string
   year: number
   onChangeYear: (year: number) => void
+  label: string
+  queryFunction: (
+    id: string,
+    year: number
+  ) => Promise<AxiosResponse<NoneMixedBarCharterProps[], any>>
 }
 
 interface BarChartData {
@@ -24,17 +30,24 @@ interface BarChartData {
   color?: string
 }
 
-const BarCharter: React.FC<BarCharterProps> = ({ productName, id, onChangeYear, year }) => {
+const BarCharter: React.FC<BarCharterProps> = ({
+  productName,
+  id,
+  onChangeYear,
+  year,
+  label,
+  queryFunction
+}) => {
   const [displayData, setDisplayData] = useState<BarChartData[]>([])
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['productBarChartData', id, year],
-    queryFn: () =>
-      getApi<{ month: string; sales: number }[]>(`Products/${id}/Chars/Bar?year=${year}`)
+    queryFn: () => queryFunction(id, year)
+    // getApi<NoneMixedBarCharterProps[]>(`Products/${id}/Chars/Bar?year=${year}`)
   })
 
   useEffect(() => {
-    if (data) {
+    if (data?.data) {
       const updatedChartData = data.data.map((item) => ({
         ...item,
         [productName]: item.sales, // Replace 'value' with 'productName'
@@ -66,7 +79,7 @@ const BarCharter: React.FC<BarCharterProps> = ({ productName, id, onChangeYear, 
   return (
     <Card>
       <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between">
-        <h5 className="text-sm font-semibold">مبيعات الصنف</h5>
+        <h5 className="text-sm font-semibold">{label}</h5>
         <select
           onChange={(e) => {
             const year = parseInt(e.target.value, 10)

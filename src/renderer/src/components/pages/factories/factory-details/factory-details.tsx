@@ -15,15 +15,26 @@ import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
-import { getApi, putApi } from '@renderer/lib/http'
-import { ProductionLineProps } from '@renderer/types/api'
+import { deleteApi, getApi, postApi, putApi } from '@renderer/lib/http'
+import {
+  LineChartResponse,
+  MixedBarCharterProps,
+  NoneMixedBarCharterProps,
+  ProductionLineProps,
+  ProductionTeam
+} from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { Edit } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { z } from 'zod'
+import BarCharter from '../../products/_components/BarChart'
+import LineCharter from '../../products/_components/LineChart'
+import MixedBarChartHoriz from '../../products/_components/MixedBarChartHoriz'
+import ProductionLineDialog from '../_components/production-lines-dialog'
+import UpdateProductionTeamDialog from '../_components/production-team-dialog'
 import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
@@ -35,13 +46,13 @@ const schema = z.object({
     z.object({
       id: z.string().optional(),
       name: z.string(),
-      phoneNumber: z.string(),
+      phone: z.string().optional(),
       teamsCount: z.number(),
-      productionTeams: z.array(
+      teams: z.array(
         z.object({
           id: z.string().optional(),
           name: z.string(),
-          phoneNumber: z.string(),
+          phone: z.string(),
           employsCount: z.number()
         })
       )
@@ -51,7 +62,7 @@ const schema = z.object({
     .array(
       z.object({
         productionLineId: z.string(),
-        productionTeams: z.array(z.string())
+        teams: z.array(z.string())
       })
     )
     .optional(),
@@ -72,6 +83,15 @@ const FactoryDetails: React.FunctionComponent = () => {
   const [isEdit, setIsEdit] = React.useState(false)
   if (!factoryId) setIsEdit(false)
   const [currentTab, setCurrentTab] = React.useState('account')
+  const [openDialog, setOpenDialog] = React.useState(false)
+  const [productionLineToBeEdited, setProductionLineToBeEdited] =
+    React.useState<ProductionLineProps>()
+  const [openUpdateTeamDialog, setOpenUpdateTeamDialog] = React.useState(false)
+  const [teamToBeEdited, setTeamToBeEdited] = React.useState<ProductionTeam | undefined>(undefined)
+  const [productionLineId, setProductionLineId] = React.useState('')
+  const [selectedYear, setSelectedYear] = React.useState(0)
+  const [hasManyValues, setHasManyValues] = React.useState(false)
+
   const { data: factory, error } = useQuery<Schema, Error>({
     queryKey: ['factory', factoryId],
     queryFn: () => getFactoryDetails(factoryId)
@@ -112,10 +132,33 @@ const FactoryDetails: React.FunctionComponent = () => {
 
   // table structure
 
-  const toBeDeleted = (id: string) => {
-    console.log(form.getValues('productionLinesToBeDeleted'))
-    return form.getValues('productionLinesToBeDeleted')?.includes(id) || false
+  const deleteProductionLine = async (id: string) => {
+    await deleteApi(`/ProductionLines/${id}`)
+    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
   }
+  const deleteProductionTeam = async (productionLineTeamId: string) => {
+    await deleteApi(`/ProductionTeams/${productionLineTeamId}`)
+    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+  }
+  const editProductionTeam = async (
+    id: string,
+    name: string,
+    phone: string,
+    productionLineId: string
+  ) => {
+    const team = { name, phone, productionLineId }
+    console.log(team)
+    await putApi(`/ProductionTeams/${id}`, team)
+    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+  }
+
+  // Add a method to open the dialog with the selected team
+  const handleEditTeam = (team: ProductionTeam, productionLineId: string) => {
+    setProductionLineId(productionLineId)
+    setTeamToBeEdited(team)
+    setOpenUpdateTeamDialog(true)
+  }
+
   const columns: ColumnDef<ProductionLineProps, unknown>[] = [
     {
       accessorKey: 'name',
@@ -131,24 +174,24 @@ const FactoryDetails: React.FunctionComponent = () => {
       }
     },
     {
-      accessorKey: 'phoneNumber',
+      accessorKey: 'phone',
       header: 'رقم التواصل مع الفرق',
       cell: (info) => {
         const { original } = info.row
-        // Return an empty string or placeholder for the phoneNumber column
-        return original.phoneNumber ? original.phoneNumber : ''
+        // Return an empty string or placeholder for the phone column
+        return original.phone ? original.phone : ''
       }
     },
     {
       accessorKey: 'teamsCount',
       header: 'عدد الفرق',
-      cell: (info) => info.row.original.teamsCount
+      cell: (info) => info.row.original.teamsCount || info.row.original.teams?.length
     },
     {
       id: 'actions',
       cell: (info) => {
         const { original } = info.row
-        return original ? (
+        return original && isEdit ? (
           <>
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -156,28 +199,22 @@ const FactoryDetails: React.FunctionComponent = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <Link to={`./productionLine/${original.id}`}>
+                  <a
+                    onClick={() => {
+                      console.log(original)
+                      setProductionLineToBeEdited(original)
+                      setOpenDialog(true)
+                    }}
+                  >
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
-                  </Link>
+                  </a>
                   <DropdownMenuItem
                     onClick={() => {
-                      // toggle the value in the list of productionLinesToBeDeleted
-                      const productionLinesToBeDeleted =
-                        form.getValues('productionLinesToBeDeleted') || []
-                      const index = productionLinesToBeDeleted.indexOf(original.id || '')
-                      if (index !== -1) {
-                        productionLinesToBeDeleted.splice(index, 1)
-                      } else {
-                        productionLinesToBeDeleted.push(original.id || '')
-                      }
-                      form.setValue('productionLinesToBeDeleted', productionLinesToBeDeleted)
-                      console.log(form.getValues('productionLinesToBeDeleted'))
+                      deleteProductionLine(original.id || '')
                     }}
-                    style={{ backgroundColor: 'orange', color: 'white' }}
-                    color="white"
-                    className="btn"
+                    className="bg-orange-500 text-white"
                   >
-                    {!toBeDeleted(original.id || '') ? 'حذف' : 'الغاء الحذف'}
+                    حذف
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -198,46 +235,14 @@ const FactoryDetails: React.FunctionComponent = () => {
             }}
             {...info.row.getToggleExpandedHandler()}
           >
-            {info.row.original.teamsCount > 0 ? (info.row.getIsExpanded() ? '▼' : '▶') : null}
+            {info.row.original.teams && info.row.original.teams.length > 0
+              ? info.row.getIsExpanded()
+                ? '▼'
+                : '▶'
+              : null}
           </span>
         ) : null
       }
-    }
-  ]
-  const defaultTableData: ProductionLineProps[] = [
-    {
-      id: '1',
-      name: 'خط الانتاج 1',
-      teamsCount: 2,
-      productionTeams: [
-        {
-          id: '1',
-          name: 'Sub Line 1',
-          phone: '+966555531555'
-        },
-        {
-          id: '2',
-          name: 'Sub Line 2',
-          phone: '+966555532555'
-        }
-      ]
-    },
-    {
-      id: '2',
-      name: 'خط الانتاج 2',
-      teamsCount: 2,
-      productionTeams: [
-        {
-          id: '1',
-          name: 'Sub Line 1',
-          phone: '+966555531555'
-        },
-        {
-          id: '2',
-          name: 'Sub Line 2',
-          phone: '+966555532555'
-        }
-      ]
     }
   ]
   React.useEffect(() => {
@@ -253,14 +258,14 @@ const FactoryDetails: React.FunctionComponent = () => {
   const handleNext = () => {
     if (currentTab === 'reports') {
       return
-    } else if (currentTab === 'account') setCurrentTab('password')
-    else if (currentTab === 'password') setCurrentTab('reports')
+    } else if (currentTab === 'account') setCurrentTab('productionLines')
+    else if (currentTab === 'productionLines') setCurrentTab('reports')
   }
 
   const handleBack = () => {
     if (currentTab === 'account') return
-    else if (currentTab === 'password') setCurrentTab('account')
-    else if (currentTab === 'reports') setCurrentTab('password')
+    else if (currentTab === 'productionLines') setCurrentTab('account')
+    else if (currentTab === 'reports') setCurrentTab('productionLines')
   }
   const queryClient = useQueryClient()
   // update method
@@ -285,6 +290,44 @@ const FactoryDetails: React.FunctionComponent = () => {
       })
     }
   })
+  const addProductionLineWithTeams = async (name: string, teams: ProductionTeam[]) => {
+    const productionLine = {
+      name,
+      teamsCount: teams.length,
+      factoryId: factoryId
+    }
+
+    const response = await postApi('/ProductionLines', productionLine)
+    const newProductionLine = response.data as ProductionLineProps
+    // loop through the teams and create them
+    for (const team of teams) {
+      console.log(team)
+      await postApi('/ProductionTeams', { ...team, productionLineId: newProductionLine.id })
+    }
+    // refetch the factory data
+    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+  }
+  const editProductionLineWithTeams = async (id: string, name: string, teams: ProductionTeam[]) => {
+    // update the production line information then add new teams then update the teams information.
+    const productionLine = {
+      name,
+      teamsCount: teams.length,
+      factoryId: factoryId
+    }
+    await putApi(`/ProductionLines/${id}`, productionLine)
+    // loop through the teams first get the one with newTeam === true and create it and update the rest
+    const newTeams = teams.filter((team) => team.newTeam)
+    // add new teams
+    for (const team of newTeams) {
+      await postApi('/ProductionTeams', { ...team, productionLineId: id })
+    }
+    // refetch the factory data
+    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+  }
+  const handleManyValues = (hasMany: boolean) => {
+    console.log(hasMany)
+    setHasManyValues(hasMany)
+  }
 
   const onSubmit = (data: Schema) => {
     console.log(data)
@@ -344,9 +387,9 @@ const FactoryDetails: React.FunctionComponent = () => {
                   <TabsTrigger
                     onClick={() => {
                       if (isEdit) return
-                      setCurrentTab('password')
+                      setCurrentTab('productionLines')
                     }}
-                    value="password"
+                    value="productionLines"
                   >
                     خطوط الانتاج
                   </TabsTrigger>
@@ -431,38 +474,100 @@ const FactoryDetails: React.FunctionComponent = () => {
                       />
                     </div>
                   </section>
-                  {!isEdit && currentTab === 'reports' && (
-                    <div className="flex justify-end">
-                      <Button type="submit" className="bg-green-500 hover:bg-green-700" size="lg">
-                        حفظ
-                      </Button>
-                    </div>
-                  )}
                 </TabsContent>
-                <TabsContent value="password">
+                <TabsContent value="productionLines">
+                  {isEdit && (
+                    <ProductionLineDialog
+                      addProductionLineWithTeams={addProductionLineWithTeams}
+                      editProductionLineWithTeams={editProductionLineWithTeams}
+                      openDialog={openDialog}
+                      onClose={() => {
+                        console.log('closed')
+                        setOpenDialog(false)
+                        setProductionLineToBeEdited(undefined)
+                      }}
+                      productionLine={productionLineToBeEdited}
+                      isEdit={!!productionLineToBeEdited}
+                    />
+                  )}
                   <StructureTable<ProductionLineProps, unknown>
                     columns={columns}
-                    data={defaultTableData ? defaultTableData : []}
+                    data={factory?.productionLines ? factory?.productionLines : []}
                     title="Factories"
-                    onDeleteProductionLineTeam={(productionLineId, productionTeams) => {
-                      form.setValue('productionLineTeamsToBeDeleted', [
-                        ...(form.getValues('productionLineTeamsToBeDeleted') || []),
-                        {
-                          productionLineId,
-                          productionTeams: [
-                            ...(form
-                              .getValues('productionLineTeamsToBeDeleted')
-                              ?.find((item: any) => item.productionLineId === productionLineId)
-                              ?.productionTeams || []),
-                            ...productionTeams
-                          ]
-                        }
-                      ])
-                      console.log(form.getValues('productionLineTeamsToBeDeleted'))
+                    onDeleteProductionLineTeam={(teamId) => {
+                      deleteProductionTeam(teamId)
                     }}
+                    onEditProductionLineTeam={handleEditTeam}
+                    displayActions={isEdit}
                   />
                 </TabsContent>
-                <TabsContent value="reports">Change your reports here.</TabsContent>
+                <TabsContent value="reports">
+                  {/* a grid of one column inside it two rows, inside the second row two columns */
+                  /* the first row contains a BarChart */
+                  /* the second row contains two columns, the first column contains a PieChart */
+                  /* the second column contains a LineChart */
+                  /* the BarChart, PieChart, LineChart are imported from the library */
+                  /* the data of the charts are fetched from the API */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <div>
+                      {/* <Skeleton className="h-36" /> */}
+                      <BarCharter
+                        onChangeYear={(year) => {
+                          setSelectedYear(year)
+                        }}
+                        year={selectedYear}
+                        id={factoryId || ''}
+                        productName={form.getValues('name')}
+                        label="مبيعات المصنع"
+                        queryFunction={(id: string, year: number) => {
+                          if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
+                            id = '1002'
+                          }
+                          return getApi<NoneMixedBarCharterProps[]>(
+                            `Products/${id}/Chars/Bar?year=${year}`
+                          )
+                        }}
+                      />
+                    </div>
+                    <div className={hasManyValues ? 'grid grid-rows-2' : 'grid grid-cols-2 gap-2'}>
+                      <div>
+                        <MixedBarChartHoriz
+                          year={selectedYear}
+                          id={factoryId || ''}
+                          label="مبيعات خطوط الانتاج"
+                          queryFunction={async (id, year, month) => {
+                            if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
+                              id = '1002'
+                            }
+                            return await getApi<MixedBarCharterProps[]>(
+                              `Products/${id}/Chars/HorizantalBar?year=${year}&month=${month}`
+                            )
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <LineCharter
+                          onChangeYear={(year) => {
+                            setSelectedYear(year)
+                          }}
+                          year={selectedYear}
+                          id={factoryId || ''}
+                          onManyValues={handleManyValues}
+                          label="مبيعات خطوط الانتاج"
+                          queryFunction={async (id, year) => {
+                            if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
+                              id = '1002'
+                            }
+
+                            return await getApi<LineChartResponse[]>(
+                              `Products/${id}/Chars/Line?year=${year}`
+                            )
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">
@@ -504,6 +609,13 @@ const FactoryDetails: React.FunctionComponent = () => {
           </main>
         </Form>
       </section>
+      <UpdateProductionTeamDialog
+        editProductionTeam={editProductionTeam}
+        onClose={() => setOpenUpdateTeamDialog(false)}
+        productionTeam={teamToBeEdited}
+        openDialog={openUpdateTeamDialog}
+        productionLineId={productionLineId}
+      />
     </>
   )
 }

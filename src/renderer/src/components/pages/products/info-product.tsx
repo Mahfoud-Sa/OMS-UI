@@ -16,6 +16,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, putApi } from '@renderer/lib/http'
+import {
+  LineChartResponse,
+  MixedBarCharterProps,
+  NoneMixedBarCharterProps
+} from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit, PlusCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -401,11 +406,26 @@ const InfoProduct = () => {
                         year={selectedYear}
                         id={id || ''}
                         productName={form.getValues('name')}
+                        label="مبيعات الصنف"
+                        queryFunction={(id: string, year: number) => {
+                          return getApi<NoneMixedBarCharterProps[]>(
+                            `Products/${id}/Chars/Bar?year=${year}`
+                          )
+                        }}
                       />
                     </div>
                     <div className={hasManyValues ? 'grid grid-rows-2' : 'grid grid-cols-2 gap-2'}>
                       <div>
-                        <MixedBarChartHoriz year={selectedYear} id={id || ''} />
+                        <MixedBarChartHoriz
+                          year={selectedYear}
+                          id={id || ''}
+                          label="مبيعات التصاميم"
+                          queryFunction={async (id, year, month) => {
+                            return await getApi<MixedBarCharterProps[]>(
+                              `Products/${id}/Chars/HorizantalBar?year=${year}&month=${month}`
+                            )
+                          }}
+                        />
                       </div>
                       <div>
                         <LineCharter
@@ -415,6 +435,12 @@ const InfoProduct = () => {
                           year={selectedYear}
                           id={id || ''}
                           onManyValues={handleManyValues}
+                          label="مبيعات التصاميم"
+                          queryFunction={async (id, year) => {
+                            return await getApi<LineChartResponse[]>(
+                              `Products/${id}/Chars/Line?year=${year}`
+                            )
+                          }}
                         />
                       </div>
                     </div>
