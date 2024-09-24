@@ -1,5 +1,3 @@
-'use client'
-
 import { Card, CardContent, CardHeader } from '@renderer/components/ui/card'
 import {
   ChartConfig,
@@ -8,8 +6,9 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'
+import { MixedBarCharterProps } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
@@ -48,20 +47,34 @@ const getRandomColor = () => {
   return color
 }
 
-const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
+const MixedBarChartHoriz = ({
+  id,
+  year,
+  label,
+  queryFunction
+}: {
+  id: string
+  year: number
+  label: string
+  queryFunction: (
+    id: string,
+    year: number,
+    month: number
+  ) => Promise<AxiosResponse<MixedBarCharterProps[], any>>
+}) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
   const [chartData, setChartData] = useState<any[]>([])
 
   const { data, isLoading } = useQuery({
     queryKey: ['nameBarChartData', id, selectedMonth, year],
-    queryFn: () =>
-      getApi<{ name: string; sales: number }[]>(
-        `Products/${id}/Chars/HorizantalBar?year=${year}&month=${selectedMonth}`
-      )
+    queryFn: async () => await queryFunction(id, year, selectedMonth)
+    // getApi<MixedBarCharterProps[]>(
+    //   `Products/${id}/Chars/HorizantalBar?year=${year}&month=${selectedMonth}`
+    // )
   })
 
   useEffect(() => {
-    if (data) {
+    if (data?.data) {
       const updatedChartData = data.data
         .map((item) => ({
           ...item,
@@ -87,7 +100,7 @@ const MixedBarChartHoriz = ({ id, year }: { id: string; year: number }) => {
   return (
     <Card>
       <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between">
-        <h5 className="text-sm font-semibold">مبيعات التصاميم</h5>
+        <h5 className="text-sm font-semibold">{label}</h5>
         <select
           onChange={(e) => {
             const month = parseInt(e.target.value, 10)

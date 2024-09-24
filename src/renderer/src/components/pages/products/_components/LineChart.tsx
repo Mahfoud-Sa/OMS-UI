@@ -8,25 +8,18 @@ import {
   ChartTooltipContent
 } from '@renderer/components/ui/chart'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { getApi } from '@renderer/lib/http'
+import { LineChartResponse } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { useEffect, useMemo } from 'react'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
-
-interface ApiResponse {
-  monthe: string
-  sales: {
-    name: string
-    sales: number
-  }[]
-}
 
 interface TransformedData {
   month: string
   [key: string]: number | string
 }
 
-const transformData = (data: ApiResponse[]): TransformedData[] => {
+const transformData = (data: LineChartResponse[]): TransformedData[] => {
   return data.map((item) => {
     const salesData = item.sales.reduce(
       (acc, sale) => {
@@ -47,16 +40,21 @@ const LineCharter = ({
   id,
   year,
   onChangeYear,
-  onManyValues
+  onManyValues,
+  label,
+  queryFunction
 }: {
   id: string
   year: number
+  label: string
+  queryFunction: (id: string, year: number) => Promise<AxiosResponse<LineChartResponse[], any>>
   onChangeYear: (year: number) => void
   onManyValues: (hasManyValues: boolean) => void
 }) => {
   const { data, isLoading } = useQuery({
     queryKey: ['browserLineChartData', id, year],
-    queryFn: () => getApi<ApiResponse[]>(`Products/${id}/Chars/Line?year=${year}`)
+    queryFn: () => queryFunction(id, year)
+    // getApi<LineChartResponse[]>(`Products/${id}/Chars/Line?year=${year}`)
   })
 
   const chartData = useMemo(() => {
@@ -96,7 +94,7 @@ const LineCharter = ({
   return (
     <Card className="min-h-[260px]">
       <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between  ">
-        <h5 className="text-sm font-semibold">مبيعات التصاميم</h5>
+        <h5 className="text-sm font-semibold">{label}</h5>
         <select
           onChange={(e) => {
             const year = parseInt(e.target.value, 10)

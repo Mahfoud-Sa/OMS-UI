@@ -6,7 +6,7 @@ export const axiosInstance = axios.create({
   baseURL: import.meta.env.RENDERER_VITE_REACT_APP_API_URL,
   // auth: {
   //   username: import.meta.env.RENDERER_VITE_REACT_APP_API_URL,
-  //   password: import.meta.env.RENDERER_VITE_REACT_APP_API_URL
+  //   password: import.meta.env.RENDERER_VITE_REACT_APP_API_PASSWORD
   // },
   headers: {
     Authorization: 'Bearer ' + localStorage.getItem('_auth')

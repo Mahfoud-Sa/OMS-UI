@@ -37,12 +37,30 @@ export interface ProductionTeam {
   id?: string
   name: string
   phone: string
+  newTeam?: boolean
+  productionLineId?: string
 }
 
 export interface ProductionLineProps {
   id?: string
   name: string
-  phoneNumber?: string
+  phone?: string
   teamsCount: number
-  productionTeams?: ProductionTeam[] // Include productionTeams here
+  teams?: ProductionTeam[] // Include teams here
+}
+export interface LineChartResponse {
+  monthe: string
+  sales: {
+    name: string
+    sales: number
+  }[]
+}
+
+export interface MixedBarCharterProps {
+  name: string
+  sales: number
+}
+export interface NoneMixedBarCharterProps {
+  month: string
+  sales: number
 }
