@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import { Icons } from '@renderer/components/icons/icons'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
@@ -15,25 +16,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast'
 import { postApi } from '@renderer/lib/http'
-import { ProductionLineProps } from '@renderer/types/api'
+import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import imageProfile from '../../../../assets/images/profile.jpg'
 import ProductionLineDialog from '../_components/production-lines-dialog'
 import { StructureTable } from '../_components/structure-table'
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
 const schema = z.object({
   name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
   location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
-  createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
-  notes: z.string().optional(),
+  createdAt: z.string(),
+  notes: z.string(),
   productionLines: z.array(
     z.object({
       id: z.string().optional(),
       name: z.string(),
       teamsCount: z.number(),
-      productionTeams: z.array(
+      teams: z.array(
         z.object({
           id: z.string().optional(),
           name: z.string(),
@@ -42,7 +46,12 @@ const schema = z.object({
       )
     })
   ),
-  image: z.string().url('يجب ان تكون الصورة صحيحة').optional()
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    })
+    .optional()
 })
 
 type Schema = z.infer<typeof schema>
@@ -61,19 +70,22 @@ const NewFactory: React.FunctionComponent = () => {
       name: line,
       phoneNumber: '', // Add appropriate value
       teamsCount: teams.length,
-      productionTeams: teams
+      teams: teams
     }
-    setProductionLinesArray([...productionLinesArray, newProductionLine])
+    console.log(newProductionLine)
+    const newProductionLines = [...productionLinesArray, newProductionLine]
+    setProductionLinesArray(newProductionLines)
     console.log(productionLinesArray)
     console.log(newProductionLine)
+    form.setValue('productionLines', newProductionLines)
   }
-  const editProductionLineWithTeams = (id, line, teams) => {
+  const editProductionLineWithTeams = (id: string, line: string, teams: ProductionTeam[]) => {
     const newProductionLine = {
       id,
       name: line,
       phoneNumber: '', // Add appropriate value
       teamsCount: teams.length,
-      productionTeams: teams
+      teams: teams
     }
     const newProductionLines = productionLinesArray.map((l) => {
       if (l.id === id) {
@@ -89,6 +101,7 @@ const NewFactory: React.FunctionComponent = () => {
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
   })
+  form.setValue('createdAt', new Date().toISOString().split('T')[0])
   const { errors } = form.formState
 
   React.useEffect(() => {
@@ -100,12 +113,16 @@ const NewFactory: React.FunctionComponent = () => {
         variant: 'destructive'
       })
     }
+    console.log(form.getValues('createdAt'))
   }, [errors])
 
   const handleNext = () => {
     if (currentTab === 'productionLines') {
       return
-    } else if (currentTab === 'account') setCurrentTab('productionLines')
+    } else if (currentTab === 'account') {
+      setCurrentTab('productionLines')
+    }
+    console.log(form.getValues('productionLines'))
   }
 
   const handleBack = () => {
@@ -114,8 +131,8 @@ const NewFactory: React.FunctionComponent = () => {
   }
   const queryClient = useQueryClient()
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Schema) => {
-      return postApi('/api/factories', data)
+    mutationFn: (data: FormData) => {
+      return postApi('/Factories/create-with-production-line-and-team', data)
     },
     onSuccess: () => {
       toast({
@@ -136,7 +153,21 @@ const NewFactory: React.FunctionComponent = () => {
 
   const onSubmit = (data: Schema) => {
     console.log(data)
-    mutate(data)
+    const payloadFormData = new FormData()
+    payloadFormData.append('name', data.name)
+    payloadFormData.append('location', data.location)
+    payloadFormData.append('notes', data.notes)
+    payloadFormData.append('createdAt', data.createdAt)
+    data.image && payloadFormData.append('image', data.image)
+    const productionLinesWithoutId = data.productionLines.map((line) => {
+      const { id, teamsCount, ...rest } = line
+      return rest
+    })
+    payloadFormData.append('productionLines', JSON.stringify(productionLinesWithoutId))
+    console.log(payloadFormData)
+    console.log(JSON.stringify(productionLinesWithoutId))
+
+    mutate(payloadFormData)
   }
 
   const removeProductionLine = (line: ProductionLineProps) => {
@@ -244,6 +275,37 @@ const NewFactory: React.FunctionComponent = () => {
               <TabsContent value="account">
                 <main className="flex flex-col text-base font-medium text-zinc-700">
                   <section className="flex flex-col w-full max-md:max-w-full">
+                    <div className="flex flex-col gap-3 items-center w-full max-md:max-w-full mb-4">
+                      <div className="w-full flex">
+                        <FormField
+                          control={form.control}
+                          name="image"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <div>
+                                  <ProfileUploader
+                                    className="h-[180px] w-[180px]"
+                                    inputId="ImageFile"
+                                    setValue={form.setValue}
+                                    onChange={async (files) => {
+                                      try {
+                                        if (!files?.[0]) return
+                                        field.onChange(files[0])
+                                      } catch (error) {
+                                        JSON.stringify(error)
+                                      }
+                                    }}
+                                    defaultImage={imageProfile}
+                                  />
+                                  <FormMessage />
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                     <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
                       <FormField
                         control={form.control}
@@ -306,7 +368,7 @@ const NewFactory: React.FunctionComponent = () => {
                         )}
                       />
                     </div>
-                  </section>
+                  </section>{' '}
                 </main>
               </TabsContent>
               <TabsContent value="productionLines">
@@ -331,6 +393,7 @@ const NewFactory: React.FunctionComponent = () => {
                     title="خطوط الانتاج المضافة"
                     displayActions={false}
                     onDeleteProductionLineTeam={() => {}}
+                    onEditProductionLineTeam={() => {}}
                   />
                 </div>
               </TabsContent>

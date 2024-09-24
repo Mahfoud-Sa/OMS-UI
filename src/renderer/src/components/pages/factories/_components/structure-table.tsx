@@ -15,7 +15,7 @@ import {
   TableRow
 } from '@renderer/components/ui/table'
 import { cn } from '@renderer/lib/utils'
-import { ProductionLineProps } from '@renderer/types/api'
+import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import {
   ColumnDef,
   flexRender,
@@ -28,7 +28,6 @@ import {
 } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -36,14 +35,16 @@ interface DataTableProps<TData, TValue> {
   title?: string
   className?: string
   displayActions?: boolean
-  onDeleteProductionLineTeam: (productionLineId: string, productionLineTeamIds: string[]) => void
+  onDeleteProductionLineTeam: (productionLineTeamId: string) => void
+  onEditProductionLineTeam: (productionLineTeam: ProductionTeam, productionLineId: string) => void
 }
 export function StructureTable<TData extends ProductionLineProps, TValue>({
   columns,
   data,
   className,
   displayActions = true,
-  onDeleteProductionLineTeam
+  onDeleteProductionLineTeam,
+  onEditProductionLineTeam
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [expanded, setExpanded] = useState({})
@@ -113,8 +114,8 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
               </TableRow>
               {/* Nested rows with the same column layout */}
               {row.getIsExpanded() &&
-                row.original.productionTeams &&
-                row.original.productionTeams.map((team, index) => (
+                row.original.teams &&
+                row.original.teams.map((team, index) => (
                   <TableRow key={index} className="bg-white">
                     {row.getVisibleCells().map((cell, cellIndex) => (
                       <TableCell
@@ -139,14 +140,16 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuGroup>
-                                <Link to={`./teams/${team.id}`}>
+                                <a
+                                  onClick={() => {
+                                    onEditProductionLineTeam(team, row.original.id || '')
+                                  }}
+                                >
                                   <DropdownMenuItem>تعديل</DropdownMenuItem>
-                                </Link>
+                                </a>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    onDeleteProductionLineTeam(row.original.id || '', [
-                                      team.id || ''
-                                    ])
+                                    onDeleteProductionLineTeam(team.id || '')
                                   }}
                                   style={{ backgroundColor: 'orange', color: 'white' }}
                                   color="white"

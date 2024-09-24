@@ -33,6 +33,7 @@ const ProductsWrapper = () => {
       </div>
     )
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   return <ProductsTable data={data?.data! || []} />
 }
 
