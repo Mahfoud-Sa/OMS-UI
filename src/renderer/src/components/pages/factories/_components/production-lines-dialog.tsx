@@ -48,7 +48,7 @@ const ProductionLineDialog = ({
   useEffect(() => {
     if (isEdit && productionLine) {
       setLineName(productionLine.name)
-      setTeams(productionLine.productionTeams || [])
+      setTeams(productionLine.teams || [])
     }
   }, [isEdit, productionLine])
 
@@ -84,10 +84,11 @@ const ProductionLineDialog = ({
     }
 
     if (valid) {
-      setTeams([...teams, { name: teamName, phone: teamPhone }])
+      setTeams([...teams, { name: teamName, phone: teamPhone, newTeam: true }])
       setTeamName('')
       setTeamPhone('')
       setLineNameError('')
+      console.log(teams)
     }
   }
 
@@ -152,12 +153,12 @@ const ProductionLineDialog = ({
 
   const columns = [
     {
-      header: 'اسم الفريق',
+      header: 'اسم قائد الفريق',
       accessorKey: 'name',
       cell: (info) => info.row.original.name
     },
     {
-      header: 'رقم الهاتف',
+      header: 'رقم التواصل',
       accessorKey: 'phone',
       cell: (info) => info.row.original.phone
     },
@@ -165,7 +166,7 @@ const ProductionLineDialog = ({
       id: 'actions',
       cell: (info) => {
         const { original } = info.row
-        return original ? (
+        return original && info.row.original.newTeam ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
@@ -218,8 +219,8 @@ const ProductionLineDialog = ({
                 <Input
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="اسم فريق الإنتاج"
-                  label="اسم فريق الإنتاج"
+                  placeholder="اسم قائد فريق الإنتاج"
+                  label="اسم قائد فريق الإنتاج"
                 />
                 {teamNameError && <small className="text-red-500">{teamNameError}</small>}
               </div>
@@ -227,8 +228,8 @@ const ProductionLineDialog = ({
                 <Input
                   value={teamPhone}
                   onChange={(e) => setTeamPhone(e.target.value)}
-                  placeholder="رقم هاتف فريق الإنتاج"
-                  label="رقم هاتف فريق الإنتاج"
+                  placeholder="رقم التواصل"
+                  label="رقم التواصل"
                   type="tel"
                   maxLength={9}
                   prefix="+966"
