@@ -129,16 +129,146 @@ const FactoryDetails: React.FunctionComponent = () => {
       console.log(form.getValues())
     }
   }, [factory, form])
+  const { mutate: addProductionLineWithTeamsMutate } = useMutation({
+    mutationFn: async ({
+      productionLineData,
+      teams
+    }: {
+      productionLineData: { name; teamsCount: number; factoryId: string | undefined }
+      teams: ProductionTeam[]
+    }) => {
+      const response = await postApi('/ProductionLines', productionLineData)
+      const newProductionLine = response.data as ProductionLineProps
+      // loop through the teams and create them
+      for (const team of teams) {
+        console.log(team)
+        await postApi('/ProductionTeams', { ...team, productionLineId: newProductionLine.id })
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الاضافة',
+        description: `تم اضافة خط الانتاج بنجاح`,
+        variant: 'success'
+      })
+      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية الاضافة',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
+  const { mutate: deleteProductionLineMutate } = useMutation({
+    mutationFn: async (id: string) => {
+      await deleteApi(`/ProductionLines/${id}`)
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الحذف',
+        description: `تم حذف خط الانتاج بنجاح`,
+        variant: 'success'
+      })
+      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية الحذف',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
+  const { mutate: editProductionLineMutate } = useMutation({
+    mutationFn: async ({
+      id,
+      productionLineData,
+      teams
+    }: {
+      id: string
+      productionLineData: { name; teamsCount: number; factoryId: string | undefined }
+      teams: ProductionTeam[]
+    }) => {
+      await putApi(`/ProductionLines/${id}`, productionLineData)
+      // loop through the teams first get the one with newTeam === true and create it and update the rest
+      const newTeams = teams.filter((team) => team.newTeam)
+      // add new teams
+      for (const team of newTeams) {
+        await postApi('/ProductionTeams', { ...team, productionLineId: id })
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم التحديث',
+        description: `تم تحديث خط الانتاج بنجاح`,
+        variant: 'success'
+      })
+      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية التحديث',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
+  const { mutate: deleteProductionTeamMutate } = useMutation({
+    mutationFn: async (id: string) => {
+      await deleteApi(`/ProductionTeams/${id}`)
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الحذف',
+        description: `تم حذف فريق الانتاج بنجاح`,
+        variant: 'success'
+      })
+      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية الحذف',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
+  const { mutate: editProductionTeamMutate } = useMutation({
+    mutationFn: async ({
+      id,
+      data
+    }: {
+      id: string
+      data: { name: string; phone: string; productionLineId: string }
+    }) => {
+      await putApi(`/ProductionTeams/${id}`, data)
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم التحديث',
+        description: `تم تحديث خط الانتاج بنجاح`,
+        variant: 'success'
+      })
+      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية التحديث',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
 
   // table structure
 
   const deleteProductionLine = async (id: string) => {
-    await deleteApi(`/ProductionLines/${id}`)
-    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    deleteProductionLineMutate(id)
   }
   const deleteProductionTeam = async (productionLineTeamId: string) => {
-    await deleteApi(`/ProductionTeams/${productionLineTeamId}`)
-    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    deleteProductionTeamMutate(productionLineTeamId)
   }
   const editProductionTeam = async (
     id: string,
@@ -148,8 +278,8 @@ const FactoryDetails: React.FunctionComponent = () => {
   ) => {
     const team = { name, phone, productionLineId }
     console.log(team)
-    await putApi(`/ProductionTeams/${id}`, team)
-    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    console.log(id)
+    editProductionTeamMutate({ id, data: team })
   }
 
   // Add a method to open the dialog with the selected team
@@ -297,15 +427,8 @@ const FactoryDetails: React.FunctionComponent = () => {
       factoryId: factoryId
     }
 
-    const response = await postApi('/ProductionLines', productionLine)
-    const newProductionLine = response.data as ProductionLineProps
-    // loop through the teams and create them
-    for (const team of teams) {
-      console.log(team)
-      await postApi('/ProductionTeams', { ...team, productionLineId: newProductionLine.id })
-    }
-    // refetch the factory data
-    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    await addProductionLineWithTeamsMutate({ productionLineData: productionLine, teams })
+    setProductionLineToBeEdited(undefined)
   }
   const editProductionLineWithTeams = async (id: string, name: string, teams: ProductionTeam[]) => {
     // update the production line information then add new teams then update the teams information.
@@ -314,15 +437,8 @@ const FactoryDetails: React.FunctionComponent = () => {
       teamsCount: teams.length,
       factoryId: factoryId
     }
-    await putApi(`/ProductionLines/${id}`, productionLine)
-    // loop through the teams first get the one with newTeam === true and create it and update the rest
-    const newTeams = teams.filter((team) => team.newTeam)
-    // add new teams
-    for (const team of newTeams) {
-      await postApi('/ProductionTeams', { ...team, productionLineId: id })
-    }
-    // refetch the factory data
-    queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
+    await editProductionLineMutate({ id, productionLineData: productionLine, teams })
+    setProductionLineToBeEdited(undefined)
   }
   const handleManyValues = (hasMany: boolean) => {
     console.log(hasMany)
