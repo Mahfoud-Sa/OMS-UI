@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import BarCharter from '@renderer/components/charts/BarChart'
+import LineCharter from '@renderer/components/charts/LineChart'
 import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
@@ -27,10 +29,8 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import * as z from 'zod'
+import MixedBarChartHoriz from '../../charts/MixedBarChartHoriz'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from '../../ui/dialog'
-import BarCharter from './_components/BarChart'
-import LineCharter from './_components/LineChart'
-import MixedBarChartHoriz from './_components/MixedBarChartHoriz'
 
 const schema = z.object({
   name: z
