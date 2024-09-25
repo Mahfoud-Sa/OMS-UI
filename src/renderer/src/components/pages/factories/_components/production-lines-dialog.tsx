@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Input } from '@renderer/components/ui/input'
+import { toast } from '@renderer/components/ui/use-toast'
 import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '../../../ui/dialog'
@@ -38,6 +39,7 @@ const ProductionLineDialog = ({
   const [teamPhoneError, setTeamPhoneError] = useState('')
   const [teamsError, setTeamsError] = useState('')
   const { id } = productionLine || {}
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (openDialog) {
@@ -92,7 +94,7 @@ const ProductionLineDialog = ({
     }
   }
 
-  const handleAddProductionLine = () => {
+  const handleAddProductionLine = async () => {
     let valid = true
     if (!lineName) {
       setLineNameError('اسم خط الانتاج مطلوب')
@@ -109,13 +111,25 @@ const ProductionLineDialog = ({
     }
 
     if (valid) {
-      addProductionLineWithTeams(lineName, teams)
-      setLineName('')
-      setTeams([])
+      try {
+        setIsSubmitting(true)
+        await addProductionLineWithTeams(lineName, teams)
+        setLineName('')
+        setTeams([])
+      } catch (error) {
+        console.error('Failed to add production line:', error)
+        toast({
+          title: 'خطأ',
+          description: 'حدث خطأ أثناء إضافة خط الإنتاج',
+          variant: 'destructive'
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
-  const handleEditProductionLine = () => {
+  const handleEditProductionLine = async () => {
     let valid = true
     if (!lineName) {
       setLineNameError('اسم خط الانتاج مطلوب')
@@ -132,9 +146,21 @@ const ProductionLineDialog = ({
     }
 
     if (valid && editProductionLineWithTeams && id) {
-      editProductionLineWithTeams(id, lineName, teams)
-      setLineName('')
-      setTeams([])
+      try {
+        setIsSubmitting(true)
+        editProductionLineWithTeams(id, lineName, teams)
+        setLineName('')
+        setTeams([])
+      } catch (error) {
+        console.error('Failed to edit production line:', error)
+        toast({
+          title: 'خطأ',
+          description: 'حدث خطأ أثناء تعديل خط الإنتاج',
+          variant: 'destructive'
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -203,7 +229,7 @@ const ProductionLineDialog = ({
         إضافة خط انتاج
       </Button>
       <DialogContent>
-        <DialogHeader>إنشاء خطوط الإنتاج</DialogHeader>
+        <DialogHeader>{isEdit ? 'تحديث خط الانتاج' : 'انشاء خط انتاج'}</DialogHeader>
         <div>
           <Input
             value={lineName}
@@ -251,8 +277,8 @@ const ProductionLineDialog = ({
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleAddEditProductionLine}>
-            إضافة خط الإنتاج
+          <Button type="button" onClick={handleAddEditProductionLine} disabled={isSubmitting}>
+            {isSubmitting ? 'جارٍ الإضافة...' : isEdit ? 'تحديث خط الإنتاج' : 'إضافة خط الإنتاج'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -64,10 +64,10 @@ const NewFactory: React.FunctionComponent = () => {
     ProductionLineProps | undefined
   >(undefined)
 
-  const addProductionLineWithTeams = (line, teams) => {
+  const addProductionLineWithTeams = (name: string, teams: ProductionTeam[]) => {
     const newProductionLine = {
       id: `${productionLinesArray.length + 1}`,
-      name: line,
+      name: name,
       phoneNumber: '', // Add appropriate value
       teamsCount: teams.length,
       teams: teams
@@ -79,10 +79,10 @@ const NewFactory: React.FunctionComponent = () => {
     console.log(newProductionLine)
     form.setValue('productionLines', newProductionLines)
   }
-  const editProductionLineWithTeams = (id: string, line: string, teams: ProductionTeam[]) => {
+  const editProductionLineWithTeams = (id: string, name: string, teams: ProductionTeam[]) => {
     const newProductionLine = {
       id,
-      name: line,
+      name: name,
       phoneNumber: '', // Add appropriate value
       teamsCount: teams.length,
       teams: teams
@@ -132,7 +132,7 @@ const NewFactory: React.FunctionComponent = () => {
   const queryClient = useQueryClient()
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => {
-      return postApi('/Factories/create-with-production-line-and-team', data)
+      return postApi('/Factories/create-with-production-lines-and-teams', data)
     },
     onSuccess: () => {
       toast({
@@ -163,9 +163,18 @@ const NewFactory: React.FunctionComponent = () => {
       const { id, teamsCount, ...rest } = line
       return rest
     })
-    payloadFormData.append('productionLines', JSON.stringify(productionLinesWithoutId))
+    data.productionLines.forEach((line, lineIndex) => {
+      payloadFormData.append(`productionLines[${lineIndex}].name`, line.name)
+      line.teams.forEach((team, teamIndex) => {
+        payloadFormData.append(`productionLines[${lineIndex}].teams[${teamIndex}].name`, team.name)
+        payloadFormData.append(
+          `productionLines[${lineIndex}].teams[${teamIndex}].phone`,
+          team.phone
+        )
+      })
+    })
     console.log(payloadFormData)
-    console.log(JSON.stringify(productionLinesWithoutId))
+    console.log(productionLinesWithoutId)
 
     mutate(payloadFormData)
   }

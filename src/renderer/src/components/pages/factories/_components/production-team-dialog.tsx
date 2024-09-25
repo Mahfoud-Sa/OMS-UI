@@ -11,7 +11,12 @@ const UpdateProductionTeamDialog = ({
   openDialog = false,
   productionLineId
 }: {
-  editProductionTeam: (id: string, name: string, phone: string, productionLineId: string) => void
+  editProductionTeam: (
+    id: string,
+    name: string,
+    phone: string,
+    productionLineId: string
+  ) => Promise<void>
   onClose?: () => void
   productionTeam?: ProductionTeam
   openDialog?: boolean
@@ -22,6 +27,7 @@ const UpdateProductionTeamDialog = ({
   const [isDialogOpen, setIsDialogOpen] = useState(openDialog)
   const [teamNameError, setTeamNameError] = useState('')
   const [teamPhoneError, setTeamPhoneError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (openDialog) {
@@ -41,7 +47,7 @@ const UpdateProductionTeamDialog = ({
     return phoneRegex.test(phone)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let valid = true
     console.log('productionLineId', productionLineId)
     console.log('productionTeam.id', productionTeam?.id)
@@ -66,13 +72,18 @@ const UpdateProductionTeamDialog = ({
     }
 
     if (valid && productionTeam?.id) {
-      console.log('productionLineId', productionLineId)
-      console.log('productionTeam.id', productionTeam.id)
-      console.log('teamName', teamName)
-      console.log('teamPhone', teamPhone)
-      editProductionTeam(productionTeam.id, teamName, teamPhone, productionLineId)
-      setIsDialogOpen(false)
-      onClose && onClose()
+      try {
+        setIsSubmitting(true)
+        await editProductionTeam(productionTeam.id, teamName, teamPhone, productionLineId)
+        setIsDialogOpen(false)
+        onClose && onClose()
+      } catch (error) {
+        console.error('Failed to update production team:', error)
+      } finally {
+        setIsSubmitting(false)
+      }
+    } else {
+      setIsSubmitting(false)
     }
   }
 
@@ -110,8 +121,8 @@ const UpdateProductionTeamDialog = ({
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleSubmit}>
-            تحديث فريق الإنتاج
+          <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? 'جارٍ التحديث...' : productionTeam ? 'تحديث' : 'إضافة'}
           </Button>
         </DialogFooter>
       </DialogContent>
