@@ -49,24 +49,23 @@ const Factories = () => {
   const [selectedFactoryId, setSelectedFactoryId] = useState<string | null>(null)
   const mutation = useMutation({
     mutationFn: (id: string) => {
-      return deleteApi(`/api/Factories/${id}`)
+      return deleteApi(`/Factories/${id}`)
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الحذف',
+        description: `تم حذف المصنع بنجاح`,
+        variant: 'success'
+      })
     }
   })
 
   const removeSelectedFactory = (id: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       try {
-        // TODO need to implement deleteApi
         mutation.mutate(id)
-        const deletedFactoryData = factoriesData?.find((factory) => factory.id === id)
         const updateFactoriesData = factoriesData?.filter((factory) => factory.id !== id)
         setFactoriesData(updateFactoriesData)
-        toast({
-          title: 'تم الحذف',
-          description: `تم حذف المصنع ${deletedFactoryData?.name}`,
-          variant: 'success'
-        })
-
         resolve()
       } catch (error) {
         reject(error)
