@@ -9,16 +9,15 @@ import {
   DialogHeader,
   DialogTitle
 } from '@renderer/components/ui/dialog'
-import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { toast } from '@renderer/components/ui/use-toast'
 import { getApi, postApi } from '@renderer/lib/http'
-import { DeliveryUserCardProps } from '@renderer/types'
 import { User } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import Select, { SingleValue } from 'react-select'
 import * as z from 'zod'
 
 const schema = z.object({
@@ -34,7 +33,7 @@ export type Schema = z.infer<typeof schema>
 
 const fetchUsers = async () => {
   const response = await getApi<{
-    users: DeliveryUserCardProps[]
+    users: User[]
     total: number
     page_number: number
     size: number
@@ -113,25 +112,32 @@ const ResetPassword = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Dropdown
+                          <Select<User>
+                            styles={{
+                              control: (baseStyles) => ({
+                                ...baseStyles,
+                                height: '5.2vh',
+                                borderRadius: '0.5rem'
+                              })
+                            }}
                             {...field}
-                            label="اختر المستخدم"
-                            getLabel={(option) => option.userName || ''}
-                            getValue={(option) => option.id || ''}
-                            onChange={handleUserChange}
-                            groups={[
-                              {
-                                label: 'المستخدمين',
-                                options:
-                                  users?.map((user) => ({
-                                    userName: user.userName,
-                                    id: user.id,
-                                    label: user.userName,
-                                    value: user.id
-                                  })) || []
-                              }
-                            ]}
-                            value={field.value}
+                            options={
+                              users?.map((user) => ({
+                                ...user,
+                                label: user.userName,
+                                value: user // Keep the entire user object
+                              })) || []
+                            }
+                            onChange={(selectedOption: SingleValue<User>) => {
+                              field.onChange(selectedOption?.userName)
+                              handleUserChange(selectedOption?.id)
+                            }}
+                            value={users?.find((user) => user.id === field.value) || null}
+                            placeholder="اختر المستخدم" // spell-checker: disable-line
+                            isSearchable
+                            getOptionLabel={(option) => option.userName}
+                            getOptionValue={(option) => option.id}
+                            pageSize={5}
                           />
                         </FormControl>
                         <FormMessage />
