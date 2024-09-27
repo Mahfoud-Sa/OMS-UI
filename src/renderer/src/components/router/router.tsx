@@ -11,6 +11,7 @@ import Orders from '../pages/orders/orders'
 import InfoProduct from '../pages/products/info-product'
 import NewProduct from '../pages/products/new-product'
 import Products from '../pages/products/products'
+import UserProfile from '../pages/profile/user-profile'
 import ResetPassword from '../pages/reset-password/reset-password'
 import InfoUser from '../pages/users/info-user'
 import NewUser from '../pages/users/new-user'
@@ -49,6 +50,10 @@ export const router = createHashRouter([
       {
         path: '/users/:id/reset-password',
         element: <ResetPassword />
+      },
+      {
+        path: '/profile/:id',
+        element: <UserProfile />
       },
       {
         path: '/orders',
