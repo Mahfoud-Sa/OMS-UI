@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
-} from './select'
+  SelectValue,
+} from '../ui/select'
 
 export default function Dropdown<T>({
   groups,
@@ -17,7 +17,7 @@ export default function Dropdown<T>({
   value,
   getLabel,
   getValue,
-  onChange
+  onChange,
 }: {
   groups: { label?: string; options: T[] }[]
   label?: string | React.ReactElement
@@ -37,17 +37,25 @@ export default function Dropdown<T>({
 
   const filteredGroups = groups.map(({ label, options }) => ({
     label,
-    options: options.filter((option) =>
-      getLabel(option)?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    options: options.filter(
+      (option) =>
+        getLabel(option)
+          ?.toString()
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    ),
   }))
 
   return (
-    <Select defaultValue={value} onValueChange={onChange} disabled={disabled}>
+    <Select
+      defaultValue={value}
+      onValueChange={onChange}
+      disabled={disabled}
+    >
       <SelectTrigger className="h-14 border border-outlineBorder bg-white font-medium  text-on-surface-variant dark:bg-primary">
         <SelectValue placeholder={label} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent defaultValue={value}>
         {searchBoxDisabled && (
           <div className={`p-2`}>
             <input
