@@ -44,3 +44,8 @@ export interface DeliveryUserCardProps {
   phoneNumber: string
   workPlace: string
 }
+
+export type Role = {
+  id: string
+  name: string
+}

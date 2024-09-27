@@ -1,17 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
+import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
+import { Combobox } from '@renderer/components/ui/combobox'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger
+} from '@renderer/components/ui/dialog'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Input as Input2 } from '@renderer/components/ui/input_2'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@renderer/components/ui/table'
 import { toast } from '@renderer/components/ui/use-toast'
-import { postApi } from '@renderer/lib/http'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
+import { getApi, postApi } from '@renderer/lib/http'
+import { Role } from '@renderer/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Eye, EyeOff, PlusCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import * as z from 'zod'
@@ -43,11 +61,14 @@ const schema = z.object({
   UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
-  UserRole: z.string({ message: 'مطلوب' }),
+  UserRole: z.array(z.object({ id: z.string(), name: z.string() }), { message: 'مطلوب' }),
   ImageFile: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
       message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    })
+    .refine((file) => file.type.startsWith('image/'), {
+      message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
     })
     .optional()
 })
@@ -57,11 +78,32 @@ export type Schema = z.infer<typeof schema>
 const NewUser = ({ initValues }: { initValues?: Schema }) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const [userType, setUserType] = useState<null | string>()
+  const [userRoles, setUserRoles] = useState<Role[]>([])
+  const [role, setRole] = useState<Role | undefined>(undefined)
 
-  //   const { data: departments } = useQuery<Department[]>({
-  //     queryKey: ['departments'],
-  //     queryFn: () => getApi('/Department')
-  //   })
+  const { data: AllRoles } = useQuery({
+    queryKey: ['AllRoles'],
+    queryFn: () => getApi<{ roles: Role[] }>('/Roles')
+  })
+
+  const { data: userTypeRole, refetch } = useQuery({
+    queryKey: ['UserTypeRoles', userType],
+    queryFn: () => getApi<Role[]>(`/${userType}`),
+    enabled: false
+  })
+
+  useEffect(() => {
+    if (userTypeRole) {
+      setUserRoles(userTypeRole.data)
+    }
+  }, [userTypeRole])
+
+  useEffect(() => {
+    if (userType) {
+      refetch()
+    }
+  }, [userType])
 
   const [showPassword, setShowPassword] = useState(false)
   const handleShowPassword = () => {
@@ -75,19 +117,26 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
       const formData = new FormData()
-      formData.set('firstName', data.FirstName)
+      formData.append('firstName', data.FirstName)
 
-      data.LastName && formData.set('Lastname', data.LastName)
-      formData.set('userName', data.Username)
-      formData.set('password', data.Password)
-      data.EmployDate && formData.set('employDate', data.EmployDate)
-      data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
-      formData.set('workPlace', data.WorkPlace)
-      formData.set('userRole', data.UserRole)
-      formData.set('userType', data.UserType)
+      data.LastName && formData.append('Lastname', data.LastName)
+      formData.append('userName', data.Username)
+      formData.append('password', data.Password)
+      data.EmployDate && formData.append('employDate', data.EmployDate)
+      data.PhoneNumber && formData.append('phoneNumber', `+966${data.PhoneNumber}`)
+      formData.append('workPlace', data.WorkPlace)
+      // console.log(data.UserRole)
+      userRoles.forEach((el) => {
+        formData.append('roles', el.id)
+      })
+      formData.append('userType', data.UserType)
       if (data.ImageFile) {
-        formData.set('imageFile', data.ImageFile)
+        formData.append('imageFile', data.ImageFile)
       }
+
+      formData.forEach((el) => {
+        console.log(el.toString())
+      })
 
       await postApi('/users', formData)
     },
@@ -96,16 +145,6 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
         variant: 'success',
         title: `تم إضافة ${form.getValues('Username')} بنجاح`
       })
-      // form.setValue('EmployDate', '')
-      // form.setValue('ImageFile', undefined)
-      // form.setValue('Username', '')
-      // form.setValue('LastName', '')
-      // form.setValue('FirstName', '')
-      // form.setValue('Password', '')
-      // form.setValue('WorkPlace', '')
-      // form.setValue('PhoneNumber', '')
-      // form.setValue('UserRole', '')
-      // form.setValue('UserType', '')
       queryClient.invalidateQueries({ queryKey: ['users'] })
       navigate('/users')
     },
@@ -120,6 +159,34 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   })
 
   const onSubmit = (data: Schema) => mutate(data)
+
+  const handleRemoveRole = (id: string) => {
+    const filterUserRoles = userRoles.filter((el) => el.id != id)
+
+    form.setValue('UserRole', filterUserRoles)
+
+    setUserRoles(filterUserRoles)
+  }
+
+  const handleAddRole = (role: Role) => {
+    const findUserRole = userRoles.find((el) => el.id == role.id)
+    if (!findUserRole) {
+      const newUserRoles = [...userRoles, role]
+      toast({
+        variant: 'success',
+        title: `تم إضافة ${role?.name} بنجاح`
+      })
+      setRole(undefined)
+      form.setValue('UserRole', newUserRoles)
+
+      setUserRoles(newUserRoles)
+    } else {
+      toast({
+        variant: 'destructive',
+        title: `لم يتم الاضافة  ${role.name} موجود بالفعل`
+      })
+    }
+  }
 
   return (
     <section className="p-5">
@@ -303,43 +370,6 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <FormField
-                  name="UserRole"
-                  control={form.control}
-                  render={({ field: { onChange, value } }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Dropdown
-                          label="نوع المستخدم"
-                          getLabel={(option) => option.label}
-                          getValue={(option) => option.value}
-                          onChange={onChange}
-                          groups={[
-                            {
-                              label: 'نوع المستخدم',
-                              options: [
-                                {
-                                  label: 'آدمن',
-                                  value: 1
-                                },
-                                {
-                                  label: 'بائع',
-                                  value: 2
-                                },
-                                {
-                                  label: 'منسق طلبات',
-                                  value: 3
-                                }
-                              ]
-                            }
-                          ]}
-                          value={value}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
                   name="UserType"
                   control={form.control}
                   render={({ field: { onChange, value } }) => (
@@ -353,7 +383,16 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           getValue={(option: { label: string; value: string }) =>
                             option.value || ''
                           }
-                          onChange={onChange}
+                          onChange={(value) => {
+                            onChange(value)
+                            if (value == 'مشرف') {
+                              setUserType('Roles/Type/admin')
+                            } else if (value == 'بائع') {
+                              setUserType('Roles/Type/retailer')
+                            } else {
+                              setUserType('Roles/Type/ordersManager')
+                            }
+                          }}
                           groups={[
                             {
                               label: 'المسمى الوظيفي',
@@ -380,6 +419,77 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                     </FormItem>
                   )}
                 />
+              </div>
+              <div className="flex justify-between items-center mt-3">
+                <h1 className="text-xl font-bold">الأدوار</h1>
+                <div>
+                  <Dialog>
+                    <DialogTrigger asChild disabled={userRoles.length == 0}>
+                      <Button
+                        variant="link"
+                        className="text-lg text-primary flex items-center gap-1"
+                      >
+                        <PlusCircle />
+                        إضافة دور
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader className="!text-center text-primary text-lg font-bold">
+                        إضافة دور
+                      </DialogHeader>
+                      <Combobox
+                        options={AllRoles?.data.roles || []}
+                        valueKey="id"
+                        displayKey="name"
+                        placeholder="Select a framework..."
+                        emptyMessage="No framework found."
+                        onSelect={(role) => setRole(role as Role)}
+                      />
+
+                      <DialogFooter>
+                        <Button
+                          disabled={!role}
+                          type="button"
+                          onClick={() => {
+                            handleAddRole(role!)
+                          }}
+                        >
+                          إضافة
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+              <div>
+                {userRoles.length > 0 && (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">الرقم</TableHead>
+                        <TableHead className="text-right">اسم الدور</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userRoles.map((ur, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
+                          <TableCell>{ur.name}</TableCell>
+                          <TableCell className="flex justify-end ">
+                            <Button
+                              type="button"
+                              onClick={() => handleRemoveRole(ur.id)}
+                              variant="ghost"
+                            >
+                              <TrushSquare />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </div>
             </div>
 
