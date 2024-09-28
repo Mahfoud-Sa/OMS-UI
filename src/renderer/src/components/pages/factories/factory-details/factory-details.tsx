@@ -640,7 +640,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                             id = '1002'
                           }
                           return getApi<NoneMixedBarCharterProps[]>(
-                            `Products/${id}/Chars/Bar?year=${year}`
+                            `Factories/${id}/Chars/Bar?year=${year}`
                           )
                         }}
                       />
@@ -656,7 +656,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                               id = '1002'
                             }
                             return await getApi<MixedBarCharterProps[]>(
-                              `Products/${id}/Chars/HorizantalBar?year=${year}&month=${month}`
+                              `Factories/${id}/Chars/HorizantalBar?year=${year}&month=${month}`
                             )
                           }}
                         />
@@ -676,7 +676,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                             }
 
                             return await getApi<LineChartResponse[]>(
-                              `Products/${id}/Chars/Line?year=${year}`
+                              `Factories/${id}/Chars/Line?year=${year}`
                             )
                           }}
                         />
