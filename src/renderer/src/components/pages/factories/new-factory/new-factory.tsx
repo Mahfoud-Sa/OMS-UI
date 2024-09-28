@@ -20,6 +20,7 @@ import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import imageProfile from '../../../../assets/images/profile.jpg'
 import ProductionLineDialog from '../_components/production-lines-dialog'
@@ -57,6 +58,7 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>
 
 const NewFactory: React.FunctionComponent = () => {
+  const navigate = useNavigate()
   const [currentTab, setCurrentTab] = React.useState('account')
   const [productionLinesArray, setProductionLinesArray] = useState<Schema['productionLines']>([])
   const [openDialog, setOpenDialog] = useState(false)
@@ -141,6 +143,7 @@ const NewFactory: React.FunctionComponent = () => {
         variant: 'success'
       })
       queryClient.invalidateQueries({ queryKey: ['factories'] })
+      navigate('/factories')
     },
     onError: () => {
       toast({
