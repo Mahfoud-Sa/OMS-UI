@@ -96,6 +96,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   useEffect(() => {
     if (userTypeRole) {
       setUserRoles(userTypeRole.data)
+      form.setValue('UserRole', userTypeRole.data)
     }
   }, [userTypeRole])
 
@@ -113,6 +114,14 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     resolver: zodResolver(schema),
     defaultValues: initValues
   })
+  const userRoleWatcher = form.watch('UserRole')
+
+  useEffect(() => {
+    // Clear the error when designs change
+    if (form.formState.errors.UserRole && userRoleWatcher && userRoleWatcher.length > 0) {
+      form.clearErrors('UserRole')
+    }
+  }, [userRoleWatcher, form.formState.errors.UserRole, form.clearErrors])
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
@@ -127,7 +136,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       formData.append('workPlace', data.WorkPlace)
       // console.log(data.UserRole)
       userRoles.forEach((el) => {
-        formData.append('roles', el.id)
+        formData.append('roles', el.name)
       })
       formData.append('userType', data.UserType)
       if (data.ImageFile) {
@@ -420,45 +429,52 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   )}
                 />
               </div>
-              <div className="flex justify-between items-center mt-3">
-                <h1 className="text-xl font-bold">الأدوار</h1>
-                <div>
-                  <Dialog>
-                    <DialogTrigger asChild disabled={userRoles.length == 0}>
-                      <Button
-                        variant="link"
-                        className="text-lg text-primary flex items-center gap-1"
-                      >
-                        <PlusCircle />
-                        إضافة دور
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader className="!text-center text-primary text-lg font-bold">
-                        إضافة دور
-                      </DialogHeader>
-                      <Combobox
-                        options={AllRoles?.data.roles || []}
-                        valueKey="id"
-                        displayKey="name"
-                        placeholder="Select a framework..."
-                        emptyMessage="No framework found."
-                        onSelect={(role) => setRole(role as Role)}
-                      />
-
-                      <DialogFooter>
+              <div className="">
+                <div className="flex justify-between items-center mt-3">
+                  <h1 className="text-xl font-bold">الأدوار</h1>
+                  <div>
+                    <Dialog>
+                      <DialogTrigger asChild disabled={userRoles.length == 0}>
                         <Button
-                          disabled={!role}
-                          type="button"
-                          onClick={() => {
-                            handleAddRole(role!)
-                          }}
+                          variant="link"
+                          className="text-lg text-primary flex items-center gap-1"
                         >
-                          إضافة
+                          <PlusCircle />
+                          إضافة دور
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader className="!text-center text-primary text-lg font-bold">
+                          إضافة دور
+                        </DialogHeader>
+                        <Combobox
+                          options={AllRoles?.data.roles || []}
+                          valueKey="id"
+                          displayKey="name"
+                          placeholder="Select a framework..."
+                          emptyMessage="No framework found."
+                          onSelect={(role) => setRole(role as Role)}
+                        />
+
+                        <DialogFooter>
+                          <Button
+                            disabled={!role}
+                            type="button"
+                            onClick={() => {
+                              handleAddRole(role!)
+                            }}
+                          >
+                            إضافة
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                <div>
+                  {form.formState.errors.UserRole && (
+                    <p className="text-destructive">يجب أن يكون لديك دور واحد على الأقل</p>
+                  )}
                 </div>
               </div>
               <div>
