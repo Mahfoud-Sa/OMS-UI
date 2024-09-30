@@ -31,13 +31,12 @@ const Users = () => {
       getApi<{
         users: DeliveryUserCardProps[]
         total: number
-        page_number: number
-        size: number
+        pageNumber: number
+        pageSize: number
         pages: number
       }>('/users', {
         params: {
-          page,
-          size: 8,
+          pageNumber: page,
           firstName: query
         }
       })
@@ -109,11 +108,7 @@ const Users = () => {
           </div>
         </div>
 
-        <TablePagination
-          total={fetchedData?.data.pages || 1}
-          page={fetchedData?.data.page_number || 1}
-          pageSize={fetchedData?.data.size || 10}
-        />
+        <TablePagination total={11} page={fetchedData?.data.pageNumber || 1} pageSize={10} />
       </div>
     </section>
   )
