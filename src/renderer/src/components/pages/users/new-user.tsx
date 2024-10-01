@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { localizeRoles } from '@renderer/components/constant'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
@@ -96,6 +97,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   useEffect(() => {
     if (userTypeRole) {
       setUserRoles(userTypeRole.data)
+      form.setValue('UserRole', userTypeRole.data)
     }
   }, [userTypeRole])
 
@@ -113,6 +115,14 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     resolver: zodResolver(schema),
     defaultValues: initValues
   })
+  const userRoleWatcher = form.watch('UserRole')
+
+  useEffect(() => {
+    // Clear the error when designs change
+    if (form.formState.errors.UserRole && userRoleWatcher && userRoleWatcher.length > 0) {
+      form.clearErrors('UserRole')
+    }
+  }, [userRoleWatcher, form.formState.errors.UserRole, form.clearErrors])
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
@@ -127,16 +137,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       formData.append('workPlace', data.WorkPlace)
       // console.log(data.UserRole)
       userRoles.forEach((el) => {
-        formData.append('roles', el.id)
+        formData.append('roles', el.name)
       })
       formData.append('userType', data.UserType)
       if (data.ImageFile) {
         formData.append('imageFile', data.ImageFile)
       }
-
-      formData.forEach((el) => {
-        console.log(el.toString())
-      })
 
       await postApi('/users', formData)
     },
@@ -174,7 +180,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       const newUserRoles = [...userRoles, role]
       toast({
         variant: 'success',
-        title: `تم إضافة ${role?.name} بنجاح`
+        title: `تم إضافة ${localizeRoles[role?.name]} بنجاح`
       })
       setRole(undefined)
       form.setValue('UserRole', newUserRoles)
@@ -183,7 +189,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     } else {
       toast({
         variant: 'destructive',
-        title: `لم يتم الاضافة  ${role.name} موجود بالفعل`
+        title: `لم يتم الاضافة  ${localizeRoles[role?.name]} موجود بالفعل`
       })
     }
   }
@@ -420,45 +426,53 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   )}
                 />
               </div>
-              <div className="flex justify-between items-center mt-3">
-                <h1 className="text-xl font-bold">الأدوار</h1>
-                <div>
-                  <Dialog>
-                    <DialogTrigger asChild disabled={userRoles.length == 0}>
-                      <Button
-                        variant="link"
-                        className="text-lg text-primary flex items-center gap-1"
-                      >
-                        <PlusCircle />
-                        إضافة دور
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader className="!text-center text-primary text-lg font-bold">
-                        إضافة دور
-                      </DialogHeader>
-                      <Combobox
-                        options={AllRoles?.data.roles || []}
-                        valueKey="id"
-                        displayKey="name"
-                        placeholder="Select a framework..."
-                        emptyMessage="No framework found."
-                        onSelect={(role) => setRole(role as Role)}
-                      />
-
-                      <DialogFooter>
+              <div>
+                <div className="flex justify-between items-center mt-3">
+                  <h1 className="text-xl font-bold">الأدوار</h1>
+                  <div>
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button
-                          disabled={!role}
-                          type="button"
-                          onClick={() => {
-                            handleAddRole(role!)
-                          }}
+                          variant="link"
+                          className="text-lg text-primary flex items-center gap-1"
                         >
-                          إضافة
+                          <PlusCircle />
+                          إضافة دور
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader className="!text-center text-primary text-lg font-bold">
+                          إضافة دور
+                        </DialogHeader>
+                        <Combobox
+                          options={AllRoles?.data.roles || []}
+                          valueKey="id"
+                          displayKey="name"
+                          placeholder="أختر دور"
+                          emptyMessage="لم يتم العثور علئ الدور"
+                          onSelect={(role) => setRole(role as Role)}
+                          localize={localizeRoles}
+                        />
+
+                        <DialogFooter>
+                          <Button
+                            disabled={!role}
+                            type="button"
+                            onClick={() => {
+                              handleAddRole(role!)
+                            }}
+                          >
+                            إضافة
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                <div>
+                  {form.formState.errors.UserRole && (
+                    <p className="text-destructive">يجب أن يكون لديك دور واحد على الأقل</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -475,7 +489,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       {userRoles.map((ur, index) => (
                         <TableRow key={index}>
                           <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
-                          <TableCell>{ur.name}</TableCell>
+                          <TableCell>{localizeRoles[ur.name]}</TableCell>
                           <TableCell className="flex justify-end ">
                             <Button
                               type="button"
