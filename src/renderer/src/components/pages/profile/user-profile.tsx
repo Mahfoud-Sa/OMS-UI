@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { localizeRoles } from '@renderer/components/constant'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import InformationCard from '@renderer/components/layouts/InformationCard'
 import Loader from '@renderer/components/layouts/loader'
@@ -7,12 +8,21 @@ import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Input as Input2 } from '@renderer/components/ui/input_2'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@renderer/components/ui/table'
 import { toast } from '@renderer/components/ui/use-toast'
-import { getApi, putApi } from '@renderer/lib/http'
+import { getApi, postApi, putApi } from '@renderer/lib/http'
 import { User } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import * as z from 'zod'
@@ -21,28 +31,34 @@ import imageProfile from '../../../assets/images/profile.jpg'
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
 const schema = z.object({
-  Password: z
-    .string({ message: 'مطلوب' })
-    .min(6, 'يجب أن يكون أكبر من 6 أحرف')
-    .max(10, 'يجب أن يكون أقل من 10 حرف'),
   Username: z
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
-    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+    .max(100, 'يجب أن يكون أقل من 100 حرف')
+    .regex(/^[a-z]+$/, {
+      message: 'يجب ان تكون حروف إنجليزية صغيرة وبدون مسافة'
+    }),
   FirstName: z
     .string({ message: 'مطلوب' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
   LastName: z.string().optional(),
-  PhoneNumber: z.string().optional(),
+  Password: z.string({ message: 'مطلوب' }).optional(),
+  PhoneNumber: z
+    .string()
+    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .optional(),
   UserType: z.string().optional(),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
-  UserRole: z.string({ message: 'مطلوب' }),
+
   ImageFile: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
       message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    })
+    .refine((file) => file.type.startsWith('image/'), {
+      message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
     })
     .optional()
 })
@@ -50,6 +66,9 @@ export type Schema = z.infer<typeof schema>
 
 const UserProfile = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [userRoles, setUserRoles] = useState<string[]>([])
+  const authUser = useAuthUser()
+
   const [isEdit, setIsEdit] = useState(false)
   const [oldImage, setOldImage] = useState('')
   const queryClient = useQueryClient()
@@ -61,7 +80,7 @@ const UserProfile = () => {
 
   const { data, isPending, isSuccess } = useQuery({
     queryKey: ['users', id],
-    queryFn: () => getApi<User>(`/Account/Profile/1ec1ff9c-bcc7-4205-9fa6-ae8476215e0d`)
+    queryFn: () => getApi<User>(`/Account/Profile`)
   })
 
   const form = useForm<Schema>({
@@ -77,10 +96,9 @@ const UserProfile = () => {
         Username: data.data.userName,
         WorkPlace: data.data.workPlace,
         EmployDate: data.data.employDate,
-        UserRole: data.data.roles[0] || '1',
-        UserType: data.data.userType,
         PhoneNumber: data.data.phoneNumber.split('+966')[1]
       })
+      setUserRoles(data.data.roles)
       setOldImage(data.data.imagePath)
     }
   }, [data?.data])
@@ -94,13 +112,12 @@ const UserProfile = () => {
       data.EmployDate && formData.set('employDate', data.EmployDate)
       data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
       formData.set('workPlace', data.WorkPlace)
-      formData.set('userRole', data.UserRole)
       data.UserType && formData.set('userType', data.UserType)
       if (data.ImageFile) {
         formData.set('imageFile', data.ImageFile)
       }
 
-      await putApi(`/users/${id}`, formData)
+      await putApi(`/Account/Profile`, formData)
     },
     onSuccess: () => {
       toast({
@@ -109,6 +126,29 @@ const UserProfile = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (error: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+
+  const { mutate: mutateChangPassWord, isPending: isPendingChangPassWord } = useMutation({
+    mutationFn: async (data: string) => {
+      await postApi(`/Account/ChangePassword/${authUser()?.userName as string}`, {
+        NewPassword: data,
+        ConfirmPassword: data
+      })
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'success',
+        title: `تم تعديل كلمة المرور بنجاح`
+      })
+      form.setValue('Password', '')
     },
     onError: (error: any) => {
       toast({
@@ -321,93 +361,61 @@ const UserProfile = () => {
               />
             </div>
           </div>
+          {(authUser()?.userType as string) == 'مشرف' && (
+            <div className="bg-white p-5 rounded-lg shadow-sm">
+              <h1 className="text-2xl font-bold mb-3">تغير كلمة السر</h1>
+              <div className="flex gap-3">
+                <div className="w-[40%]">
+                  <FormField
+                    control={form.control}
+                    name="Password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              {...field}
+                              disabled={!isEdit}
+                              placeholder="كلمة السر"
+                              martial
+                              type={showPassword ? 'text' : 'password'}
+                              label={<span>كلمة السر</span>}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleShowPassword()}
+                              className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
+                            >
+                              {showPassword ? (
+                                <EyeOff size={23} color="#434749" />
+                              ) : (
+                                <Eye size={23} color="#434749" />
+                              )}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-          <div className="bg-white p-5 rounded-lg shadow-sm">
-            <h1 className="text-2xl font-bold mb-3">تغير كلمة السر</h1>
-            <div className="flex gap-3">
-              <div className="w-[40%]">
-                <FormField
-                  control={form.control}
-                  name="Password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            {...field}
-                            disabled={!isEdit}
-                            placeholder="كلمة السر"
-                            martial
-                            type={showPassword ? 'text' : 'password'}
-                            label={<span>كلمة السر</span>}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleShowPassword()}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
-                          >
-                            {showPassword ? (
-                              <EyeOff size={23} color="#434749" />
-                            ) : (
-                              <Eye size={23} color="#434749" />
-                            )}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <Button
+                  type="button"
+                  disabled={!isEdit || isPendingChangPassWord}
+                  onClick={() => mutateChangPassWord(form.getValues('Password')!)}
+                  className="w-[100px] h-[56px]"
+                >
+                  {isPendingChangPassWord ? <Loader color={'#fff'} size={15} /> : ' إعادة ضبط'}
+                </Button>
               </div>
-
-              <Button type="button" disabled={!isEdit} className="w-[100px] h-[56px]">
-                إعادة ضبط
-              </Button>
             </div>
-          </div>
+          )}
 
           <div className="bg-white p-5 rounded-lg shadow-sm">
             <h1 className="text-2xl font-bold">الصلاحيات</h1>
 
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <FormField
-                name="UserRole"
-                control={form.control}
-                render={({ field: { onChange, value } }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Dropdown
-                        disabled={!isEdit}
-                        label="نوع المستخدم"
-                        getLabel={(option) => option.label}
-                        getValue={(option) => option.value}
-                        onChange={onChange}
-                        groups={[
-                          {
-                            label: 'نوع المستخدم',
-                            options: [
-                              {
-                                label: 'آدمن',
-                                value: 1
-                              },
-                              {
-                                label: 'بائع',
-                                value: 2
-                              },
-                              {
-                                label: 'منسق طلبات',
-                                value: 3
-                              }
-                            ]
-                          }
-                        ]}
-                        value={data?.data.roles[0] || '1'}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="mt-4 grid grid-cols-1 gap-3">
               <FormField
                 name="UserType"
                 control={form.control}
@@ -415,7 +423,7 @@ const UserProfile = () => {
                   <FormItem>
                     <FormControl>
                       <Dropdown
-                        disabled={!isEdit}
+                        disabled={true}
                         label="المسمى الوظيفي"
                         getLabel={(option: { label: string; value: string }) => option.label || ''}
                         getValue={(option: { label: string; value: string }) => option.value || ''}
@@ -446,13 +454,31 @@ const UserProfile = () => {
                   </FormItem>
                 )}
               />
+              <div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">الرقم</TableHead>
+                      <TableHead className="text-right">اسم الدور</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {userRoles.map((ur, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
+                        <TableCell>{localizeRoles[ur]}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
 
           <div className="flex justify-end">
             {isEdit && (
-              <Button type="submit" disabled={isPending} size="lg">
-                {isPending ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
+              <Button type="submit" disabled={isPendingSubmit} size="lg">
+                {isPendingSubmit ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
               </Button>
             )}
           </div>

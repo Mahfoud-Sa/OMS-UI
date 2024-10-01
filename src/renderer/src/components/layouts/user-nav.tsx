@@ -1,7 +1,7 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronDown } from 'lucide-react'
 import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import userIcon from '../icons/user.svg'
 import { Button } from '../ui/button'
 import {
@@ -56,8 +56,12 @@ export function UserNav() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuGroup>
-            <DropdownMenuItem disabled>الملف الشخصي</DropdownMenuItem>
-            <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link to="/profile" className=" block w-full">
+                الملف الشخصي
+              </Link>
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut}>تسجيل الخروج</DropdownMenuItem>

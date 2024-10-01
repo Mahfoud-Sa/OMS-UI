@@ -10,10 +10,11 @@ const ProductsWrapper = () => {
   const query = searchParams.get('query')
   const page = searchParams.get('page')
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, error } = useQuery({
     queryKey: ['products', query, page],
     queryFn: () =>
       getApi<{
+        total: number
         products: Product[]
         pageNumber: number
         pageSize: number
@@ -33,6 +34,7 @@ const ProductsWrapper = () => {
       </div>
     )
 
+  if (isError) return <div>{error.message}</div>
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   return <ProductsTable data={data?.data! || []} />
 }
