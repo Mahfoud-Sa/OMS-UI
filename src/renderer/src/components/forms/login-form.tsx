@@ -87,7 +87,7 @@ const PasswordChangeDialog = ({
 }
 
 const Schema = z.object({
-  userName: z.string().min(1, { message: 'يرجى أدخال أسم المستخدم' }),
+  username: z.string().min(1, { message: 'يرجى أدخال أسم المستخدم' }),
   password: z.string().min(1, { message: 'يرجى أدخال كلمة المرور' })
 })
 
@@ -111,12 +111,9 @@ const LoginForm = () => {
     try {
       setDelayedSubmitting(true)
       const res = await postApi<LogInResponse>('/Account/Login', {
-        ...data,
-        twoFactorCode: 'string',
-        twoFactorRecoveryCode: 'string'
+        ...data
       })
 
-      console.log(res)
       if (res?.status === 200 && res.data.message === 'Password change required') {
         setIsPasswordChangeRequired(true)
         setUserId(res.data.id ?? null)
@@ -135,6 +132,8 @@ const LoginForm = () => {
           }
         })
         // debugger
+
+        console.log(signInResult)
         if (signInResult) {
           toast({
             title: 'مرحباً مجدداً',
@@ -164,21 +163,21 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-      if (process.env.NODE_ENV === 'development') {
-        signIn({
-          token: 'default-token',
-          expiresIn: 360000,
-          tokenType: 'Bearer'
-        })
-        navigate('/')
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   signIn({
+      //     token: 'default-token',
+      //     expiresIn: 360000,
+      //     tokenType: 'Bearer'
+      //   })
+      //   navigate('/')
+      // }
     } finally {
       setDelayedSubmitting(false)
     }
   }
   const handlePasswordChangeSubmit = async (newPassword: string, confirmPassword: string) => {
     try {
-      const res = await postApi(`/Account/ChangePassword/${form.getValues('userName')}`, {
+      const res = await postApi(`/Account/ChangePassword/${form.getValues('username')}`, {
         newPassword,
         confirmPassword
       })
@@ -226,7 +225,7 @@ const LoginForm = () => {
             <div className="w-full mb-3 flex flex-col gap-4">
               <FormField
                 control={form.control}
-                name="userName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl className="">

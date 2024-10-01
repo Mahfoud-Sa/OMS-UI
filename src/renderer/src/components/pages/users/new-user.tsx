@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { localizeRoles } from '@renderer/components/constant'
 import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
@@ -143,10 +144,6 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
         formData.append('imageFile', data.ImageFile)
       }
 
-      formData.forEach((el) => {
-        console.log(el.toString())
-      })
-
       await postApi('/users', formData)
     },
     onSuccess: () => {
@@ -183,7 +180,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       const newUserRoles = [...userRoles, role]
       toast({
         variant: 'success',
-        title: `تم إضافة ${role?.name} بنجاح`
+        title: `تم إضافة ${localizeRoles[role?.name]} بنجاح`
       })
       setRole(undefined)
       form.setValue('UserRole', newUserRoles)
@@ -192,7 +189,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     } else {
       toast({
         variant: 'destructive',
-        title: `لم يتم الاضافة  ${role.name} موجود بالفعل`
+        title: `لم يتم الاضافة  ${localizeRoles[role?.name]} موجود بالفعل`
       })
     }
   }
@@ -429,12 +426,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                   )}
                 />
               </div>
-              <div className="">
+              <div>
                 <div className="flex justify-between items-center mt-3">
                   <h1 className="text-xl font-bold">الأدوار</h1>
                   <div>
                     <Dialog>
-                      <DialogTrigger asChild disabled={userRoles.length == 0}>
+                      <DialogTrigger asChild>
                         <Button
                           variant="link"
                           className="text-lg text-primary flex items-center gap-1"
@@ -451,9 +448,10 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           options={AllRoles?.data.roles || []}
                           valueKey="id"
                           displayKey="name"
-                          placeholder="Select a framework..."
-                          emptyMessage="No framework found."
+                          placeholder="أختر دور"
+                          emptyMessage="لم يتم العثور علئ الدور"
                           onSelect={(role) => setRole(role as Role)}
+                          localize={localizeRoles}
                         />
 
                         <DialogFooter>
@@ -491,7 +489,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       {userRoles.map((ur, index) => (
                         <TableRow key={index}>
                           <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
-                          <TableCell>{ur.name}</TableCell>
+                          <TableCell>{localizeRoles[ur.name]}</TableCell>
                           <TableCell className="flex justify-end ">
                             <Button
                               type="button"

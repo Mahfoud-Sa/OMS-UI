@@ -52,7 +52,7 @@ export const router = createHashRouter([
         element: <ResetPassword />
       },
       {
-        path: '/profile/:id',
+        path: '/profile',
         element: <UserProfile />
       },
       {
