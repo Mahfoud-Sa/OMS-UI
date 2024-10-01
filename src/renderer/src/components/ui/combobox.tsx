@@ -25,6 +25,7 @@ interface ComboboxProps {
   emptyMessage?: string
   selectedValue?: Option | null
   onSelect?: (option: Option | null) => void
+  localize?: object
 }
 
 export function Combobox({
@@ -34,7 +35,8 @@ export function Combobox({
   placeholder = 'Select an option...',
   emptyMessage = 'No options found.',
   selectedValue = null,
-  onSelect
+  onSelect,
+  localize
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState<Option | null>(selectedValue)
@@ -55,13 +57,13 @@ export function Combobox({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value ? value[displayKey] : placeholder}
+          {value ? (localize ? localize[value[displayKey]] : value[displayKey]) : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder={`Search ${placeholder.toLowerCase()}`} />
+          <CommandInput placeholder={`أبحث...`} />
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
@@ -77,7 +79,7 @@ export function Combobox({
                       value?.[valueKey] === option[valueKey] ? 'opacity-100' : 'opacity-0'
                     )}
                   />
-                  {option[displayKey]}
+                  {localize ? localize[option[displayKey]] : option[displayKey]}
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -20,6 +20,7 @@ type Props = {
     pageNumber: number
     pageSize: number
     pages: number
+    total: number
   }
 }
 
@@ -93,7 +94,7 @@ const ProductsTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.products} />
-      <TablePagination total={data.pages} page={data.pageNumber} pageSize={data.pageSize} />
+      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
   )
 }

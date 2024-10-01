@@ -1,6 +1,6 @@
 import CreateBtn from '@renderer/components/layouts/create-btn'
+import Loader from '@renderer/components/layouts/loader'
 import TablePagination from '@renderer/components/tables/table-pagination'
-import { Skeleton } from '@renderer/components/ui/skeleton'
 import { useToast } from '@renderer/components/ui/use-toast'
 import { UserCard } from '@renderer/components/ui/UserCard'
 import { deleteApi, getApi } from '@renderer/lib/http'
@@ -26,7 +26,7 @@ const Users = () => {
     isError,
     error
   } = useQuery({
-    queryKey: ['users', query],
+    queryKey: ['users', query, page],
     queryFn: () =>
       getApi<{
         users: DeliveryUserCardProps[]
@@ -77,7 +77,14 @@ const Users = () => {
     }
   })
 
-  // filter users
+  if (isPending)
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <Loader size={40} color={'#DA972E'} />
+      </div>
+    )
+
+  if (isError) return <div>{error.message}</div>
 
   return (
     <section className="p-5">
@@ -88,9 +95,7 @@ const Users = () => {
           <CreateBtn title={'إضافة مستخدم'} href={'new'} className="w-[200px]" />
         </div>
 
-        <div className="p-4 h-96 overflow-auto mt-4">
-          {isPending && <Skeleton className="h-96" />}
-          {isError && <div>{error.message}</div>}
+        <div className="p-4 h-96 overflow-auto my-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {usersData?.map((user) => (
               <UserCard
@@ -108,7 +113,11 @@ const Users = () => {
           </div>
         </div>
 
-        <TablePagination total={11} page={fetchedData?.data.pageNumber || 1} pageSize={10} />
+        <TablePagination
+          total={fetchedData?.data.total || 0}
+          page={fetchedData?.data.pageNumber || 0}
+          pageSize={fetchedData?.data.pageSize || 0}
+        />
       </div>
     </section>
   )
