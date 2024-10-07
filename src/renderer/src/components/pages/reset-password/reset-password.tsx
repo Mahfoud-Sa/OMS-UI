@@ -38,7 +38,7 @@ const fetchUsers = async () => {
     page_number: number
     size: number
     pages: number
-  }>('/users')
+  }>('/users?pageSize=10000000')
   return response.data.users
 }
 
@@ -105,7 +105,7 @@ const ResetPassword = () => {
               <h1 className="font-bold">إعادة تعيين كلمة المرور</h1>
 
               <div className="mt-4 grid grid-cols-3 gap-3">
-                {users !== undefined && (
+                {(users ?? []).length > 0 && (
                   <FormField
                     control={form.control}
                     name="userId"
