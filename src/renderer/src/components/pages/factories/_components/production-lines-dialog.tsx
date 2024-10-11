@@ -1,5 +1,5 @@
 import { Icons } from '@renderer/components/icons/icons'
-import { StructureTable } from '@renderer/components/tables/structure-table '
+import { StructureTable } from '@renderer/components/tables/structure-table'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,

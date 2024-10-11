@@ -636,11 +636,8 @@ const FactoryDetails: React.FunctionComponent = () => {
                         productName={form.getValues('name')}
                         label="مبيعات المصنع"
                         queryFunction={(id: string, year: number) => {
-                          if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
-                            id = '1002'
-                          }
                           return getApi<NoneMixedBarCharterProps[]>(
-                            `Factories/${id}/Chars/Bar?year=${year}`
+                            `Factories/${id}/charts/bar?year=${year}`
                           )
                         }}
                       />
@@ -652,11 +649,8 @@ const FactoryDetails: React.FunctionComponent = () => {
                           id={factoryId || ''}
                           label="مبيعات خطوط الانتاج"
                           queryFunction={async (id, year, month) => {
-                            if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
-                              id = '1002'
-                            }
                             return await getApi<MixedBarCharterProps[]>(
-                              `Factories/${id}/Chars/HorizantalBar?year=${year}&month=${month}`
+                              `Factories/${id}/charts/horizontal-bar?year=${year}&month=${month}`
                             )
                           }}
                         />
@@ -671,12 +665,8 @@ const FactoryDetails: React.FunctionComponent = () => {
                           onManyValues={handleManyValues}
                           label="مبيعات خطوط الانتاج"
                           queryFunction={async (id, year) => {
-                            if (import.meta.env.RENDERER_VITE_REACT_APP_ENV === 'development') {
-                              id = '1002'
-                            }
-
                             return await getApi<LineChartResponse[]>(
-                              `Factories/${id}/Chars/Line?year=${year}`
+                              `Factories/${id}/charts/line?year=${year}`
                             )
                           }}
                         />
