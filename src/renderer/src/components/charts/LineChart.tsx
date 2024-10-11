@@ -30,7 +30,7 @@ const transformData = (data: LineChartResponse[]): TransformedData[] => {
     )
 
     return {
-      month: item.monthe,
+      month: item.month,
       ...salesData
     }
   })
@@ -78,6 +78,7 @@ const LineCharter = ({
     }
     return {}
   }, [chartData])
+  console.log(chartConfig)
 
   useEffect(() => {
     if (chartData && chartData.length > 0) {
@@ -88,6 +89,7 @@ const LineCharter = ({
       onManyValues(hasManyValues)
     }
   }, [chartData, onManyValues])
+  console.log(chartData)
 
   if (isLoading) return <Skeleton className="min-h-[220px]"></Skeleton>
 

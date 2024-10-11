@@ -152,7 +152,7 @@ const InfoUser = () => {
       data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
       formData.set('workPlace', data.WorkPlace)
       userRoles.forEach((el) => {
-        formData.append('roles', el.name)
+        formData.append('newRoles', el.name)
       })
       data.UserType && formData.set('userType', data.UserType)
       if (data.ImageFile) {
