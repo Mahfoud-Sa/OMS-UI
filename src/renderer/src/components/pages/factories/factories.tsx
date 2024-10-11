@@ -2,6 +2,7 @@ import { Icons } from '@renderer/components/icons/icons'
 import CreateBtn from '@renderer/components/layouts/create-btn'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
+import { Button } from '@renderer/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -23,6 +24,7 @@ import { useToast } from '@renderer/components/ui/use-toast'
 import { deleteApi, getApi } from '@renderer/lib/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
+import { ArrowUpDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import FactoriesSearch from './_components/factories-search'
@@ -41,10 +43,11 @@ const Factories = () => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query')
   const page = searchParams.get('page') || '1'
-  const pageSize = 10
-
+  const pageSize = 6
+  const sortBy = 'date'
+  const [ascending, setAscending] = useState(true)
   const { data: fetchedData, isLoading } = useQuery({
-    queryKey: ['factories', query, page],
+    queryKey: ['factories', query, page, sortBy, ascending],
     queryFn: () =>
       getApi<{
         factories: FactoryInterface[]
@@ -53,11 +56,7 @@ const Factories = () => {
         pageSize: number
         pages: number
       }>('/Factories', {
-        params: {
-          pageNumber: page,
-          pageSize: pageSize,
-          name: query
-        }
+        params: { query, page, pageSize, sortBy, ascending }
       })
   })
 
@@ -106,7 +105,19 @@ const Factories = () => {
     },
     {
       accessorKey: 'createdAt',
-      header: 'تاريخ الانشاء',
+      header: () => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setAscending(!ascending)
+            }}
+          >
+            تاريخ التسجيل
+            <ArrowUpDown className="ml-2 h-4 w-4 mx-2" />
+          </Button>
+        )
+      },
       cell: (info) => info.getValue(),
       enableSorting: true
     },
