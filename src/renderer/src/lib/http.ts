@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 // import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated'
 // import { redirect } from 'react-router-dom'
 
+console.log(localStorage.getItem('_auth'))
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.RENDERER_VITE_REACT_APP_API_URL,
   // auth: {

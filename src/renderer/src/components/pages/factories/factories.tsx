@@ -1,6 +1,8 @@
 import { Icons } from '@renderer/components/icons/icons'
 import CreateBtn from '@renderer/components/layouts/create-btn'
-import { StructureTable } from '@renderer/components/tables/structure-table '
+import { StructureTable } from '@renderer/components/tables/structure-table'
+import TablePagination from '@renderer/components/tables/table-pagination'
+import { Button } from '@renderer/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -20,10 +22,11 @@ import {
 import { Skeleton } from '@renderer/components/ui/skeleton'
 import { useToast } from '@renderer/components/ui/use-toast'
 import { deleteApi, getApi } from '@renderer/lib/http'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
+import { ArrowUpDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import FactoriesSearch from './_components/factories-search'
 import Statistics from './_components/statistics'
 
@@ -37,16 +40,31 @@ export interface FactoryInterface {
 }
 
 const Factories = () => {
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('query')
+  const page = searchParams.get('page') || '1'
+  const pageSize = 6
+  const sortBy = 'date'
+  const [ascending, setAscending] = useState(true)
   const { data: fetchedData, isLoading } = useQuery({
-    queryKey: ['factories'],
-    queryFn: () => getApi<FactoryInterface[]>('/Factories')
+    queryKey: ['factories', query, page, sortBy, ascending],
+    queryFn: () =>
+      getApi<{
+        factories: FactoryInterface[]
+        total: number
+        pageNumber: number
+        pageSize: number
+        pages: number
+      }>('/Factories', {
+        params: { query, page, pageSize, sortBy, ascending }
+      })
   })
-  console.log(fetchedData?.data)
 
   const [factoriesData, setFactoriesData] = useState<FactoryInterface[]>([])
   const { toast } = useToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedFactoryId, setSelectedFactoryId] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: (id: string) => {
       return deleteApi(`/Factories/${id}`)
@@ -57,6 +75,7 @@ const Factories = () => {
         description: `تم حذف المصنع بنجاح`,
         variant: 'success'
       })
+      queryClient.invalidateQueries({ queryKey: ['factories'] })
     }
   })
 
@@ -86,7 +105,19 @@ const Factories = () => {
     },
     {
       accessorKey: 'createdAt',
-      header: 'تاريخ الانشاء',
+      header: () => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setAscending(!ascending)
+            }}
+          >
+            تاريخ التسجيل
+            <ArrowUpDown className="ml-2 h-4 w-4 mx-2" />
+          </Button>
+        )
+      },
       cell: (info) => info.getValue(),
       enableSorting: true
     },
@@ -95,16 +126,6 @@ const Factories = () => {
       header: 'موقع المصنع',
       cell: (info) => info.getValue()
     },
-    // {
-    //   accessorKey: 'productionLinesCount',
-    //   header: 'عدد خطوط الانتاج',
-    //   cell: (info) => info.getValue()
-    // },
-    // {
-    //   accessorKey: 'teamsCount',
-    //   header: 'عدد الفرق',
-    //   cell: (info) => info.getValue()
-    // },
     {
       id: 'actions',
       cell: (info) => (
@@ -136,19 +157,17 @@ const Factories = () => {
       )
     }
   ]
+
   useEffect(() => {
-    if (fetchedData?.data) {
-      // formate the createdAt string date to this formate yyyy-mm-dd
-      fetchedData.data.forEach((factory) => {
+    if (fetchedData?.data.factories) {
+      console.log(fetchedData.data.factories)
+      fetchedData.data.factories.forEach((factory) => {
         const date = new Date(factory.createdAt)
         factory.createdAt = date.toISOString().split('T')[0]
       })
-      setFactoriesData(fetchedData.data)
+      setFactoriesData(fetchedData.data.factories)
     }
   }, [fetchedData])
-
-  const paginatedData = factoriesData
-  console.log('paginatedData', paginatedData)
 
   return (
     <section className="p-5">
@@ -160,20 +179,15 @@ const Factories = () => {
         </div>
         <div className="p-4 h-96 overflow-auto mt-4">
           {isLoading && <Skeleton className="h-96" />}
-          {paginatedData && (
-            <StructureTable
-              columns={columns}
-              data={paginatedData ? paginatedData : []}
-              title="Factories"
-            />
+          {factoriesData && (
+            <StructureTable columns={columns} data={factoriesData} title="Factories" />
           )}
-          {/* <TablePagination
-            total={factoriesData.length}
-            page={page}
-            pageSize={pageSize}
-            onPageChange={(newPage) => setPage(newPage)}
-          /> */}
         </div>
+        <TablePagination
+          total={fetchedData?.data.total || 0}
+          page={fetchedData?.data.pageNumber || 1}
+          pageSize={fetchedData?.data.pageSize || 10}
+        />
       </div>
       <Dialog
         open={isDialogOpen}

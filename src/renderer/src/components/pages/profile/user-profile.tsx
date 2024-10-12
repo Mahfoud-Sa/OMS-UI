@@ -99,6 +99,7 @@ const UserProfile = () => {
         PhoneNumber: data.data.phoneNumber.split('+966')[1]
       })
       setUserRoles(data.data.roles)
+      console.log(data.data.roles)
       setOldImage(data.data.imagePath)
     }
   }, [data?.data])
@@ -128,6 +129,7 @@ const UserProfile = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
@@ -138,19 +140,19 @@ const UserProfile = () => {
 
   const { mutate: mutateChangPassWord, isPending: isPendingChangPassWord } = useMutation({
     mutationFn: async (data: string) => {
-      await postApi(`/Account/ChangePassword/${authUser()?.userName as string}`, {
-        NewPassword: data,
-        ConfirmPassword: data
-      })
+      const formData = new FormData()
+      formData.append('adminPassword', data)
+      await postApi(`/Users/${authUser()?.id}/RecetPassword`, formData)
     },
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: `تم تعديل كلمة المرور بنجاح`
+        title: `تم تغيير كلمة السر بنجاح يرجى تسجيل الدخول مرة أخرى`
       })
       form.setValue('Password', '')
     },
     onError: (error: any) => {
+      console.error(error)
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
@@ -195,9 +197,11 @@ const UserProfile = () => {
           <div className="bg-white p-5 rounded-lg shadow-sm">
             <div className="flex justify-between">
               <h1 className="text-2xl font-bold">المعلومات الشخصية</h1>
-              <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
-                {!isEdit ? 'تعديل' : 'عرض'}
-              </Button>
+              {userRoles.includes('Update Profile') && (
+                <Button type="button" onClick={() => setIsEdit((prev) => !prev)}>
+                  {!isEdit ? 'تعديل' : 'عرض'}
+                </Button>
+              )}
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-3">
@@ -361,7 +365,7 @@ const UserProfile = () => {
               />
             </div>
           </div>
-          {(authUser()?.userType as string) == 'مشرف' && (
+          {userRoles.includes('Admin') && (
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <h1 className="text-2xl font-bold mb-3">تغير كلمة السر</h1>
               <div className="flex gap-3">
@@ -419,7 +423,7 @@ const UserProfile = () => {
               <FormField
                 name="UserType"
                 control={form.control}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange } }) => (
                   <FormItem>
                     <FormControl>
                       <Dropdown
