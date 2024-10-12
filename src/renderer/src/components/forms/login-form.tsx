@@ -33,6 +33,7 @@ const PasswordChangeDialog = ({
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async () => {
     if (newPassword === confirmNewPassword) {
@@ -53,20 +54,46 @@ const PasswordChangeDialog = ({
         </DialogHeader>
 
         <label className="text-center">عيين كلمة المرور الخاصة بك</label>
-        <Input
-          type="password"
-          label={'كلمة المرور الجديدة'}
-          placeholder="New Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Confirm New Password"
-          label={'تاكيد كلمة المرور الجديدة'}
-          value={confirmNewPassword}
-          onChange={(e) => setConfirmNewPassword(e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? 'text' : 'password'}
+            label={'كلمة المرور الجديدة'}
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
+          >
+            {showPassword ? (
+              <EyeOff size={23} color="#434749" />
+            ) : (
+              <Eye size={23} color="#434749" />
+            )}
+          </button>
+        </div>
+        <div className="relative">
+          <Input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Confirm New Password"
+            label={'تاكيد كلمة المرور الجديدة'}
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
+          >
+            {showPassword ? (
+              <EyeOff size={23} color="#434749" />
+            ) : (
+              <Eye size={23} color="#434749" />
+            )}
+          </button>
+        </div>
         <DialogFooter>
           <Button
             className="w-full"
@@ -98,7 +125,6 @@ const LoginForm = () => {
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [isPasswordChangeRequired, setIsPasswordChangeRequired] = useState(false)
-  const [id, setUserId] = useState<string | null>(null)
   const signIn = useSignIn()
 
   const form = useForm<UserFormValue>({
@@ -116,7 +142,6 @@ const LoginForm = () => {
 
       if (res?.status === 200 && res.data.message === 'Password change required') {
         setIsPasswordChangeRequired(true)
-        setUserId(res.data.id ?? null)
         return
       }
 
@@ -163,14 +188,14 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-      // if (process.env.NODE_ENV === 'development') {
-      //   signIn({
-      //     token: 'default-token',
-      //     expiresIn: 360000,
-      //     tokenType: 'Bearer'
-      //   })
-      //   navigate('/')
-      // }
+      if (process.env.NODE_ENV === 'development') {
+        signIn({
+          token: 'default-token',
+          expiresIn: 360000,
+          tokenType: 'Bearer'
+        })
+        navigate('/')
+      }
     } finally {
       setDelayedSubmitting(false)
     }

@@ -1,5 +1,5 @@
 import DeleteDialog from '@renderer/components/layouts/delete-dialog'
-import { StructureTable } from '@renderer/components/tables/structure-table '
+import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
 import {

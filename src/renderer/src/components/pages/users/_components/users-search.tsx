@@ -90,7 +90,7 @@ const ProductsSearch = () => {
         cacheOptions
         instanceId="products-search"
         value={selectedVal?.length ? { firstName: selectedVal } : undefined}
-        defaultOptions={users?.data.users}
+        defaultOptions={users?.data?.users || []}
         loadOptions={loadOptions}
         onChange={onChange}
         getOptionLabel={({ firstName }) => firstName}

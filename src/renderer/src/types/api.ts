@@ -49,7 +49,7 @@ export interface ProductionLineProps {
   teams?: ProductionTeam[] // Include teams here
 }
 export interface LineChartResponse {
-  monthe: string
+  month: string
   sales: {
     name: string
     sales: number
