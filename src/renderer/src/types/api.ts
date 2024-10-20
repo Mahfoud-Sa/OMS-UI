@@ -64,3 +64,12 @@ export interface NoneMixedBarCharterProps {
   month: string
   sales: number
 }
+
+export type Order = {
+  id: number
+  billNo: string
+  customerName: string
+  createAt: string
+  orderState: number
+  sellingPrice: number
+}

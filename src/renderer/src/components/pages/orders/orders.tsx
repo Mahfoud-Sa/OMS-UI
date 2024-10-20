@@ -1,9 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import Statistics from './_components/statistics'
-import AllOrders from './tabs/all-orders/all-orders'
-import DeliveredOrders from './tabs/delivered-orders/delivered-orders'
-import ProgressOrders from './tabs/progress-orders/progress-orders'
-import ReadyOrders from './tabs/ready-orders/ready-orders'
+import AllOrders from './tabs/all-orders'
+import CanceledOrders from './tabs/canceled-orders'
+import DeliveredOrders from './tabs/delivered-orders'
+import ProgressOrders from './tabs/progress-orders'
+import ReadyOrders from './tabs/ready-orders'
 
 const Orders = () => {
   const tabs = [
@@ -26,6 +27,11 @@ const Orders = () => {
       content: <DeliveredOrders />,
       value: 'DeliveredOrders',
       label: 'طلبات تم التسليم'
+    },
+    {
+      content: <CanceledOrders />,
+      value: 'CanceledOrders',
+      label: 'طلبات تم الغائها'
     }
   ]
 
