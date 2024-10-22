@@ -1,28 +1,33 @@
 import Loader from '@renderer/components/layouts/loader'
 import { getApi } from '@renderer/lib/http'
-import { Product } from '@renderer/types/api'
+import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
-import ProductsTable from '../../_components/table'
+import OrdersTable from './table'
 
-const AllOrdersWrapper = () => {
+type Props = {
+  status: null | 0 | 1 | 2 | 3 | 4
+}
+
+const OrdersWrapper = ({ status }: Props) => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query')
   const page = searchParams.get('page')
 
   const { data, isPending, isError, error } = useQuery({
-    queryKey: ['products', query, page],
+    queryKey: ['orders', status, query, page],
     queryFn: () =>
       getApi<{
         total: number
-        products: Product[]
+        orders: Order[]
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Products`, {
+      }>(`/Orders`, {
         params: {
           query,
-          page
+          page,
+          orderState: status
         }
       })
   })
@@ -36,7 +41,7 @@ const AllOrdersWrapper = () => {
 
   if (isError) return <div>{error.message}</div>
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  return <ProductsTable data={data?.data! || []} />
+  return <OrdersTable data={data.data || []} />
 }
 
-export default AllOrdersWrapper
+export default OrdersWrapper
