@@ -1,9 +1,9 @@
 import CreateBtn from '@renderer/components/layouts/create-btn'
 import { Button } from '@renderer/components/ui/button'
-import OrdersSearch from '../../_components/orders-search'
-import AllOrdersWrapper from './all-orders-wrapper'
+import OrdersSearch from '../_components/orders-search'
+import OrdersWrapper from '../_components/orders-wrapper'
 
-const AllOrders = () => {
+const ReadyOrders = () => {
   return (
     <section>
       <div className="flex gap-3 flex-row h-[50px]">
@@ -13,9 +13,9 @@ const AllOrders = () => {
         </Button>
         <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
       </div>
-      <AllOrdersWrapper />
+      <OrdersWrapper status={2} />
     </section>
   )
 }
 
-export default AllOrders
+export default ReadyOrders

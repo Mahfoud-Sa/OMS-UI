@@ -1,51 +1,63 @@
 'use client'
 
-import AsyncSelect from 'react-select/async'
-// import { usePathname, useRouter, useSearchParams } from "next/navigation";
-// import { useQuery } from "@tanstack/react-query";
-// import { getApi } from "@/lib/http";
+import { getApi } from '@renderer/lib/http'
+import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import AsyncSelect from 'react-select/async'
 
-interface Organization {
-  arabicName: string
+interface Orders {
+  orders: {
+    customerName: string
+  }[]
+}
+interface Order {
+  customerName: string
 }
 
 const OrdersSearch = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  // const pathname = usePathname();
-  // const { replace } = useRouter();
-  // const searchParams = useSearchParams();
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  // const queryClient = useQueryClient()
 
-  // const selectedVal = searchParams?.getAll("search");
+  const pathname = location.pathname
+  const selectedVal = searchParams.get('query')
 
-  // const { data: organizations } = useQuery<Organization[]>({
-  //   queryKey: ["organizations"],
-  //   queryFn: () => getApi("/Organization"),
-  // });
+  const { data: orders } = useQuery({
+    queryKey: ['orders'],
+    queryFn: () => getApi<Orders>('/Orders')
+  })
 
-  // const loadOptions = async (value: string) => {
-  //   if (!value) return [];
-  //   const data = await getApi<Organization[]>("/Organization", {
-  //     "arabicName[contains]": value,
-  //   });
-  //   return data || [];
-  // };
+  const loadOptions = async (value: string) => {
+    if (!value) return []
+    const data = await getApi<Orders>('/Orders', {
+      params: {
+        query: value
+      }
+    })
+    return data.data.orders || []
+  }
 
   const customComponents = {
     DropdownIndicator: () => null,
     IndicatorSeparator: () => null
   }
 
-  // const onChange = (val: { arabicName: string } | null) => {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   if (val?.arabicName) {
-  //     params.set("search", val.arabicName);
-  //   } else {
-  //     params.delete("search");
-  //   }
-  //   replace(`${pathname}?${params.toString()}`);
-  // };
+  const onChange = (val: { customerName: string } | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (val?.customerName) {
+      params.set('query', val.customerName)
+    } else {
+      params.delete('query')
+    }
+    params.set('page', '1')
+
+    // queryClient.invalidateQueries({ queryKey: ['products'] })
+    navigate(`${pathname}?${params.toString()}`, { replace: true })
+  }
 
   const customStyles = {
     control: (provided: any) => ({
@@ -75,18 +87,18 @@ const OrdersSearch = () => {
   return (
     <section className="flex w-full items-center justify-center rounded-lg border border-[#7d7875]">
       <Search className="mr-2 text-gray-500" />
-      <AsyncSelect<Organization>
+      <AsyncSelect<Order>
         placeholder="ابحث عن.."
         loadingMessage={() => 'جارٍ البحث ...'}
         noOptionsMessage={() => 'لا توجد نتائج'}
         cacheOptions
-        instanceId="local-org-search"
-        // value={selectedVal?.length ? { arabicName: selectedVal[0] } : undefined}
-        // defaultOptions={organizations}
-        // loadOptions={loadOptions}
-        // onChange={onChange}
-        getOptionLabel={({ arabicName }) => arabicName}
-        getOptionValue={({ arabicName }) => arabicName}
+        instanceId="products-search"
+        value={selectedVal?.length ? { customerName: selectedVal } : undefined}
+        defaultOptions={orders?.data.orders}
+        loadOptions={loadOptions}
+        onChange={onChange}
+        getOptionLabel={({ customerName }) => customerName}
+        getOptionValue={({ customerName }) => customerName}
         components={customComponents}
         isClearable
         menuIsOpen={isMenuOpen}
