@@ -36,7 +36,7 @@ export default function useNavItems() {
           href: '/reports',
           icon: 'clipboardList',
           label: 'التقارير',
-          disabled: true
+          disabled: false
         },
         {
           href: '',
