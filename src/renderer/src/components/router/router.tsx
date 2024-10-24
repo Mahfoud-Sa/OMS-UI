@@ -12,6 +12,7 @@ import InfoProduct from '../pages/products/info-product'
 import NewProduct from '../pages/products/new-product'
 import Products from '../pages/products/products'
 import UserProfile from '../pages/profile/user-profile'
+import Reports from '../pages/reports/reports'
 import ResetPassword from '../pages/reset-password/reset-password'
 import InfoUser from '../pages/users/info-user'
 import NewUser from '../pages/users/new-user'
@@ -92,6 +93,10 @@ export const router = createHashRouter([
       {
         path: '/factories/new',
         element: <NewFactory />
+      },
+      {
+        path: '/reports',
+        element: <Reports />
       }
     ]
   }
