@@ -17,7 +17,25 @@ export type Product = {
   id: number
   name: string
   quantity: number
-  creatAt: string
+  createdAt: string
+}
+export type OrderItemTable = {
+  id: number
+  name: string
+  fabric: string
+  productDesignName: string
+  quantity: number
+  productionTeamName: string
+}
+export type OrderItem = {
+  id: number
+  productDesignId: number
+  fabric: string
+  quantity: number
+  note: string
+  productionTeamId: number
+  orderId: number
+  images: string[]
 }
 
 export type User = {
@@ -72,4 +90,14 @@ export type Order = {
   createAt: string
   orderState: number
   sellingPrice: number
+}
+
+export interface FactoryInterface {
+  id: string
+  name: string
+  location: string
+  createdAt: string
+  productionLinesCount?: number
+  teamsCount?: number
+  productionLines?: ProductionLineProps[]
 }
