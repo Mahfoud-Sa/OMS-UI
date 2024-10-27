@@ -17,6 +17,7 @@ import { Textarea } from '@renderer/components/ui/textarea'
 import { getApi } from '@renderer/lib/http'
 import {
   FactoryInterface,
+  localNewProduct,
   OrderItem,
   OrderItemTable,
   Product,
@@ -62,11 +63,11 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
 
   const [currentTab, setCurrentTab] = useState('basicInfo')
   const [openDialog, setOpenDialog] = useState(false)
-  const [productToBeEdited, setProductToBeEdited] = useState<OrderItemTable | null>(null)
+  const [productToBeEdited, setProductToBeEdited] = useState<localNewProduct | undefined>(undefined)
   const [addedProducts, setAddedProducts] = useState<OrderItemTable[]>([])
   const [productionLines, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
-  const [designs, setDesigns] = useState<{ id: string; name: string }[]>([])
+  const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
     queryFn: () =>
@@ -97,10 +98,10 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       productionLines: any[]
       productionTeams: any[]
     }>(`/Factories/${factoryId}`, {}).then((response) => {
-      return setProductionLines(response.data.factory.productionLines || [])
+      return setProductionLines(response.data.productionLines || [])
     })
   const getDesigns = async (productId: number) =>
-    getApi<{ designs: { id: string; name: string }[] }>(`/Products/${productId}`, {}).then(
+    getApi<{ designs: { id: number; name: string }[] }>(`/Products/${productId}`, {}).then(
       (response) => {
         return setDesigns(response.data.designs)
       }
@@ -110,6 +111,50 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
 
   const onSubmit = () => {}
+  const handleAddProductToArray = (newProduct: localNewProduct) => {
+    const product = {
+      ...newProduct,
+      // add id to the product
+      id: Math.random(),
+      // add production team name
+      productionTeamName:
+        productionTeams.find((team) => Number(team.id) === newProduct.productionTeamId)?.name || '',
+      // add product design name
+      productDesignName:
+        designs.find((design) => design.id === newProduct.productDesignId)?.name || '',
+      // add product name
+      productName:
+        productsData?.data.products.find((product) => product.id === newProduct.productId)?.name ||
+        ''
+    }
+    setAddedProducts([...addedProducts, product])
+  }
+  const handleUpdateProductInArray = (updatedProduct: localNewProduct) => {
+    const editProduct = {
+      ...updatedProduct,
+      // ensure id is included and not undefined
+      id: updatedProduct.id ?? Math.random(),
+      // update the names
+      productionTeamName:
+        productionTeams.find((team) => Number(team.id) === updatedProduct.productionTeamId)?.name ||
+        '',
+      // add product design name
+      productDesignName:
+        designs.find((design) => design.id === updatedProduct.productDesignId)?.name || '',
+      // add product name
+      productName:
+        productsData?.data.products.find((product) => product.id === updatedProduct.productId)
+          ?.name || ''
+    }
+    setAddedProducts((prevProducts) =>
+      prevProducts.map((product) => (product.id === updatedProduct.id ? editProduct : product))
+    )
+    clearProductToEdit()
+    console.log(productToBeEdited)
+  }
+  const clearProductToEdit = () => {
+    setProductToBeEdited(undefined)
+  }
 
   const handleNext = () => {
     if (currentTab === 'basicInfo') {
@@ -125,17 +170,19 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const removeProduct = (product: OrderItem) => {
     console.log(product)
     // remove product from the list of products
+    const newProducts = addedProducts.filter((item) => item.id !== product.id)
+    setAddedProducts(newProducts)
   }
 
   const columns = [
     {
-      accessorKey: 'name',
+      accessorKey: 'productName',
       header: 'اسم الصنف',
       cell: (info) => {
         const { original } = info.row
         return original ? (
           <>
-            <div>{original.name}</div>
+            <div>{original.productName}</div>
           </>
         ) : null
       }
@@ -143,12 +190,26 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     {
       accessorKey: 'fabric',
       header: 'نوع القماش',
-      cell: (info) => info.row.original.fabric
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <>
+            <div>{original.fabric}</div>
+          </>
+        ) : null
+      }
     },
     {
       accessorKey: 'productDesignName',
       header: 'نوع الصنف',
-      cell: (info) => info.row.original.productDesignName
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <>
+            <div>{original.productDesignName}</div>
+          </>
+        ) : null
+      }
     },
     {
       accessorKey: 'quantity',
@@ -158,7 +219,14 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     {
       accessorKey: 'productionTeamName',
       header: 'اسم الفريق',
-      cell: (info) => info.row.original.productionTeamName
+      cell: (info) => {
+        const { original } = info.row
+        return original ? (
+          <>
+            <div>{original.productionTeamName}</div>
+          </>
+        ) : null
+      }
     },
     {
       id: 'actions',
@@ -408,6 +476,10 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 // call method to get designs
                 getDesigns(id)
               }}
+              addProductToProductsArray={handleAddProductToArray}
+              updateProductInProductsArray={handleUpdateProductInArray} // Add this line
+              productToEdit={productToBeEdited}
+              clearProductToEdit={clearProductToEdit} // Add this line
             />
           </form>
         </Form>

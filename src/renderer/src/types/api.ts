@@ -21,7 +21,7 @@ export type Product = {
 }
 export type OrderItemTable = {
   id: number
-  name: string
+  productName: string
   fabric: string
   productDesignName: string
   quantity: number
@@ -100,4 +100,17 @@ export interface FactoryInterface {
   productionLinesCount?: number
   teamsCount?: number
   productionLines?: ProductionLineProps[]
+}
+
+export interface localNewProduct {
+  id?: number
+  productId: number
+  fabric: string
+  factoryId: number
+  image: File
+  note: string
+  productDesignId: number
+  productionLineId: number
+  productionTeamId: number
+  quantity: number
 }
