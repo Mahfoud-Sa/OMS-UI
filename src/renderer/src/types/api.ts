@@ -82,6 +82,22 @@ export interface NoneMixedBarCharterProps {
   month: string
   sales: number
 }
+export interface OrderHistory {
+  id: number
+  actionName: string
+  createdAt: string
+  userName: string
+  orderId: number
+}
+export interface OrderTimeline {
+  id: number
+  receivedAt: string
+  deliveredAt: string
+  status: number
+  orderId: number
+  productionTeamId: number
+  productionTeamName: string | null
+}
 
 export type Order = {
   id: number
@@ -90,6 +106,26 @@ export type Order = {
   createAt: string
   orderState: number
   sellingPrice: number
+}
+
+export interface NewOrderProp {
+  id: number
+  billNo: string
+  customerName: string
+  customerNo: string
+  createAt: string
+  deliveryAt: string
+  readyAt: string
+  deliveryNote: string
+  userName: string
+  note: string
+  orderState: number
+  costPrice: number
+  sellingPrice: number
+  userId: number
+  items: OrderItem[]
+  history: OrderHistory[]
+  timelines: OrderTimeline[]
 }
 
 export interface FactoryInterface {
