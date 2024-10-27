@@ -124,6 +124,12 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     mutationFn: (data: localNewProduct) => {
       return postApi<{ Order: NewOrderProp }>('/Orders', data)
     },
+    onSuccess: (response) => {
+      const order = response.data.Order
+      console.log('Order created successfully:', order.id)
+      // create order items
+      createOrderItems(order.id)
+    },
     onError: () => {
       toast({
         title: 'فشلت عملية الحفظ',
@@ -162,20 +168,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         customerName: data.customerName,
         deliveryAt: data.deliveryAt,
         deliveryNote: data.deliveryNote || '',
-        orderState: '0',
+        orderState: 0,
         costPrice: data.costPrice,
         sellingPrice: 0,
         customerNo: data.customerNo,
         note: data.notes
       } as unknown as localNewProduct
-      mutate(payload, {
-        onSuccess: (response) => {
-          const order = response.data.Order
-          console.log('Order created successfully:', order.id)
-          // create order items
-          createOrderItems(order.id)
-        }
-      })
+      mutate(payload)
     } catch (error) {
       console.error('Error creating order:', error)
       toast({
