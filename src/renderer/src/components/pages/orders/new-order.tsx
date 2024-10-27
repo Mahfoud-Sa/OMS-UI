@@ -14,22 +14,24 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/c
 import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
-import { getApi } from '@renderer/lib/http'
+import { toast } from '@renderer/components/ui/use-toast'
+import { getApi, postApi } from '@renderer/lib/http'
 import {
   FactoryInterface,
   localNewProduct,
+  NewOrderProp,
   OrderItem,
-  OrderItemTable,
   Product,
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import NewOrderItemDialog from './_components/new-order-item-dialog'
+import NewOrderNoteDialog from './_components/new-order-note-dialog'
 
 const schema = z.object({
   customerName: z.string({ message: 'يجب أدخال اسم العميل' }),
@@ -40,17 +42,24 @@ const schema = z.object({
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
   costPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
   notes: z.string(),
-  products: z.array(
-    z.object({
-      name: z.string(),
-      productDesignId: z.number(),
-      fabric: z.string(),
-      quantity: z.number(),
-      note: z.string(),
-      productionTeamId: z.number(),
-      images: z.string()
-    })
-  )
+  deliveryNote: z.string().optional(),
+  products: z
+    .array(
+      z.object({
+        id: z.number().optional(),
+        productId: z.number(),
+        productDesignId: z.number(),
+        fabric: z.string(),
+        quantity: z.number(),
+        note: z.string().optional(),
+        productionTeamId: z.number(),
+        image: z.any(),
+        productionTeamName: z.string().optional(),
+        productDesignName: z.string().optional(),
+        productName: z.string().optional()
+      })
+    )
+    .optional()
 })
 
 export type Schema = z.infer<typeof schema>
@@ -63,11 +72,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
 
   const [currentTab, setCurrentTab] = useState('basicInfo')
   const [openDialog, setOpenDialog] = useState(false)
+  const [openNoteDialog, setOpenNoteDialog] = useState(false)
   const [productToBeEdited, setProductToBeEdited] = useState<localNewProduct | undefined>(undefined)
-  const [addedProducts, setAddedProducts] = useState<OrderItemTable[]>([])
+  const [addedProducts, setAddedProducts] = useState<localNewProduct[]>([])
   const [productionLines, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
+  const [loader, setLoader] = useState(false)
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
     queryFn: () =>
@@ -109,8 +120,73 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const getProductionTeams = async (productionLineId: string) =>
     // get it from the productionLines state array
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
-
-  const onSubmit = () => {}
+  const { mutate } = useMutation({
+    mutationFn: (data: localNewProduct) => {
+      return postApi<{ Order: NewOrderProp }>('/Orders', data)
+    },
+    onError: () => {
+      toast({
+        title: 'فشلت عملية الحفظ',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    }
+  })
+  const createOrderItems = (id: number) => {
+    // loop over the addedProducts and create the order items
+    addedProducts.map((product) => {
+      const payloadFormData = new FormData()
+      payloadFormData.append('productDesignId', product.productDesignId.toString())
+      payloadFormData.append('fabric', product.fabric)
+      payloadFormData.append('quantity', product.quantity.toString())
+      payloadFormData.append('note', product.note)
+      payloadFormData.append('productionTeamId', product.productionTeamId.toString())
+      payloadFormData.append('images[0]', product.image)
+      postApi(`/Orders/${id}/OrderItems`, payloadFormData)
+    })
+  }
+  const onSubmit = (data: Schema) => {
+    console.log(data)
+    if (addedProducts.length === 0) {
+      toast({
+        title: 'فشلت عملية الحفظ',
+        description: `لم تتم اضافة المنتجات`,
+        variant: 'destructive'
+      })
+      return
+    }
+    setLoader(true)
+    try {
+      const payload = {
+        billNo: data.billNo,
+        customerName: data.customerName,
+        deliveryAt: data.deliveryAt,
+        deliveryNote: data.deliveryNote || '',
+        orderState: '0',
+        costPrice: data.costPrice,
+        sellingPrice: 0,
+        customerNo: data.customerNo,
+        note: data.notes
+      } as unknown as localNewProduct
+      mutate(payload, {
+        onSuccess: (response) => {
+          const order = response.data.Order
+          console.log('Order created successfully:', order.id)
+          // create order items
+          createOrderItems(order.id)
+        }
+      })
+    } catch (error) {
+      console.error('Error creating order:', error)
+      toast({
+        title: 'فشلت عملية الحفظ',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+    } finally {
+      setLoader(false)
+    }
+  }
   const handleAddProductToArray = (newProduct: localNewProduct) => {
     const product = {
       ...newProduct,
@@ -129,6 +205,24 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     }
     setAddedProducts([...addedProducts, product])
   }
+  React.useEffect(() => {
+    console.log(addedProducts)
+    if (addedProducts.length > 1) {
+      form.setValue('products', addedProducts)
+    }
+  }, [addedProducts])
+  const { errors } = form.formState
+  React.useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log(errors)
+      toast({
+        title: 'خطأ في التحقق',
+        description: 'يرجى التحقق من الحقول المدخلة',
+        variant: 'destructive'
+      })
+    }
+  }, [errors])
+
   const handleUpdateProductInArray = (updatedProduct: localNewProduct) => {
     const editProduct = {
       ...updatedProduct,
@@ -307,7 +401,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                   <div className="mt-4 grid grid-cols-3 gap-3">
                     <FormField
                       control={form.control}
-                      name="customerName"
+                      name="customerNo"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -319,7 +413,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                     />
 
                     <FormField
-                      name="customerNo"
+                      name="customerName"
                       control={form.control}
                       render={({ field }) => (
                         <FormItem>
@@ -374,12 +468,24 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                               placeholder="سعر التكلفة"
                               martial
                               label="سعر التكلفة"
+                              onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setOpenNoteDialog(true)
+                      }}
+                      className="ml-2"
+                    >
+                      اضافة ملاحظات التوصيل
+                    </Button>
                   </div>
                 </div>
               </TabsContent>
@@ -399,7 +505,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       إضافة تصميم
                     </Button>
                   </div>
-                  <StructureTable<OrderItemTable, unknown>
+                  <StructureTable<localNewProduct, unknown>
                     columns={columns}
                     data={addedProducts}
                     title="المنتجات المضافة"
@@ -409,7 +515,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                     <div className="col-span-3">
                       <FormField
                         control={form.control}
-                        name="customerName"
+                        name="notes"
                         render={({ field }) => (
                           <FormItem className="">
                             <FormControl>
@@ -450,8 +556,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
               )}
               {currentTab === 'itemsList' && (
                 <div className="flex justify-end">
-                  <Button className="bg-green-500 hover:bg-green-700" type="submit" size="lg">
-                    حفظ
+                  <Button
+                    disabled={loader}
+                    className="bg-green-500 hover:bg-green-700"
+                    type="submit"
+                    size="lg"
+                  >
+                    {loader ? 'يرجى الانتظار' : 'حفظ'}
                   </Button>
                 </div>
               )}
@@ -480,6 +591,16 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
               updateProductInProductsArray={handleUpdateProductInArray} // Add this line
               productToEdit={productToBeEdited}
               clearProductToEdit={clearProductToEdit} // Add this line
+            />
+            <NewOrderNoteDialog
+              addDeliveryNote={(note) => {
+                form.setValue('deliveryNote', note)
+              }}
+              isOpen={openNoteDialog}
+              onClose={() => {
+                setOpenNoteDialog(false)
+              }}
+              note={form.getValues('deliveryNote')}
             />
           </form>
         </Form>
