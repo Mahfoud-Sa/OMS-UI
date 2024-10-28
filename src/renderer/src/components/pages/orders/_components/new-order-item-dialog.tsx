@@ -174,8 +174,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                           styles={{
                             control: (baseStyles) => ({
                               ...baseStyles,
-                              height: '5.2vh',
-                              borderRadius: '0.5rem'
+                              height: '8.35vh',
+                              borderRadius: '0.3rem'
                             })
                           }}
                           {...field}
@@ -212,8 +212,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                           styles={{
                             control: (baseStyles) => ({
                               ...baseStyles,
-                              height: '5.2vh',
-                              borderRadius: '0.5rem'
+                              height: '8.35vh',
+                              borderRadius: '0.3rem'
                             })
                           }}
                           {...field}
@@ -256,13 +256,15 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="number"
-                          label="الكمية"
-                          placeholder="الكمية"
-                          onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                        />
+                        <>
+                          <Label>الكمية</Label>
+                          <Input
+                            {...field}
+                            type="number"
+                            placeholder="الكمية"
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                          />
+                        </>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -300,8 +302,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                           styles={{
                             control: (baseStyles) => ({
                               ...baseStyles,
-                              height: '5.2vh',
-                              borderRadius: '0.5rem'
+                              height: '8.35vh',
+                              borderRadius: '0.3rem'
                             })
                           }}
                           {...field}
@@ -340,8 +342,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                           styles={{
                             control: (baseStyles) => ({
                               ...baseStyles,
-                              height: '5.2vh',
-                              borderRadius: '0.5rem'
+                              height: '8.35vh',
+                              borderRadius: '0.3rem'
                             })
                           }}
                           {...field}
@@ -380,8 +382,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                           styles={{
                             control: (baseStyles) => ({
                               ...baseStyles,
-                              height: '5.2vh',
-                              borderRadius: '0.5rem'
+                              height: '8.35vh',
+                              borderRadius: '0.3rem'
                             })
                           }}
                           {...field}
