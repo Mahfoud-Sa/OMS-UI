@@ -65,11 +65,60 @@ export interface NoneMixedBarCharterProps {
   sales: number
 }
 
+// export type Order = {
+//   id: number
+//   billNo: string
+//   customerName: string
+//   createAt: string
+//   orderState: number
+//   sellingPrice: number
+// }
+
 export type Order = {
   id: number
   billNo: string
   customerName: string
   createAt: string
+  deliveryAt: string
+  readyAt: string
+  deliveryNote: string
   orderState: number
+  costPrice: number
   sellingPrice: number
+  customerNo: string
+  userId: number | null
+  userName: string | null
+  note: string
+  items: Item[]
+  history: History[]
+  timelines: Timeline[]
+}
+
+type Item = {
+  id: number
+  productDesignId: number
+  fabric: string
+  quantity: number
+  note: string
+  productionTeamId: number
+  orderId: number
+  images: string[]
+}
+
+export type OrderHistory = {
+  id: number
+  actionName: string
+  createdAt: string
+  userName: string
+  orderId: number
+}
+
+type Timeline = {
+  id: number
+  receivedAt: string
+  deliveredAt: string
+  status: number
+  orderId: number
+  productionTeamId: number
+  productionTeamName: string | null
 }
