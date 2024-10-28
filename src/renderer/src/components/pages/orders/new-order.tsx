@@ -29,6 +29,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import NewOrderItemDialog from './_components/new-order-item-dialog'
 import NewOrderNoteDialog from './_components/new-order-note-dialog'
@@ -79,6 +80,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
   const [loader, setLoader] = useState(false)
+  const navigate = useNavigate()
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
     queryFn: () =>
@@ -120,38 +122,56 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const getProductionTeams = async (productionLineId: string) =>
     // get it from the productionLines state array
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
-  const { mutate } = useMutation({
+  const { mutate: createOrder } = useMutation({
     mutationFn: (data: localNewProduct) => {
-      return postApi<{ Order: NewOrderProp }>('/Orders', data)
+      return postApi<NewOrderProp>('/Orders', data)
     },
     onSuccess: (response) => {
-      const order = response.data.Order
-      console.log('Order created successfully:', order.id)
-      // create order items
-      createOrderItems(order.id)
+      console.log(response)
+      createOrderItems(response?.data.id)
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: 'فشلت عملية الحفظ',
         description: `حصل خطأ ما`,
         variant: 'destructive'
       })
+      console.error('Error creating order:', error)
     }
   })
-  const createOrderItems = (id: number) => {
-    // loop over the addedProducts and create the order items
-    addedProducts.map((product) => {
-      const payloadFormData = new FormData()
-      payloadFormData.append('productDesignId', product.productDesignId.toString())
-      payloadFormData.append('fabric', product.fabric)
-      payloadFormData.append('quantity', product.quantity.toString())
-      payloadFormData.append('note', product.note)
-      payloadFormData.append('productionTeamId', product.productionTeamId.toString())
-      payloadFormData.append('images[0]', product.image)
-      postApi(`/Orders/${id}/OrderItems`, payloadFormData)
-    })
-  }
-  const onSubmit = (data: Schema) => {
+  const { mutate: createOrderItems } = useMutation({
+    mutationFn: async (id: number) => {
+      await Promise.all(
+        addedProducts.map(async (product) => {
+          const payloadFormData = new FormData()
+          payloadFormData.append('productDesignId', product.productDesignId.toString())
+          payloadFormData.append('fabric', product.fabric)
+          payloadFormData.append('quantity', product.quantity.toString())
+          payloadFormData.append('note', product.note)
+          payloadFormData.append('productionTeamId', product.productionTeamId.toString())
+          payloadFormData.append('images[0]', product.image)
+          await postApi(`/Orders/${id}/OrderItems`, payloadFormData)
+        })
+      )
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الحفظ بنجاح',
+        description: `تم حفظ الطلب بنجاح`,
+        variant: 'success'
+      })
+      navigate('/orders')
+    },
+    onError: (error) => {
+      toast({
+        title: 'فشلت عملية الحفظ',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+      console.error('Error creating order items', error)
+    }
+  })
+  const onSubmit = async (data: Schema) => {
     console.log(data)
     if (addedProducts.length === 0) {
       toast({
@@ -174,7 +194,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         customerNo: data.customerNo,
         note: data.notes
       } as unknown as localNewProduct
-      mutate(payload)
+      createOrder(payload)
     } catch (error) {
       console.error('Error creating order:', error)
       toast({
@@ -404,7 +424,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input {...field} placeholder="رقم العميل" martial label="رقم العميل" />
+                            <Input
+                              maxLength={9}
+                              {...field}
+                              placeholder="رقم العميل"
+                              martial
+                              label="رقم العميل"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
