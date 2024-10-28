@@ -17,7 +17,25 @@ export type Product = {
   id: number
   name: string
   quantity: number
-  creatAt: string
+  createdAt: string
+}
+export type OrderItemTable = {
+  id: number
+  productName: string
+  fabric: string
+  productDesignName: string
+  quantity: number
+  productionTeamName: string
+}
+export type OrderItem = {
+  id: number
+  productDesignId: number
+  fabric: string
+  quantity: number
+  note: string
+  productionTeamId: number
+  orderId: number
+  images: string[]
 }
 
 export type User = {
@@ -64,6 +82,22 @@ export interface NoneMixedBarCharterProps {
   month: string
   sales: number
 }
+export interface OrderHistory {
+  id: number
+  actionName: string
+  createdAt: string
+  userName: string
+  orderId: number
+}
+export interface OrderTimeline {
+  id: number
+  receivedAt: string
+  deliveredAt: string
+  status: number
+  orderId: number
+  productionTeamId: number
+  productionTeamName: string | null
+}
 
 export type Order = {
   id: number
@@ -72,4 +106,47 @@ export type Order = {
   createAt: string
   orderState: number
   sellingPrice: number
+}
+
+export interface NewOrderProp {
+  id: number
+  billNo: string
+  customerName: string
+  customerNo: string
+  createAt: string
+  deliveryAt: string
+  readyAt: string
+  deliveryNote: string
+  userName: string
+  note: string
+  orderState: number
+  costPrice: number
+  sellingPrice: number
+  userId: number
+  items: OrderItem[]
+  history: OrderHistory[]
+  timelines: OrderTimeline[]
+}
+
+export interface FactoryInterface {
+  id: string
+  name: string
+  location: string
+  createdAt: string
+  productionLinesCount?: number
+  teamsCount?: number
+  productionLines?: ProductionLineProps[]
+}
+
+export interface localNewProduct {
+  id?: number
+  productId: number
+  fabric: string
+  factoryId: number
+  image: File
+  note: string
+  productDesignId: number
+  productionLineId: number
+  productionTeamId: number
+  quantity: number
 }
