@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import React from 'react'
 import { cn } from '../../lib/utils'
 import { Button } from './button'
@@ -26,6 +26,7 @@ interface ComboboxProps {
   selectedValue?: Option | null
   onSelect?: (option: Option | null) => void
   localize?: object
+  disabled?: boolean
 }
 
 export function Combobox({
@@ -36,7 +37,8 @@ export function Combobox({
   emptyMessage = 'No options found.',
   selectedValue = null,
   onSelect,
-  localize
+  localize,
+  disabled
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState<Option | null>(selectedValue)
@@ -52,13 +54,14 @@ export function Combobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
         >
           {value ? (localize ? localize[value[displayKey]] : value[displayKey]) : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
