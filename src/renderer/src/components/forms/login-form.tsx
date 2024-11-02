@@ -19,7 +19,7 @@ import Loader from '../layouts/loader'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
-import { useToast } from '../ui/use-toast'
+import { useToast } from '../ui/use-toast_1'
 
 const PasswordChangeDialog = ({
   isOpen,

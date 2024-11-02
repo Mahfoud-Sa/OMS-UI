@@ -11,7 +11,7 @@ import {
 } from '@renderer/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi } from '@renderer/lib/http'
 import { User } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'

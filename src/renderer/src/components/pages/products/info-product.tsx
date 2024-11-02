@@ -16,7 +16,7 @@ import {
   TableRow
 } from '@renderer/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
 import {
   LineChartResponse,

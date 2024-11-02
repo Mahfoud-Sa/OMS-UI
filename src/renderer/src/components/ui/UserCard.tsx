@@ -3,6 +3,13 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Icons } from '../icons/icons'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../ui/dropdown-menu'
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -10,14 +17,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from '../ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '../ui/dropdown-menu'
+} from './dialog'
 
 interface DeliveryUserCardProps {
   userId: string

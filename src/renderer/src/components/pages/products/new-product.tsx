@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow
 } from '@renderer/components/ui/table'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { postApi } from '@renderer/lib/http'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
