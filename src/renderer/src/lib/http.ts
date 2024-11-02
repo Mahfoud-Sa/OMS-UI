@@ -35,6 +35,11 @@ export function putApi<T>(url: string, data: any, config?: Config) {
   return axiosInstance.put<T>(url, data, config)
 }
 
+export function patchApi<T>(url: string, data: any, config?: Config) {
+  // if (isAuth()) return axiosInstance.put<T>(url, data, config)
+  return axiosInstance.patch<T>(url, data, config)
+}
+
 export function postApi<T>(url: string, data: any, config?: Config) {
   // if (isAuth()) return
   // console.log(url)

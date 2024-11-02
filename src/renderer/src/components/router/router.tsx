@@ -7,6 +7,7 @@ import NewFactory from '../pages/factories/new-factory/new-factory'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
+import OrderDetails from '../pages/orders/order-details/order-details'
 import Orders from '../pages/orders/orders'
 import InfoProduct from '../pages/products/info-product'
 import NewProduct from '../pages/products/new-product'
@@ -65,6 +66,11 @@ export const router = createHashRouter([
         path: '/orders/new',
         // element: <ProtectedRoute element={<Orders />} />
         element: <NewOrder />
+      },
+      {
+        path: '/orders/:id',
+        // element: <ProtectedRoute element={<Orders />} />
+        element: <OrderDetails />
       },
       {
         path: '/factories',
