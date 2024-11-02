@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Skeleton } from '@renderer/components/ui/skeleton'
-import { useToast } from '@renderer/components/ui/use-toast'
+import { useToast } from '@renderer/components/ui/use-toast_1'
 import { deleteApi, getApi } from '@renderer/lib/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'

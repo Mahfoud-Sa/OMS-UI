@@ -7,7 +7,7 @@ import { Button } from '@renderer/components/ui/button'
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
-import { Input as Input2 } from '@renderer/components/ui/input_2'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow
 } from '@renderer/components/ui/table'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi, putApi } from '@renderer/lib/http'
 import { User } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -96,7 +96,7 @@ const UserProfile = () => {
         Username: data.data.userName,
         WorkPlace: data.data.workPlace,
         EmployDate: data.data.employDate,
-        PhoneNumber: data.data.phoneNumber.split('+966')[1]
+        PhoneNumber: data.data.phoneNumber
       })
       setUserRoles(data.data.roles)
       console.log(data.data.roles)
@@ -111,7 +111,7 @@ const UserProfile = () => {
       data.LastName && formData.set('Lastname', data.LastName)
       formData.set('userName', data.Username)
       data.EmployDate && formData.set('employDate', data.EmployDate)
-      data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
+      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
       formData.set('workPlace', data.WorkPlace)
       data.UserType && formData.set('userType', data.UserType)
       if (data.ImageFile) {
@@ -298,21 +298,23 @@ const UserProfile = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center w-full flex-wrap gap-2">
-                        <div className="w-[83%]">
-                          <Input2
-                            {...field}
-                            placeholder="5XX XXX XXX"
-                            martial={false}
-                            label="رقم الهاتف"
-                            disabled={!isEdit}
-                          />
-                        </div>
-
-                        <div className="bg-[#e0e0e0] font-bold w-[15%] h-[56px] flex items-center justify-center rounded-sm">
-                          966+
-                        </div>
-                      </div>
+                      <PhoneInput
+                        value={field.value}
+                        onChange={(value) => {
+                          console.log(value)
+                          form.setValue('PhoneNumber', value)
+                        }}
+                        countries={['SA']}
+                        defaultCountry="SA"
+                        maxLength={13}
+                        className="flex-row-reverse rounded-sm"
+                        labels={{
+                          SA: 'السعودية'
+                        }}
+                        title="رقم العميل"
+                        placeholder="5********"
+                        disabled={!isEdit}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

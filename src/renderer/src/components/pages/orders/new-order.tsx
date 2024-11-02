@@ -12,9 +12,10 @@ import {
 } from '@renderer/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi } from '@renderer/lib/http'
 import {
   FactoryInterface,
@@ -38,7 +39,7 @@ const schema = z.object({
   customerName: z.string({ message: 'يجب أدخال اسم العميل' }),
   customerNo: z
     .string({ message: 'يجب أدخال رقم العميل' })
-    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
+    .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
   deliveryAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
   costPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
@@ -424,12 +425,28 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input
-                              maxLength={9}
+                            {/* <Input
+                              maxLength={16}
                               {...field}
                               placeholder="رقم العميل"
                               martial
                               label="رقم العميل"
+                            /> */}
+                            <PhoneInput
+                              value={field.value}
+                              onChange={(value) => {
+                                console.log(value)
+                                form.setValue('customerNo', value)
+                              }}
+                              countries={['SA']}
+                              defaultCountry="SA"
+                              maxLength={16}
+                              className="flex-row-reverse rounded-sm"
+                              labels={{
+                                SA: 'السعودية'
+                              }}
+                              title="رقم العميل"
+                              placeholder="5********"
                             />
                           </FormControl>
                           <FormMessage />

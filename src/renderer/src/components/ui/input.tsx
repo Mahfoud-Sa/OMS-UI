@@ -1,7 +1,7 @@
 import { cn } from '@renderer/lib/utils'
 import React from 'react'
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
   type?: string
   martial?: boolean

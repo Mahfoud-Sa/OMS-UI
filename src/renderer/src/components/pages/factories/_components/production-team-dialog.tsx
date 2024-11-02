@@ -114,7 +114,7 @@ const UpdateProductionTeamDialog = ({
               placeholder="رقم التواصل"
               label="رقم التواصل"
               type="tel"
-              maxLength={9}
+              maxLength={16}
               prefix="+966"
             />
             {teamPhoneError && <small className="text-red-500">{teamPhoneError}</small>}
