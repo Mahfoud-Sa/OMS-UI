@@ -17,7 +17,7 @@ import {
 import Dropdown from '@renderer/components/ui/dropdown'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
-import { Input as Input2 } from '@renderer/components/ui/input_2'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import {
   Table,
   TableBody,
@@ -27,7 +27,7 @@ import {
   TableRow
 } from '@renderer/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
 import { Role } from '@renderer/types'
 import { User } from '@renderer/types/api'
@@ -53,7 +53,7 @@ const schema = z.object({
   LastName: z.string().optional(),
   PhoneNumber: z
     .string()
-    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
     .optional(),
   UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
@@ -134,7 +134,7 @@ const InfoUser = () => {
         EmployDate: data.data.employDate,
         UserRole: newUserRoles,
         UserType: data.data.userType,
-        PhoneNumber: data.data.phoneNumber.split('+966')[1]
+        PhoneNumber: data.data.phoneNumber
       })
       setOldImage(data.data.imagePath)
 
@@ -149,7 +149,7 @@ const InfoUser = () => {
       data.LastName && formData.set('Lastname', data.LastName)
       formData.set('userName', data.Username)
       data.EmployDate && formData.set('employDate', data.EmployDate)
-      data.PhoneNumber && formData.set('phoneNumber', `+966${data.PhoneNumber}`)
+      data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
       formData.set('workPlace', data.WorkPlace)
       userRoles.forEach((el) => {
         formData.append('newRoles', el.name)
@@ -371,21 +371,23 @@ const InfoUser = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="flex items-center w-full flex-wrap gap-2">
-                              <div className="w-[83%]">
-                                <Input2
-                                  {...field}
-                                  disabled={!isEdit}
-                                  placeholder="5XX XXX XXX"
-                                  martial={false}
-                                  label="رقم الهاتف"
-                                />
-                              </div>
-
-                              <div className="bg-[#e0e0e0] font-bold w-[15%] h-[56px] flex items-center justify-center rounded-sm">
-                                966+
-                              </div>
-                            </div>
+                            <PhoneInput
+                              type="tel"
+                              value={field.value}
+                              onChange={(value) => {
+                                console.log(value)
+                                form.setValue('PhoneNumber', value)
+                              }}
+                              countries={['SA']}
+                              defaultCountry="SA"
+                              maxLength={16}
+                              className="flex-row-reverse rounded-sm"
+                              labels={{
+                                SA: 'السعودية'
+                              }}
+                              title="رقم العميل"
+                              placeholder="5********"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

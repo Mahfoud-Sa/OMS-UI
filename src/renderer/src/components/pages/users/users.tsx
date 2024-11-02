@@ -1,7 +1,7 @@
 import CreateBtn from '@renderer/components/layouts/create-btn'
 import Loader from '@renderer/components/layouts/loader'
 import TablePagination from '@renderer/components/tables/table-pagination'
-import { useToast } from '@renderer/components/ui/use-toast'
+import { useToast } from '@renderer/components/ui/use-toast_1'
 import { UserCard } from '@renderer/components/ui/UserCard'
 import { deleteApi, getApi } from '@renderer/lib/http'
 import { DeliveryUserCardProps } from '@renderer/types'
