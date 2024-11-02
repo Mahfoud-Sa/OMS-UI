@@ -122,3 +122,15 @@ type Timeline = {
   productionTeamId: number
   productionTeamName: string | null
 }
+export type Factory = {
+  id: number
+  name: string
+  location: string
+  createdAt: string
+}
+
+export type ProductionLines = {
+  id: number
+  name: string
+  factoryId: number
+}
