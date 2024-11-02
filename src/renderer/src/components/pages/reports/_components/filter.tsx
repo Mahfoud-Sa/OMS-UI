@@ -1,21 +1,21 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-  } from "@/components/ui/sheet"
-import { Button } from '@/components/ui/button'
 import Setting from '@/components/icons/setting'
-import { useQuery } from '@tanstack/react-query'
-import { Class, Stage } from '@/types'
-import { getApi } from '@/lib/http'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { getApi } from '@/lib/http'
+import { Class, Stage } from '@/types'
+import { Button } from '@renderer/components/ui/button'
+import { useQuery } from '@tanstack/react-query'
 import { RefreshCcw, Search } from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
 type filterPrams = {
     class: string;
@@ -61,7 +61,7 @@ const Filter = () => {
 
     const setSearchParams = (paramsData: filterPrams) => {
         const params = new URLSearchParams(searchParams.toString());
-    
+
         for (const [key, value] of Object.entries(paramsData)) {
           if (value != "") {
             if(key != "stage"){
@@ -69,7 +69,7 @@ const Filter = () => {
             }
           }
         }
-    
+
         replace(`${pathname}?${decodeURIComponent(params.toString())}`);
     };
 
@@ -81,7 +81,7 @@ const Filter = () => {
         setFilterData({class:"", stage:""})
 
         const params = new URLSearchParams(searchParams.toString());
-        
+
         params.delete("class")
         // params.delete("stage")
 
@@ -135,9 +135,9 @@ const Filter = () => {
                         <Search size={17}/>
                         بحث
                     </Button>
-                    <Button 
-                        className='flex gap-2 items-center rounded-xl bg-[#ACB63B] ' 
-                        size={"lg"} 
+                    <Button
+                        className='flex gap-2 items-center rounded-xl bg-[#ACB63B] '
+                        size={"lg"}
                         onClick={()=> handelClickReformat()}
                     >
                         إعادة التهيئة

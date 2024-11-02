@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Input } from '@renderer/components/ui/input'
-import { toast } from '@renderer/components/ui/use-toast'
+import { toast } from '@renderer/components/ui/use-toast_1'
 import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '../../../ui/dialog'
@@ -257,7 +257,7 @@ const ProductionLineDialog = ({
                   placeholder="رقم التواصل"
                   label="رقم التواصل"
                   type="tel"
-                  maxLength={9}
+                  maxLength={16}
                   prefix="+966"
                 />
                 {teamPhoneError && <small className="text-red-500">{teamPhoneError}</small>}
