@@ -137,9 +137,9 @@ const Timeline = () => {
                     <div className="flex flex-col gap-1">
                       <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
                       <p className="text-[#ABB7C2] text-sm">
-                        {moment(new Date(timeline.receivedAt)).diff(
-                          moment(new Date(timeline.deliveredAt)).locale('ar')
-                        )}
+                        {moment(new Date(timeline.deliveredAt))
+                          .locale('ar')
+                          .from(moment(new Date(timeline.receivedAt), true).locale('ar'))}
                       </p>
                     </div>
                   </div>
