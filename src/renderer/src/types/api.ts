@@ -131,6 +131,8 @@ export type Order = {
 export type Item = {
   id: number
   productDesignId: number
+  name: string
+  factoryName: string
   fabric: string
   quantity: number
   note: string
