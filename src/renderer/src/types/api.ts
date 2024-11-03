@@ -128,7 +128,7 @@ export type Order = {
   timelines: Timeline[]
 }
 
-type Item = {
+export type Item = {
   id: number
   productDesignId: number
   fabric: string
@@ -137,15 +137,16 @@ type Item = {
   productionTeamId: number
   orderId: number
   images: string[]
+  timelines: Timeline[]
 }
 
-export type OrderHistory = {
-  id: number
-  actionName: string
-  createdAt: string
-  userName: string
-  orderId: number
-}
+// export type OrderHistory = {
+//   id: number
+//   actionName: string
+//   createdAt: string
+//   userName: string
+//   orderId: number
+// }
 
 type Timeline = {
   id: number
@@ -155,7 +156,10 @@ type Timeline = {
   orderId: number
   productionTeamId: number
   productionTeamName: string | null
+  productionLineId: number
+  productionLineName: string
 }
+
 export type Factory = {
   id: number
   name: string
