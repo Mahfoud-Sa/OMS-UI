@@ -1,6 +1,6 @@
-import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-
+import { contextBridge } from 'electron'
+const { PosPrinter } = require('@electron/remote').remote.require('electron-pos-printer')
 // Custom APIs for renderer
 const api = {}
 
