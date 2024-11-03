@@ -113,7 +113,7 @@ const Timeline = () => {
           <div className="flex gap-3 flex-wrap my-2 shadow-sm border px-3 pt-3  rounded-sm">
             {item.timelines.map((timeline, index) => (
               <>
-                {timeline.status == 0 && (
+                {(timeline.status == 0 || timeline.status == 2) && (
                   <div className="flex gap-2 border-b-2 border-primary pb-2">
                     <div className=" font-bold flex justify-center items-center border-2 border-primary h-[45px] w-[45px] rounded-full text-primary">
                       {(index + 1).toString().padStart(2, '0')}
@@ -129,7 +129,7 @@ const Timeline = () => {
                   </div>
                 )}
 
-                {(timeline.status == 2 || timeline.status == 3) && (
+                {timeline.status == 3 && (
                   <div className="flex gap-2 pb-2">
                     <div className=" flex justify-center items-center bg-green-600 h-[45px] w-[45px] rounded-full">
                       <Check size={25} stroke="#fff" />
