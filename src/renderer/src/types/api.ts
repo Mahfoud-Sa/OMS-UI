@@ -82,13 +82,6 @@ export interface NoneMixedBarCharterProps {
   month: string
   sales: number
 }
-export interface OrderHistory {
-  id: number
-  actionName: string
-  createdAt: string
-  userName: string
-  orderId: number
-}
 export interface OrderTimeline {
   id: number
   receivedAt: string

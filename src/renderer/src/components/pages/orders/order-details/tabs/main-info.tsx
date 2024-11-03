@@ -1,6 +1,7 @@
 import Loader from '@renderer/components/layouts/loader'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
@@ -48,12 +49,25 @@ const MainInfo = () => {
           martial
           label="اسم العميل"
         />
-        <Input
+        {/* <Input
           disabled={true}
           value={data.data.customerNo}
           placeholder="رقم العميل"
           martial
           label="رقم العميل"
+        /> */}
+        <PhoneInput
+          value={data.data.customerNo}
+          countries={['SA']}
+          defaultCountry="SA"
+          maxLength={16}
+          className="flex-row-reverse rounded-sm"
+          labels={{
+            SA: 'السعودية'
+          }}
+          title="رقم العميل"
+          placeholder="5********"
+          disabled
         />
         <Input
           disabled={true}
