@@ -18,12 +18,14 @@
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "package": "electron-vite build --outDir=dist && electron-forge package",
+    "make": "electron-vite build --outDir=dist && electron-forge make"
   },
-  "build":{
+  "build": {
     "appId": "com.Herfh.app",
     "productName": "Herfh App",
-    "win":{
+    "win": {
       "target": "nsis"
     },
     "directories": {
@@ -72,6 +74,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.5.0",
+    "@electron-forge/maker-deb": "^7.5.0",
+    "@electron-forge/maker-rpm": "^7.5.0",
+    "@electron-forge/maker-squirrel": "^7.5.0",
+    "@electron-forge/maker-zip": "^7.5.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
+    "@electron-forge/plugin-fuses": "^7.5.0",
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
     "@electron-toolkit/eslint-config-ts": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
