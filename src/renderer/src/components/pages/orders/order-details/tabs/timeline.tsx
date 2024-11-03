@@ -27,7 +27,7 @@ const Timeline = () => {
     },
     onSuccess: () => {
       toast({
-        variant: 'success',
+        variant: 'default',
         title: `تم الغاء الطلب بنجاح`
       })
       navigate('/orders')
@@ -46,7 +46,7 @@ const Timeline = () => {
     },
     onSuccess: () => {
       toast({
-        variant: 'success',
+        variant: 'default',
         title: `تم تسليم الطلب بنجاح`
       })
       navigate('/orders')
