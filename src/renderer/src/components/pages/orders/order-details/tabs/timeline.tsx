@@ -2,19 +2,25 @@ import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
-import { Item } from '@renderer/types/api'
+import { Item, Order } from '@renderer/types/api'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Check, LucideHand, Printer, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useNavigate, useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
+import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()
   const navigate = useNavigate()
 
   moment.locale('ar-ma')
+
+  const { data: order } = useQuery({
+    queryKey: ['order', id],
+    queryFn: () => getApi<Order>(`/Orders/${id}`)
+  })
 
   const { data, isPending, error, isError } = useQuery({
     queryKey: ['time_line', id],
@@ -74,7 +80,7 @@ const Timeline = () => {
       <div className="flex gap-2 justify-end">
         <Button
           className="flex bg-red-600 hover:bg-red-700  gap-2"
-          disabled={cancelOrderIsPending || completeOrderIsPending}
+          disabled={cancelOrderIsPending || completeOrderIsPending || order?.data.orderState == 4}
           onClick={() => cancelOrderMutate()}
         >
           {cancelOrderIsPending ? (
@@ -88,7 +94,7 @@ const Timeline = () => {
         </Button>
         <Button
           className="flex  gap-2 bg-green-600 hover:bg-green-700 "
-          disabled={completeOrderIsPending || cancelOrderIsPending}
+          disabled={completeOrderIsPending || cancelOrderIsPending || order?.data.orderState == 4}
           onClick={() => completeOrderMutate()}
         >
           {completeOrderIsPending ? (
@@ -107,50 +113,83 @@ const Timeline = () => {
       </div>
 
       {data.data.map((item, index) => (
-        <div key={index} className="my-2 shadow-sm border rounded-sm p-3">
+        <div key={index} className="my-2 shadow-sm border rounded-sm p-3 mt-5">
           <div className="flex justify-between items-center">
             <h1 className="font-bold test-lg">أسم المنتج: {item.name || item.fabric}</h1>
-            <AddTimeLineDialog id={item.id.toString()} />
+            <AddTimeLineDialog disabled={order?.data.orderState == 4} id={item.id.toString()} />
           </div>
           <h1 className="font-medium test-sm">أسم المصنع: {item.factoryName || item.id}</h1>
           <div className="flex gap-3 flex-wrap my-2 shadow-sm border px-3 pt-3  rounded-sm">
-            {item.timelines.map((timeline, index) => (
-              <div key={`${index}`}>
-                {(timeline.status == 0 || timeline.status == 2) && (
-                  <div className="flex gap-2 border-b-2 border-primary pb-2">
-                    <div className=" font-bold flex justify-center items-center border-2 border-primary h-[45px] w-[45px] rounded-full text-primary">
-                      {(index + 1).toString().padStart(2, '0')}
+            {item.timelines.length > 0 ? (
+              item.timelines.map((timeline, index) => (
+                <div key={`${index}`}>
+                  {(timeline.status == 0 || timeline.status == 2) && (
+                    <div className="flex gap-2 border-b-2 border-primary pb-2">
+                      <div className=" font-bold flex justify-center items-center border-2 border-primary h-[45px] w-[45px] rounded-full text-primary">
+                        {(index + 1).toString().padStart(2, '0')}
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <h3 className="text-base font-semibold text-primary">
+                          {timeline.productionLineName}
+                        </h3>
+                        <p className="text-[#ABB7C2] text-sm">
+                          بدء في {new Date(timeline.receivedAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-base font-semibold text-primary">
-                        {timeline.productionLineName}
-                      </h3>
-                      <p className="text-[#ABB7C2] text-sm">
-                        بدء في {new Date(timeline.receivedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {timeline.status == 3 && (
-                  <div className="flex gap-2 pb-2">
-                    <div className=" flex justify-center items-center bg-green-600 h-[45px] w-[45px] rounded-full">
-                      <Check size={25} stroke="#fff" />
+                  {timeline.status == 3 && (
+                    <div className="flex gap-2 pb-2">
+                      <div className=" flex justify-center items-center bg-green-600 h-[45px] w-[45px] rounded-full">
+                        <Check size={25} stroke="#fff" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
+                        <p className="text-[#ABB7C2] text-sm">
+                          {`${'انتهت خلال'}
+                          ${moment(new Date(timeline.receivedAt)).from(
+                            moment(new Date(timeline.deliveredAt)),
+                            true
+                          )}`}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
-                      <p className="text-[#ABB7C2] text-sm">
-                        {`${'انتهت خلال'}
-                        ${moment(new Date(timeline.receivedAt)).from(
-                          moment(new Date(timeline.deliveredAt)),
-                          true
-                        )}`}
-                      </p>
+                  )}
+
+                  {timeline.status == 4 && (
+                    <div className="flex gap-2 pb-2 items-center">
+                      <div className=" flex justify-center items-center bg-red-600 h-[45px] w-[45px] rounded-full">
+                        <X size={25} stroke="#fff" />
+                      </div>
+                      <div className="flex  gap-1">
+                        <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
+                        {/* <p className="text-[#ABB7C2] text-sm">
+                          {`${'انتهت خلال'}
+                          ${moment(new Date(timeline.receivedAt)).from(
+                            moment(new Date(timeline.deliveredAt)),
+                            true
+                          )}`}
+                        </p> */}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="m-3 font-bold">لا يوجد خطوط إنتاج</div>
+            )}
+          </div>
+          <div className="flex justify-end gap-2">
+            <EditTimeLineDialog
+              disable={order?.data.orderState == 4}
+              itemId={item.id.toString()}
+              timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
+            />
+            <Button className="flex gap-2 w-fit">
+              طباعة
+              <Printer size={15} />
+            </Button>
           </div>
         </div>
       ))}
