@@ -13,10 +13,10 @@ import {
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { getApi, postApi } from '@renderer/lib/http'
+import { getApi, putApi } from '@renderer/lib/http'
 import { Factory, ProductionLines, ProductionTeam } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { PlusCircle } from 'lucide-react'
+import { Edit } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -28,10 +28,11 @@ const schema = z.object({
 
 export type Schema = z.infer<typeof schema>
 type Props = {
-  id: string
-  disabled?: boolean
+  itemId: string
+  timeLineId: string
+  disable?: boolean
 }
-const AddTimeLineDialog = ({ id, disabled }: Props) => {
+const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
   const [productionLinesData, setProductionLinesData] = useState<ProductionLines[]>([])
   const [productionTeamsData, setProductionTeamsData] = useState<ProductionTeam[]>([])
   const queryClient = useQueryClient()
@@ -59,7 +60,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await postApi(`/OrderItems/${id}/Timelines`, {
+      await putApi(`/OrderItems/${itemId}/Timelines/${timeLineId}`, {
         ...data,
         productionTeamId: +data.productionTeamId,
         status: 0
@@ -68,7 +69,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: `تم إضافة المسار بنجاح`
+        title: `تم تعديل المسار بنجاح`
       })
       setProductionLinesData([])
       setProductionTeamsData([])
@@ -92,12 +93,12 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          disabled={disabled}
-          variant="link"
-          className="text-lg text-primary flex items-center gap-1"
+          disabled={disable}
+          variant={'outline'}
+          className="text-base  text-blue-700 flex items-center gap-1"
         >
-          <PlusCircle />
-          إضافة مسار
+          <Edit size={16} />
+          تعديل المسار
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -106,7 +107,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
         </DialogHeader>
         <Form {...form}>
           <form
-            id={`form-${id}`}
+            id={`form-edit-${itemId}`}
             onSubmit={form.handleSubmit((data) =>
               mutate({
                 ...data,
@@ -190,7 +191,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
           </form>
         </Form>
         <DialogFooter>
-          <Button form={`form-${id}`} className="w-full" type="submit">
+          <Button form={`form-edit-${itemId}`} className="w-full" type="submit">
             {isPending ? <Loader color={'#fff'} size={15} /> : 'إضافة'}
           </Button>
         </DialogFooter>
@@ -199,4 +200,4 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
   )
 }
 
-export default AddTimeLineDialog
+export default EditTimeLineDialog
