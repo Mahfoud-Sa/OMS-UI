@@ -176,8 +176,13 @@ const LoginForm = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error)
-
-      if (error.response) {
+      if (error.status === 400) {
+        toast({
+          title: 'حصل خطأ',
+          description: 'أسم المستخدم أو كلمة المرور غير صحيحة',
+          variant: 'destructive'
+        })
+      } else if (error.response) {
         // Server responded with a status other than 2xx
       } else if (error.request) {
         // Request was made but no response received
@@ -188,14 +193,14 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-      if (process.env.NODE_ENV === 'development') {
-        signIn({
-          token: 'default-token',
-          expiresIn: 360000,
-          tokenType: 'Bearer'
-        })
-        navigate('/')
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   signIn({
+      //     token: 'default-token',
+      //     expiresIn: 360000,
+      //     tokenType: 'Bearer'
+      //   })
+      //   navigate('/')
+      // }
     } finally {
       setDelayedSubmitting(false)
     }
