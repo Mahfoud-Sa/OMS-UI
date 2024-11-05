@@ -139,7 +139,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
                 emptyMessage="لم يتم العثور علئ مسار"
                 onSelect={(line) => {
                   const newProductionTeamsData = productionTeams?.data.filter(
-                    (el) => +el?.id! == (line?.id as number)
+                    (el) => (el?.id ? +el.id : 0) == (line?.id as number)
                   )
                   if (newProductionTeamsData) {
                     setProductionTeamsData(newProductionTeamsData)
