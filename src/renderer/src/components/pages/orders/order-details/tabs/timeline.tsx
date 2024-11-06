@@ -4,7 +4,7 @@ import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
 import { Item, Order } from '@renderer/types/api'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Check, LucideHand, Printer, X } from 'lucide-react'
+import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -48,6 +48,25 @@ const Timeline = () => {
   })
   const { mutate: completeOrderMutate, isPending: completeOrderIsPending } = useMutation({
     mutationFn: async () => {
+      await patchApi(`/Orders/${id}`, { orderState: 2 })
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'default',
+        title: `تم اكمال الطلب بنجاح`
+      })
+      navigate('/orders')
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+  const { mutate: deliverOrderMutate, isPending: deliverOrderIsPending } = useMutation({
+    mutationFn: async () => {
       await patchApi(`/Orders/${id}`, { orderState: 3 })
     },
     onSuccess: () => {
@@ -80,7 +99,13 @@ const Timeline = () => {
       <div className="flex gap-2 justify-end">
         <Button
           className="flex bg-red-600 hover:bg-red-700  gap-2"
-          disabled={cancelOrderIsPending || completeOrderIsPending || order?.data.orderState == 4}
+          disabled={
+            cancelOrderIsPending ||
+            completeOrderIsPending ||
+            deliverOrderIsPending ||
+            order?.data.orderState == 4 ||
+            order?.data.orderState == 3
+          }
           onClick={() => cancelOrderMutate()}
         >
           {cancelOrderIsPending ? (
@@ -93,8 +118,15 @@ const Timeline = () => {
           )}
         </Button>
         <Button
-          className="flex  gap-2 bg-green-600 hover:bg-green-700 "
-          disabled={completeOrderIsPending || cancelOrderIsPending || order?.data.orderState == 4}
+          className="flex  gap-2 bg-blue-400 hover:bg-blue-500 "
+          disabled={
+            completeOrderIsPending ||
+            cancelOrderIsPending ||
+            deliverOrderIsPending ||
+            order?.data.orderState == 4 ||
+            order?.data.orderState == 3 ||
+            order?.data.orderState == 2
+          }
           onClick={() => completeOrderMutate()}
         >
           {completeOrderIsPending ? (
@@ -103,6 +135,26 @@ const Timeline = () => {
             <>
               إنتهاء التصنيع
               <LucideHand />
+            </>
+          )}
+        </Button>
+        <Button
+          className="flex  gap-2 bg-green-600 hover:bg-green-700 "
+          disabled={
+            completeOrderIsPending ||
+            cancelOrderIsPending ||
+            deliverOrderIsPending ||
+            order?.data.orderState == 4 ||
+            order?.data.orderState == 3
+          }
+          onClick={() => deliverOrderMutate()}
+        >
+          {deliverOrderIsPending ? (
+            <Loader color={'#fff'} size={15} />
+          ) : (
+            <>
+              تسليم الطلب
+              <PackageCheck />
             </>
           )}
         </Button>
@@ -115,15 +167,22 @@ const Timeline = () => {
       {data.data.map((item, index) => (
         <div key={index} className="my-2 shadow-sm border rounded-sm p-3 mt-5">
           <div className="flex justify-between items-center">
-            <h1 className="font-bold test-lg">أسم المنتج: {item.name || item.fabric}</h1>
-            <AddTimeLineDialog disabled={order?.data.orderState == 4} id={item.id.toString()} />
+            <h1 className="font-bold test-lg">أسم المنتج: {item.productName || item.fabric}</h1>
+            <AddTimeLineDialog
+              disabled={
+                order?.data.orderState == 4 ||
+                order?.data.orderState == 3 ||
+                order?.data.orderState === 2
+              }
+              id={item.id.toString()}
+            />
           </div>
           <h1 className="font-medium test-sm">أسم المصنع: {item.factoryName || item.id}</h1>
           <div className="flex gap-3 flex-wrap my-2 shadow-sm border px-3 pt-3  rounded-sm">
             {item.timelines.length > 0 ? (
               item.timelines.map((timeline, index) => (
                 <div key={`${index}`}>
-                  {(timeline.status == 0 || timeline.status == 2) && (
+                  {[0, 1].includes(timeline.status) && (
                     <div className="flex gap-2 border-b-2 border-primary pb-2">
                       <div className=" font-bold flex justify-center items-center border-2 border-primary h-[45px] w-[45px] rounded-full text-primary">
                         {(index + 1).toString().padStart(2, '0')}
@@ -139,7 +198,7 @@ const Timeline = () => {
                     </div>
                   )}
 
-                  {timeline.status == 3 && (
+                  {[3, 2].includes(timeline.status) && (
                     <div className="flex gap-2 pb-2">
                       <div className=" flex justify-center items-center bg-green-600 h-[45px] w-[45px] rounded-full">
                         <Check size={25} stroke="#fff" />
@@ -181,11 +240,17 @@ const Timeline = () => {
             )}
           </div>
           <div className="flex justify-end gap-2">
-            <EditTimeLineDialog
-              disable={order?.data.orderState == 4}
-              itemId={item.id.toString()}
-              timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
-            />
+            {item.timelines.length > 0 && (
+              <EditTimeLineDialog
+                disable={
+                  order?.data.orderState == 4 ||
+                  order?.data.orderState == 3 ||
+                  order?.data.orderState === 2
+                }
+                itemId={item.id.toString()}
+                timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
+              />
+            )}
             <Button className="flex gap-2 w-fit">
               طباعة
               <Printer size={15} />
