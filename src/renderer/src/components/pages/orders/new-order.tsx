@@ -151,9 +151,37 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
           payloadFormData.append('note', product.note)
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
           payloadFormData.append('images[0]', product.image)
-          await postApi(`/Orders/${id}/OrderItems`, payloadFormData)
+          const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
+          createOrderItemsTimeline({
+            id: orderItem?.data?.id,
+            productTeamId: product.productionTeamId
+          })
         })
       )
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم الحفظ بنجاح',
+        description: `تم حفظ الطلب بنجاح`,
+        variant: 'success'
+      })
+    },
+    onError: (error) => {
+      toast({
+        title: 'فشلت عملية الحفظ',
+        description: `حصل خطأ ما`,
+        variant: 'destructive'
+      })
+      console.error('Error creating order items', error)
+    }
+  })
+  const { mutate: createOrderItemsTimeline } = useMutation({
+    mutationFn: async ({ id, productTeamId }: { id: number; productTeamId: number }) => {
+      await postApi(`/OrderItems/${id}/Timelines`, {
+        productionTeamId: productTeamId.toString(),
+        status: 1,
+        receivedAt: new Date().toISOString()
+      })
     },
     onSuccess: () => {
       toast({

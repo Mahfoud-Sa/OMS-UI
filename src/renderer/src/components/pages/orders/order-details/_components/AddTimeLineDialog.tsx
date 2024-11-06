@@ -97,7 +97,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
           className="text-lg text-primary flex items-center gap-1"
         >
           <PlusCircle />
-          إضافة مسار
+          الانتقال للمسار التالي
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
