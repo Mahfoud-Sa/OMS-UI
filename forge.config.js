@@ -2,6 +2,18 @@ const { FusesPlugin } = require('@electron-forge/plugin-fuses')
 const { FuseV1Options, FuseVersion } = require('@electron/fuses')
 
 module.exports = {
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'Mahfoud-Sa',
+          name: 'OMS-UI'
+        },
+        prerelease: true
+      }
+    }
+  ],
   packagerConfig: {
     ignore: [
       /^\/src/,
