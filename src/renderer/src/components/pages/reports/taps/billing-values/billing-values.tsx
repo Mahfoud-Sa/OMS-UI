@@ -36,7 +36,11 @@ const BillingValues = () => {
   //   )
 
   const [openSheet, setOpenSheet] = useState(false)
-  const [filterOptions, setFilterOptions] = useState({
+  const [
+    ,
+    // filterOptions
+    setFilterOptions
+  ] = useState({
     factory: '',
     productionLine: '',
     productionTeam: '',
