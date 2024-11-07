@@ -4,15 +4,12 @@ import { Icons } from '@/components/icons/icons'
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { getApi } from '@/lib/http'
-import { Class, Stage } from '@/types'
+// import { Class, Stage } from '@/types'
 import { Button } from '@renderer/components/ui/button'
-import { useQuery } from '@tanstack/react-query'
 import { RefreshCcw, Search } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
@@ -27,28 +24,28 @@ const Filter = () => {
   const { replace } = useRouter()
   const pathname = usePathname()
 
-  const { data } = useQuery<Stage[]>({
-    queryKey: ['stages'],
-    queryFn: () => getApi('/stage')
-  })
-  const { data: allClassData } = useQuery<Class[]>({
-    queryKey: ['class'],
-    queryFn: async () => {
-      const response = await getApi('/class')
-      return response.data
-    }
-  })
+  // const { data } = useQuery<Stage[]>({
+  //   queryKey: ['stages'],
+  //   queryFn: () => getApi('/stage')
+  // })
+  // const { data: allClassData } = useQuery<Class[]>({
+  //   queryKey: ['class'],
+  //   queryFn: async () => {
+  //     const response = await getApi('/class')
+  //     return response.data
+  //   }
+  // })
 
   const [filterData, setFilterData] = useState<filterPrams>({
     class: '',
     stage: ''
   })
-  const [classData, setClassData] = useState<Class[] | undefined>([])
+  // const [classData, setClassData] = useState<Class[] | undefined>([])
 
-  const handleStageChange = (value: string) => {
-    setFilterData({ class: '', stage: value })
-    setClassData(allClassData?.filter((d) => d.stageId.toString() === value))
-  }
+  // const handleStageChange = (value: string) => {
+  //   setFilterData({ class: '', stage: value })
+  //   setClassData(allClassData?.filter((d) => d.stageId.toString() === value))
+  // }
 
   // useEffect(() => {
   //     replace(pathname);
@@ -103,16 +100,18 @@ const Filter = () => {
 
           <div className="mt-4">
             <div className="mt-2">
-              <Select onValueChange={(value) => handleStageChange(value)}>
+              <Select
+              // onValueChange={(value) => handleStageChange(value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="المرحلة الدراسية" />
                 </SelectTrigger>
                 <SelectContent>
-                  {data?.map(({ id, name }) => (
+                  {/* {data?.map(({ id, name }) => (
                     <SelectItem value={id.toString()} key={id}>
                       {name}
                     </SelectItem>
-                  ))}
+                  ))} */}
                 </SelectContent>
               </Select>
             </div>
@@ -125,11 +124,11 @@ const Filter = () => {
                   <SelectValue placeholder="الصف دراسي" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classData?.map((el) => (
+                  {/* {classData?.map((el) => (
                     <SelectItem value={el.id.toString()} key={el.id}>
                       {el.name}
                     </SelectItem>
-                  ))}
+                  ))} */}
                 </SelectContent>
               </Select>
             </div>

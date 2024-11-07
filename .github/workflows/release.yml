@@ -1,56 +1,31 @@
-name: Build/release Electron app
-
+# .github/workflows/release.yml
+name: Release app
 on:
   push:
-    tags:
-      - v*.*.*
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-
+  build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
+        os:
+          [
+            { name: 'windows', image: 'windows-latest' },
+          ]
+    runs-on: ${{ matrix.os.image }}
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Github checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: build-linux
-        if: matrix.os == 'ubuntu-latest'
-        run: npm run build:linux
-
-      - name: build-mac
-        if: matrix.os == 'macos-latest'
-        run: npm run build:mac
-
-      - name: build-win
-        if: matrix.os == 'windows-latest'
-        run: npm run build:win
-
-      - name: release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          files: |
-            dist/*.exe
-            dist/*.zip
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.snap
-            dist/*.deb
-            dist/*.rpm
-            dist/*.tar.gz
-            dist/*.yml
-            dist/*.blockmap
+          node-version: 20
+      - run: npm ci
+      - name: Publish app
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }};
+          RENDERER_VITE_REACT_APP_API_URL: ${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}
+          RENDERER_VITE_REACT_APP_ENV: production
+        run: npm run publish

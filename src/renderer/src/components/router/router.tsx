@@ -1,5 +1,6 @@
 import { createHashRouter } from 'react-router-dom'
 import RootLayout from '../layouts/layout'
+import LoginRootLayout from '../layouts/login-layout'
 import ProtectedRoute from '../layouts/protected-route'
 import Factories from '../pages/factories/factories'
 import FactoryDetails from '../pages/factories/factory-details/factory-details'
@@ -22,7 +23,13 @@ import Users from '../pages/users/users'
 export const router = createHashRouter([
   {
     path: '/login',
-    element: <Login />
+    element: <LoginRootLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <Login />
+      }
+    ]
   },
   {
     path: '/',
