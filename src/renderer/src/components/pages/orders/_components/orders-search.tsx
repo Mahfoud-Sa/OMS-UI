@@ -10,10 +10,12 @@ import AsyncSelect from 'react-select/async'
 interface Orders {
   orders: {
     customerName: string
+    billNo: string
   }[]
 }
 interface Order {
   customerName: string
+  billNo: string
 }
 
 const OrdersSearch = () => {
@@ -33,9 +35,11 @@ const OrdersSearch = () => {
 
   const loadOptions = async (value: string) => {
     if (!value) return []
+    console.log(value)
     const data = await getApi<Orders>('/Orders', {
       params: {
-        query: value
+        query: value,
+        size: 100000000
       }
     })
     return data.data.orders || []
@@ -46,10 +50,10 @@ const OrdersSearch = () => {
     IndicatorSeparator: () => null
   }
 
-  const onChange = (val: { customerName: string } | null) => {
+  const onChange = (val: { billNo: string } | null) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (val?.customerName) {
-      params.set('query', val.customerName)
+    if (val?.billNo) {
+      params.set('query', val.billNo)
     } else {
       params.delete('query')
     }
@@ -93,12 +97,12 @@ const OrdersSearch = () => {
         noOptionsMessage={() => 'لا توجد نتائج'}
         cacheOptions
         instanceId="products-search"
-        value={selectedVal?.length ? { customerName: selectedVal } : undefined}
+        value={selectedVal?.length ? ({ billNo: selectedVal } as Order) : undefined}
         defaultOptions={orders?.data.orders}
         loadOptions={loadOptions}
         onChange={onChange}
-        getOptionLabel={({ customerName }) => customerName}
-        getOptionValue={({ customerName }) => customerName}
+        getOptionLabel={({ billNo }) => billNo}
+        getOptionValue={({ billNo }) => billNo}
         components={customComponents}
         isClearable
         menuIsOpen={isMenuOpen}
