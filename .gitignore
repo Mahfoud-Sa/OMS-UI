@@ -3,3 +3,6 @@ dist
 build
 out
 *.log*
+.env
+.env.development
+.env.production

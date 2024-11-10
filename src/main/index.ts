@@ -1,15 +1,20 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
+import { updateElectronApp } from 'update-electron-app'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
-    show: false,
+    //  width: 900,
+    //  height: 670,
+    show: true,
     autoHideMenuBar: true,
+    // fullscreen: true,
+    resizable: true,
+    fullscreenable: true,
+    frame: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -39,6 +44,12 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Auto update
+  updateElectronApp({
+    repo: 'Mahfoud-Sa/OMS-UI',
+    updateInterval: '1 hour'
+  })
+  if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
