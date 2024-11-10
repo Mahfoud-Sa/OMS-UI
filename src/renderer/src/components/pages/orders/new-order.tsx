@@ -42,7 +42,7 @@ const schema = z.object({
     .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
   deliveryAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
-  costPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
+  sellingPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
   notes: z.string(),
   deliveryNote: z.string().optional(),
   products: z
@@ -218,8 +218,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         deliveryAt: data.deliveryAt,
         deliveryNote: data.deliveryNote || '',
         orderState: 0,
-        costPrice: data.costPrice,
-        sellingPrice: 0,
+        sellingPrice: data.sellingPrice,
+        costPrice: 0,
         customerNo: data.customerNo,
         note: data.notes
       } as unknown as localNewProduct
@@ -525,10 +525,10 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                         </FormItem>
                       )}
                     />
-                    {/* costPrice */}
+                    {/* sellingPrice */}
                     <FormField
                       control={form.control}
-                      name="costPrice"
+                      name="sellingPrice"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>

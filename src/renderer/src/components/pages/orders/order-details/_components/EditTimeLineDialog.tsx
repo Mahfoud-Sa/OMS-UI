@@ -14,10 +14,10 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/c
 import { Input } from '@renderer/components/ui/input'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
-import { Factory, ProductionLines, ProductionTeam } from '@renderer/types/api'
+import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -33,9 +33,11 @@ type Props = {
   disable?: boolean
 }
 const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
-  const [productionLinesData, setProductionLinesData] = useState<ProductionLines[]>([])
-  const [productionTeamsData, setProductionTeamsData] = useState<ProductionTeam[]>([])
+  const [factoryId, setFactoryId] = useState<number | null>(null)
+  const [productionLinesData, setProductionLines] = useState<ProductionLineProps[]>([])
+  const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const queryClient = useQueryClient()
+
   const { data: factories } = useQuery({
     queryKey: ['Factories'],
     queryFn: () =>
@@ -45,14 +47,34 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
         }
       })
   })
-  const { data: productionLines } = useQuery({
-    queryKey: ['ProductionLines'],
-    queryFn: () => getApi<ProductionLines[]>('/productionLines')
+
+  const { data: factoryData, isSuccess: isFactoryDataSuccess } = useQuery({
+    queryKey: ['Factory', factoryId],
+    queryFn: () =>
+      factoryId
+        ? getApi<{
+            factory: FactoryInterface
+            productionLines: ProductionLineProps[]
+            productionTeams: ProductionTeam[]
+          }>(`/Factories/${factoryId}`, {}).then((response) => {
+            return response.data
+          })
+        : Promise.resolve(undefined),
+    enabled: !!factoryId
   })
-  const { data: productionTeams } = useQuery({
-    queryKey: ['production_teams'],
-    queryFn: () => getApi<ProductionTeam[]>('/ProductionTeams')
-  })
+
+  useEffect(() => {
+    if (isFactoryDataSuccess && factoryData) {
+      setProductionLines(factoryData.productionLines || [])
+    }
+  }, [isFactoryDataSuccess, factoryData])
+
+  const getProductionTeams = (line: ProductionLineProps) => {
+    const productionLine = productionLinesData.find((pl) => pl.id === line.id)
+    if (productionLine) {
+      setProductionTeams(productionLine.teams || [])
+    }
+  }
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
@@ -71,8 +93,8 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
         variant: 'success',
         title: `تم تعديل المسار بنجاح`
       })
-      setProductionLinesData([])
-      setProductionTeamsData([])
+      setProductionLines([])
+      setProductionTeams([])
       form.reset({
         receivedAt: undefined,
         productionTeamId: undefined
@@ -103,7 +125,7 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader className="!text-center text-primary text-lg font-bold">
-          <DialogTitle>إضافة مسار</DialogTitle>
+          <DialogTitle>تعديل مسار</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -119,16 +141,15 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
               <Combobox
                 options={factories?.data.factories || []}
                 valueKey="id"
+                disabled={factories?.data.factories.length == 0}
                 displayKey="name"
                 placeholder="أختر مصنع"
-                emptyMessage="لم يتم العثور علئ مصنع"
+                emptyMessage="��م يتم العثور علئ مصنع"
                 onSelect={(factory) => {
-                  const newProductionLinesData = productionLines?.data.filter(
-                    (el) => el.factoryId == (factory?.id as number)
-                  )
-                  if (newProductionLinesData) {
-                    setProductionLinesData(newProductionLinesData)
-                  }
+                  setFactoryId(factory?.id)
+                  // reset the production line and team
+                  setProductionLines([])
+                  form.setValue('productionTeamId', '')
                 }}
               />
               <Combobox
@@ -139,12 +160,9 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
                 placeholder="أختر مسار"
                 emptyMessage="لم يتم العثور علئ مسار"
                 onSelect={(line) => {
-                  const newProductionTeamsData = productionTeams?.data.filter(
-                    (el) => +el?.id! == (line?.id as number)
-                  )
-                  if (newProductionTeamsData) {
-                    setProductionTeamsData(newProductionTeamsData)
-                  }
+                  getProductionTeams(line as ProductionLineProps)
+                  // reset the production team
+                  form.setValue('productionTeamId', '')
                 }}
               />
               <FormField
@@ -154,8 +172,8 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
                   <FormItem>
                     <FormControl>
                       <Combobox
-                        disabled={productionTeamsData.length == 0}
-                        options={productionTeamsData || []}
+                        disabled={productionTeams.length == 0}
+                        options={productionTeams || []}
                         valueKey="id"
                         displayKey="name"
                         placeholder="أختر فريق"

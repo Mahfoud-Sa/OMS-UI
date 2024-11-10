@@ -85,19 +85,23 @@ const MainInfo = () => {
           martial
           label="تاريخ التسليم"
         />
-        <Input
-          disabled={true}
-          value={data.data.costPrice}
-          placeholder="سعر التكلفة"
-          martial
-          label="سعر التكلفة"
-        />
+        {/* TODO: this input should only appear to admin and retail user.*/}
         <Input
           disabled={true}
           value={data.data.sellingPrice}
           placeholder="سعر البيع"
           martial
           label="سعر البيع"
+        />
+        {/* TODO: this input should be based on user role/type/permission. its only for orders manager or admin
+        and only be shown to admin.
+        */}
+        <Input
+          disabled={true}
+          value={data.data.costPrice}
+          placeholder="سعر التكلفة"
+          martial
+          label="سعر التكلفة"
         />
         <div className="col-span-3">
           <Label className="font-bold text-base">ملاحظات</Label>
