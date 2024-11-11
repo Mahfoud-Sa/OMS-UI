@@ -8,6 +8,7 @@ import NewFactory from '../pages/factories/new-factory/new-factory'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
+import PrintOrderBill from '../pages/orders/order-details/_components/PrintOrderBill'
 import OrderDetails from '../pages/orders/order-details/order-details'
 import Orders from '../pages/orders/orders'
 import InfoProduct from '../pages/products/info-product'
@@ -78,6 +79,11 @@ export const router = createHashRouter([
         path: '/orders/:id',
         // element: <ProtectedRoute element={<Orders />} />
         element: <OrderDetails />
+      },
+      {
+        path: '/orders/:id/print',
+        // element: <ProtectedRoute element={<Orders />} />
+        element: <PrintOrderBill />
       },
       {
         path: '/factories',
