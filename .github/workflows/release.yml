@@ -24,10 +24,10 @@ jobs:
           node-version: 20
       - run: npm ci
       - name: Build app
-        run: npm run make
-      - name: Publish app
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }};
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }};
           RENDERER_VITE_REACT_APP_API_URL: ${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}
           RENDERER_VITE_REACT_APP_ENV: production
+        run: npm run make
+      - name: Publish app
         run: npm run publish
