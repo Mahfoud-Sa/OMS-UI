@@ -138,6 +138,8 @@ export type Item = {
   note: string
   productionTeamId: number
   orderId: number
+  productDesignName: string
+
   images: string[]
   timelines: Timeline[]
 }

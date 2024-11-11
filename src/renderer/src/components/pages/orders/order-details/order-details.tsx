@@ -1,12 +1,15 @@
 import BackBtn from '@renderer/components/layouts/back-btn'
 import { Button } from '@renderer/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { CoinsIcon, Printer } from 'lucide-react'
+import { Printer } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
 import ListItems from './tabs/list-items'
 import MainInfo from './tabs/main-info'
 import Timeline from './tabs/timeline'
 
 const OrderDetails = () => {
+  const { id } = useParams()
+
   const tabs = [
     {
       content: <MainInfo />,
@@ -29,17 +32,12 @@ const OrderDetails = () => {
       <div className="mb-3 flex items-center justify-between">
         <BackBtn href={'/orders'} />
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex text-primary gap-2 bg-transparent border-primary border-2 px-3"
-          >
-            عرض التكلفة
-            <CoinsIcon />
-          </Button>
-          <Button className="flex gap-2">
-            طباعة تقارير
-            <Printer />
-          </Button>
+          <Link to={`/orders/${id}/print`}>
+            <Button className="flex gap-2">
+              طباعة تقارير
+              <Printer />
+            </Button>
+          </Link>
         </div>
       </div>
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
