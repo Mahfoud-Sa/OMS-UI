@@ -8,52 +8,59 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
-import { Order } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
+import moment from 'moment'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 type Props = {
   data: {
-    orders: Order[]
+    orders: tableProps[]
     pageNumber: number
     pageSize: number
     pages: number
     total: number
   }
 }
+type tableProps = {
+  orderId: string
+  createAt: string
+  team: string
+  factory: string
+  line: string
+}
 
 const DailyReportTable = ({ data }: Props) => {
-  const columns = React.useMemo<ColumnDef<Order>[]>(
+  const columns = React.useMemo<ColumnDef<tableProps>[]>(
     () => [
       {
-        accessorKey: 'id',
+        accessorKey: 'orderId',
         header: 'الرقم',
         cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
       },
       {
-        accessorKey: 'customerName',
+        accessorKey: 'factory',
         header: 'اسم المصنع'
       },
       {
-        accessorKey: 'customerName',
+        accessorKey: 'line',
         header: 'خط الإنتاج'
       },
       {
         accessorKey: 'createAt',
         header: 'التاريخ',
         cell: ({ row }) => {
-          return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
+          return <div>{moment(row.original.createAt).format('YYYY-MM-DD')}</div>
         }
       },
       {
-        accessorKey: 'billNo',
+        accessorKey: 'team',
         header: 'اسم الفرقة'
       },
       {
         accessorKey: 'billNo',
-        header: 'الإجمالي'
+        header: 'رقم الفاتوره'
       },
       {
         id: 'actions',
@@ -65,12 +72,12 @@ const DailyReportTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.id}`}>
+              <Link to={`/orders/${row.original?.orderId}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
 
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
+                <DeleteDialog url={`/Orders/${row.original?.orderId}`} keys={['orders']} />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -79,6 +86,7 @@ const DailyReportTable = ({ data }: Props) => {
     ],
     []
   )
+  console.log(data.orders)
 
   return (
     <div>
