@@ -36,7 +36,9 @@ const DailyReportTable = ({ data }: Props) => {
     () => [
       {
         accessorKey: 'orderId',
-        header: 'الرقم',
+        header: () => {
+          return ''
+        },
         cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
       },
       {
