@@ -30,7 +30,7 @@ const BillingStatusReportsTable = ({ data }: Props) => {
   const columns = React.useMemo<ColumnDef<Order>[]>(
     () => [
       {
-        accessorKey: 'id',
+        accessorKey: '',
         header: 'الرقم',
         cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
       },
