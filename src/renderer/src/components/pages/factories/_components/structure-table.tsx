@@ -142,14 +142,14 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                               <DropdownMenuGroup>
                                 <a
                                   onClick={() => {
-                                    onEditProductionLineTeam(team, row.original.id || '')
+                                    onEditProductionLineTeam(team, String(row.original.id))
                                   }}
                                 >
                                   <DropdownMenuItem>تعديل</DropdownMenuItem>
                                 </a>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    onDeleteProductionLineTeam(team.id || '')
+                                    onDeleteProductionLineTeam(String(team.id))
                                   }}
                                   style={{ backgroundColor: 'orange', color: 'white' }}
                                   color="white"
