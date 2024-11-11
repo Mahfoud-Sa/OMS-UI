@@ -95,7 +95,7 @@ const PrintOrderBill = () => {
                 </TableHeader>
                 <TableBody>
                   {data.data.items.map((item, index) => (
-                    <TableRow>
+                    <TableRow key={index}>
                       <TableCell className="font-medium">
                         {(index + 1).toString().padStart(2, '0')}
                       </TableCell>
