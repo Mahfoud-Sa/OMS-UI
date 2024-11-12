@@ -30,4 +30,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }};
           RENDERER_VITE_REACT_APP_API_URL: ${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}
           RENDERER_VITE_REACT_APP_ENV: production
-        run: export $(cat .env | xargs) && npm run publish
+        run: set $(cat .env | xargs) && npm run publish
