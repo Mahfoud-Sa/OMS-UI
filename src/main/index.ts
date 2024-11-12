@@ -1,7 +1,7 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { BrowserWindow, app, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import { updateElectronApp } from 'update-electron-app'
+import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -46,7 +46,10 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Auto update
   updateElectronApp({
-    repo: 'Mahfoud-Sa/OMS-UI',
+    updateSource: {
+      type: UpdateSourceType.ElectronPublicUpdateService,
+      repo: 'Mahfoud-Sa/OMS-UI'
+    },
     updateInterval: '1 hour'
   })
   if (require('electron-squirrel-startup')) app.quit()
