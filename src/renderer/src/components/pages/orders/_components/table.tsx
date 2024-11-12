@@ -25,6 +25,20 @@ type Props = {
     total: number
   }
 }
+// get the orders and return it with new value if deliveryDate is less than 2 days
+const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
+  if (!deliveryDate) return false
+  const deliveryDateObj = new Date(deliveryDate)
+  const currentDate = new Date()
+  const timeDifference = deliveryDateObj.getTime() - currentDate.getTime()
+  const daysDifference = timeDifference / (1000 * 3600 * 24)
+  return daysDifference < 2
+}
+
+const rowClassName = (row: Order) => {
+  console.log(row.deliveryAt)
+  return isDeliveryDateLessThanTwoDays(row.deliveryAt) ? 'bg-red-500' : ''
+}
 
 const OrdersTable = ({ data }: Props) => {
   const columns = React.useMemo<ColumnDef<Order>[]>(
@@ -114,7 +128,14 @@ const OrdersTable = ({ data }: Props) => {
 
   return (
     <div>
-      <StructureTable columns={columns} data={data.orders} />
+      <StructureTable
+        columns={columns}
+        data={data.orders}
+        rowClassName={(order) => {
+          console.log(order)
+          return rowClassName(order)
+        }}
+      />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
   )
