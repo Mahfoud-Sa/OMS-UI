@@ -38,8 +38,14 @@ import UpdateProductionTeamDialog from '../_components/production-team-dialog'
 import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
-  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
-  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  name: z
+    .string({ message: 'يجب ادخال اسم المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z
+    .string({ message: 'يرجى ادخال موقع المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
   createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   notes: z.string().optional(),
   productionLines: z
@@ -461,7 +467,7 @@ const FactoryDetails: React.FunctionComponent = () => {
         {factoryId && (
           <InformationCard
             id={factoryId}
-            logoSrc={'https://placehold.co/100'}
+            logoSrc={'https://via.placeholder.com/100'}
             actionType="method"
             buttonAction={() => setIsEdit((prev) => !prev)}
             buttonText={!isEdit ? 'تعديل' : 'الغاء التعديل'}

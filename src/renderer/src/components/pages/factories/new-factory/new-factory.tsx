@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import { Icons } from '@renderer/components/icons/icons'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
@@ -22,17 +21,20 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-import imageProfile from '../../../../assets/images/profile.jpg'
 import ProductionLineDialog from '../_components/production-lines-dialog'
 import { StructureTable } from '../_components/structure-table'
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
-
 const schema = z.object({
-  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
-  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  name: z
+    .string({ message: 'يجب ادخال اسم المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z
+    .string({ message: 'يجب ادخال موقع المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
   createdAt: z.string(),
-  notes: z.string(),
+  notes: z.string({ message: 'يجب ادخال ملاحظة المصنع' }).max(200, 'يجب أن يكون أقل من 200 حرف'),
   productionLines: z.array(
     z.object({
       id: z.string().optional(),
@@ -45,14 +47,9 @@ const schema = z.object({
           phone: z.string()
         })
       )
-    })
-  ),
-  image: z
-    .instanceof(File)
-    .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
-    })
-    .optional()
+    }),
+    { message: 'يجب ادخال خط انتاج واحد على الاقل' }
+  )
 })
 
 type Schema = z.infer<typeof schema>
@@ -161,7 +158,6 @@ const NewFactory: React.FunctionComponent = () => {
     payloadFormData.append('location', data.location)
     payloadFormData.append('notes', data.notes)
     payloadFormData.append('createdAt', data.createdAt)
-    data.image && payloadFormData.append('image', data.image)
     const productionLinesWithoutId = data.productionLines.map((line) => {
       const { id, teamsCount, ...rest } = line
       return rest
@@ -287,37 +283,7 @@ const NewFactory: React.FunctionComponent = () => {
               <TabsContent value="account">
                 <main className="flex flex-col text-base font-medium text-zinc-700">
                   <section className="flex flex-col w-full max-md:max-w-full">
-                    <div className="flex flex-col gap-3 items-center w-full max-md:max-w-full mb-4">
-                      <div className="w-full flex">
-                        <FormField
-                          control={form.control}
-                          name="image"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <div>
-                                  <ProfileUploader
-                                    className="h-[180px] w-[180px]"
-                                    inputId="ImageFile"
-                                    setValue={form.setValue}
-                                    onChange={async (files) => {
-                                      try {
-                                        if (!files?.[0]) return
-                                        field.onChange(files[0])
-                                      } catch (error) {
-                                        JSON.stringify(error)
-                                      }
-                                    }}
-                                    defaultImage={imageProfile}
-                                  />
-                                  <FormMessage />
-                                </div>
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
+                    {' '}
                     <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
                       <FormField
                         control={form.control}
@@ -408,6 +374,7 @@ const NewFactory: React.FunctionComponent = () => {
                     onEditProductionLineTeam={() => {}}
                   />
                 </div>
+                <FormMessage>{form.getFieldState('productionLines').error?.message}</FormMessage>
               </TabsContent>
               <TabsContent value="reports">Change your reports here.</TabsContent>
             </Tabs>
