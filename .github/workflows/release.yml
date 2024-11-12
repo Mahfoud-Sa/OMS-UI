@@ -39,7 +39,4 @@ jobs:
 
       - name: Publish app
         run: |
-          set -a
-          source .env
-          set +a
-          npm run publish
+          env $(cat .env | xargs) npm run publish
