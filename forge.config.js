@@ -11,7 +11,7 @@ module.exports = {
           name: 'OMS-UI'
         },
         prerelease: true,
-        authToken: process.env.GITHUB_TOKEN,
+        authToken: import.meta.env.GITHUB_TOKEN,
         force: true
       }
     }
