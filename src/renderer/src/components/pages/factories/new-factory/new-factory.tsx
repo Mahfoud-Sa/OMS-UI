@@ -50,7 +50,7 @@ const schema = z.object({
   image: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+      message: ' حجم الصور يجب أن يكون أقل من 5 ميجابايت'
     })
     .optional()
 })
