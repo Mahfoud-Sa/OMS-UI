@@ -1,33 +1,45 @@
-# .github/workflows/release.yml
-name: Release app
+name: Release
+
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os.image }}
     strategy:
       matrix:
         os:
-          [
-            { name: 'windows', image: 'windows-latest' },
-          ]
-    runs-on: ${{ matrix.os.image }}
+          - name: 'windows'
+            image: 'windows-latest'
+
     steps:
-      - name: Github checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Use Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+          echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}" >> .env
+          echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
+          cat .env
+
       - name: Build app
         run: npm run make
+
       - name: Publish app
-        env:
-          GITHUB_TOKEN: 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;
-          RENDERER_VITE_REACT_APP_API_URL: ${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}
-          RENDERER_VITE_REACT_APP_ENV: production
-        run: set $(cat .env | xargs) && npm run publish
+        run: |
+          set -a
+          source .env
+          set +a
+          npm run publish
