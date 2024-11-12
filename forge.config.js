@@ -10,7 +10,9 @@ module.exports = {
           owner: 'Mahfoud-Sa',
           name: 'OMS-UI'
         },
-        prerelease: true
+        prerelease: true,
+        authToken: process.env.GITHUB_TOKEN,
+        force: true
       }
     }
   ],
