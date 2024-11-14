@@ -2,6 +2,7 @@ import BackBtn from '@renderer/components/layouts/back-btn'
 import { Button } from '@renderer/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Printer } from 'lucide-react'
+import { useAuthUser } from 'react-auth-kit'
 import { Link, useParams } from 'react-router-dom'
 import ListItems from './tabs/list-items'
 import MainInfo from './tabs/main-info'
@@ -9,6 +10,8 @@ import Timeline from './tabs/timeline'
 
 const OrderDetails = () => {
   const { id } = useParams()
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
 
   const tabs = [
     {
@@ -32,8 +35,8 @@ const OrderDetails = () => {
       <div className="mb-3 flex items-center justify-between">
         <BackBtn href={'/orders'} />
         <div className="flex gap-2">
-          <Link to={`/orders/${id}/print`}>
-            <Button className="flex gap-2">
+          <Link to={['مشرف', 'منسق طلبات'].includes(userType) ? `/orders/${id}/print` : ''}>
+            <Button disabled={!['مشرف', 'منسق طلبات'].includes(userType)} className="flex gap-2">
               طباعة تقارير
               <Printer />
             </Button>

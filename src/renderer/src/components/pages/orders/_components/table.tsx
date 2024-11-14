@@ -14,6 +14,7 @@ import { Order } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import React from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -42,6 +43,9 @@ const rowClassName = (order: Order) => {
 }
 
 const OrdersTable = ({ data }: Props) => {
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
+
   const columns = React.useMemo<ColumnDef<Order>[]>(
     () => [
       {
@@ -97,7 +101,9 @@ const OrdersTable = ({ data }: Props) => {
           )
         }
       },
-      {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      ['مشرف', 'بائع'].includes(userType) && {
         accessorKey: 'sellingPrice',
         header: 'السعر البيع'
       },
@@ -130,7 +136,7 @@ const OrdersTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable
-        columns={columns}
+        columns={columns.filter(Boolean)}
         data={data.orders}
         rowClassName={(order) => {
           console.log(order)
