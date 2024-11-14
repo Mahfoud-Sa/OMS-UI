@@ -7,13 +7,16 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useAuthUser } from 'react-auth-kit'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
 import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
 
   moment.locale('ar-ma')
 
@@ -158,10 +161,10 @@ const Timeline = () => {
             </>
           )}
         </Button>
-        <Button className="flex gap-2">
+        {/* <Button className="flex gap-2">
           طباعة
           <Printer />
-        </Button>
+        </Button> */}
       </div>
 
       {data.data.map((item, index) => (
@@ -251,10 +254,18 @@ const Timeline = () => {
                 timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
               />
             )}
-            <Button className="flex gap-2 w-fit">
-              طباعة
-              <Printer size={15} />
-            </Button>
+
+            <Link
+              to={['مشرف', 'منسق طلبات'].includes(userType) ? `/orders/${id}/${item.id}/print` : ''}
+            >
+              <Button
+                disabled={!['مشرف', 'منسق طلبات'].includes(userType)}
+                className="flex gap-2 w-fit"
+              >
+                طباعة
+                <Printer size={15} />
+              </Button>
+            </Link>
           </div>
         </div>
       ))}

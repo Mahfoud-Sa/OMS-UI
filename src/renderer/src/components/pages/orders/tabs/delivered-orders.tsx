@@ -1,5 +1,5 @@
-import CreateBtn from '@renderer/components/layouts/create-btn'
 import { Button } from '@renderer/components/ui/button'
+import CreateOrderButton from '../_components/CreateOrderButton'
 import OrdersSearch from '../_components/orders-search'
 import OrdersWrapper from '../_components/orders-wrapper'
 
@@ -15,7 +15,7 @@ const DeliveredOrders = ({ getOrdersDeliveredTotal }: Props) => {
         <Button className="w-[109px] h-full" variant="outline">
           فلترة
         </Button>
-        <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
+        <CreateOrderButton />
       </div>
       <OrdersWrapper status={3} getOrdersTotal={getOrdersDeliveredTotal} />
     </section>

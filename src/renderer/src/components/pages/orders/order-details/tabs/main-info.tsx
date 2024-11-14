@@ -6,9 +6,13 @@ import { Textarea } from '@renderer/components/ui/textarea'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { useAuthUser } from 'react-auth-kit'
 import { useParams } from 'react-router-dom'
 
 const MainInfo = () => {
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
+
   const { id } = useParams()
 
   const { data, isPending, error, isError } = useQuery({
@@ -86,23 +90,29 @@ const MainInfo = () => {
           label="تاريخ التسليم"
         />
         {/* TODO: this input should only appear to admin and retail user.*/}
-        <Input
-          disabled={true}
-          value={data.data.sellingPrice}
-          placeholder="سعر البيع"
-          martial
-          label="سعر البيع"
-        />
+        {['مشرف', 'بائع'].includes(userType) && (
+          <Input
+            disabled={true}
+            value={data.data.sellingPrice}
+            placeholder="سعر البيع"
+            martial
+            label="سعر البيع"
+          />
+        )}
         {/* TODO: this input should be based on user role/type/permission. its only for orders manager or admin
         and only be shown to admin.
         */}
-        <Input
-          disabled={true}
-          value={data.data.costPrice}
-          placeholder="سعر التكلفة"
-          martial
-          label="سعر التكلفة"
-        />
+
+        {['مشرف', 'منسق طلبات'].includes(userType) && (
+          <Input
+            disabled={true}
+            value={data.data.costPrice}
+            placeholder="سعر التكلفة"
+            martial
+            label="سعر التكلفة"
+          />
+        )}
+
         <div className="col-span-3">
           <Label className="font-bold text-base">ملاحظات</Label>
           <Textarea disabled={true} className="bg-white mt-2" rows={10}>
