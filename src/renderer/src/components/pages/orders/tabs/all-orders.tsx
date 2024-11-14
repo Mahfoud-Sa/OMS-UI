@@ -3,7 +3,10 @@ import { Button } from '@renderer/components/ui/button'
 import OrdersSearch from '../_components/orders-search'
 import OrdersWrapper from '../_components/orders-wrapper'
 
-const AllOrders = () => {
+type Props = {
+  getOrdersTotal: (total: number) => void
+}
+const AllOrders = ({ getOrdersTotal }: Props) => {
   return (
     <section>
       <div className="flex gap-3 flex-row h-[50px]">
@@ -13,7 +16,7 @@ const AllOrders = () => {
         </Button>
         <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
       </div>
-      <OrdersWrapper status={null} />
+      <OrdersWrapper status={null} getOrdersTotal={getOrdersTotal} />
     </section>
   )
 }

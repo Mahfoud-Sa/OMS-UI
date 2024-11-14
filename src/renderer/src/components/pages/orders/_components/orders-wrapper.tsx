@@ -7,14 +7,15 @@ import OrdersTable from './table'
 
 type Props = {
   status: null | 0 | 1 | 2 | 3 | 4
+  getOrdersTotal?: (status: number) => void
 }
 
-const OrdersWrapper = ({ status }: Props) => {
+const OrdersWrapper = ({ status, getOrdersTotal }: Props) => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query')
   const page = searchParams.get('page')
 
-  const { data, isPending, isError, error } = useQuery({
+  const { data, isPending, isError, error, isSuccess } = useQuery({
     queryKey: ['orders', status, query, page],
     queryFn: () =>
       getApi<{
@@ -31,6 +32,12 @@ const OrdersWrapper = ({ status }: Props) => {
         }
       })
   })
+  if (isSuccess) {
+    const total = data?.data.total
+    if (total) {
+      getOrdersTotal && getOrdersTotal(total)
+    }
+  }
 
   if (isPending)
     return (

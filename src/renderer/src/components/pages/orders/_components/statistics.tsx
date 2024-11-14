@@ -4,11 +4,18 @@ import StatisticCard from '../../../layouts/statistic-card'
 // import { useState } from "react";
 
 type StatisticsProps = {
-  selectedRole: string | undefined
   filterData: (role: string | undefined) => void
+  totalOrders: number
+  totalOrdersInProgress: number
+  totalOrdersDelivered: number
 }
 
-export default function Statistics({ selectedRole, filterData }: StatisticsProps) {
+export default function Statistics({
+  filterData,
+  totalOrders,
+  totalOrdersDelivered,
+  totalOrdersInProgress
+}: StatisticsProps) {
   // const searchParams = useSearchParams();
 
   // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
@@ -43,14 +50,14 @@ export default function Statistics({ selectedRole, filterData }: StatisticsProps
     {
       title: 'أجمالي الطلبات',
       icon: Boxes,
-      value: 0,
+      value: totalOrders || 0,
       iconClassName: 'text-[#041016]',
       iconBgWrapperColor: 'bg-blue-100'
     },
     {
       title: 'أجمالي الطلبات قيد العمل',
       icon: Box,
-      value: 0,
+      value: totalOrdersInProgress || 0,
       iconClassName: 'text-green-900',
       iconBgWrapperColor: 'bg-green-100',
       role: 'manager'
@@ -58,7 +65,7 @@ export default function Statistics({ selectedRole, filterData }: StatisticsProps
     {
       title: 'اجمالي الطلبات تم تسليمها',
       icon: Box,
-      value: 0,
+      value: totalOrdersDelivered || 0,
       iconClassName: 'text-red-900',
       iconBgWrapperColor: 'bg-red-100',
       role: 'retailer'
@@ -71,7 +78,7 @@ export default function Statistics({ selectedRole, filterData }: StatisticsProps
         <StatisticCard
           key={i}
           // ${selectedCard?.id == i && 'border-2 border-primary'}
-          className={`w-full ${selectedRole == item.role ? 'border-2 border-primary' : ''}`}
+          className={`w-full`}
           title={item.title}
           total={item.value}
           icon={item.icon}
