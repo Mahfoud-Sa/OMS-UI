@@ -3,7 +3,11 @@ import { Button } from '@renderer/components/ui/button'
 import OrdersSearch from '../_components/orders-search'
 import OrdersWrapper from '../_components/orders-wrapper'
 
-const ProgressOrders = () => {
+type Props = {
+  getOrdersInProgressTotal: (total: number) => void
+}
+
+const ProgressOrders = ({ getOrdersInProgressTotal }: Props) => {
   return (
     <section>
       <div className="flex gap-3 flex-row h-[50px]">
@@ -13,7 +17,7 @@ const ProgressOrders = () => {
         </Button>
         <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
       </div>
-      <OrdersWrapper status={1} />
+      <OrdersWrapper status={1} getOrdersTotal={getOrdersInProgressTotal} />
     </section>
   )
 }

@@ -35,9 +35,10 @@ const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
   return daysDifference < 2
 }
 
-const rowClassName = (row: Order) => {
-  console.log(row.deliveryAt)
-  return isDeliveryDateLessThanTwoDays(row.deliveryAt) ? 'bg-red-500' : ''
+const rowClassName = (order: Order) => {
+  return isDeliveryDateLessThanTwoDays(order.deliveryAt) && ![3, 4].includes(order.orderState)
+    ? 'bg-red-400'
+    : ''
 }
 
 const OrdersTable = ({ data }: Props) => {
