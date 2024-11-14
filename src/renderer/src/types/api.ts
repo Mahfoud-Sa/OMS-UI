@@ -126,6 +126,7 @@ export type Order = {
   items: Item[]
   history: History[]
   timelines: Timeline[]
+  orderId?: string
 }
 
 export type Item = {

@@ -1,18 +1,7 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import TablePagination from '@renderer/components/tables/table-pagination'
-import { Button } from '@renderer/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@renderer/components/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal } from 'lucide-react'
 import moment from 'moment'
 import React from 'react'
-import { Link } from 'react-router-dom'
 
 type Props = {
   data: {
@@ -59,41 +48,15 @@ const DailyReportTable = ({ data }: Props) => {
       {
         accessorKey: 'team',
         header: 'اسم الفرقة'
-      },
-      {
-        accessorKey: 'billNo',
-        header: 'رقم الفاتوره'
-      },
-      {
-        id: 'actions',
-        cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.orderId}`}>
-                <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
-              </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.orderId}`} keys={['orders']} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
       }
     ],
     []
   )
-  console.log(data.orders)
 
   return (
     <div>
       <StructureTable columns={columns} data={data.orders} />
-      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
+      {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )
 }

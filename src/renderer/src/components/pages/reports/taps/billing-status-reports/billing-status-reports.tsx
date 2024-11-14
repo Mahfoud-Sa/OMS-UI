@@ -1,11 +1,10 @@
-import CreateBtn from '@renderer/components/layouts/create-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
 import { useQuery } from '@tanstack/react-query'
+import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import ReportSearch from '../../_components/reports-search'
 import DailyReportTable from '../daily-report/daily-report-table'
 import FilterSheet from './components/filter-sheet'
 
@@ -18,8 +17,8 @@ const BillingStatusReports = () => {
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
     date: {
-      from: searchParams.get('from') || '02-01-2020',
-      to: searchParams.get('to') || '02-01-2025'
+      from: searchParams.get('from') || '02/01/2020',
+      to: searchParams.get('to') || '02/01/2025'
     },
     orderState: searchParams.get('orderState') || '5'
   })
@@ -28,8 +27,8 @@ const BillingStatusReports = () => {
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
     date: {
-      from: searchParams.get('from') || '02-01-2020',
-      to: searchParams.get('to') || '02-01-2025'
+      from: searchParams.get('from') || '02/01/2020',
+      to: searchParams.get('to') || '02/01/2025'
     },
     orderState: searchParams.get('orderState') || '5'
   })
@@ -48,7 +47,7 @@ const BillingStatusReports = () => {
   const team = filterOptions.productionTeam
   const orderState = filterOptions.orderState
 
-  const { data, isPending, isError, error, isSuccess } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['orders', startDate, endDate, factory, line, team, orderState],
     queryFn: () =>
       getApi<BillingStatusReportsProps[]>(`/Reporters/OrdersStates`, {
@@ -62,7 +61,6 @@ const BillingStatusReports = () => {
         }
       })
   })
-  console.log(data?.data)
 
   useEffect(() => {
     setSearchParams({
@@ -88,8 +86,8 @@ const BillingStatusReports = () => {
       productionLine: data.productionLine,
       productionTeam: data.productionTeam,
       date: {
-        from: data.date.from || '02-01-2020',
-        to: data.date.to || '02-01-2025'
+        from: moment(data.date.from).format('DD/MM/YYYY') || '02/01/2020',
+        to: moment(data.date.to).format('DD/MM/YYYY') || '02/01/2025'
       },
       orderState: data.orderState || '5'
     }
@@ -100,12 +98,13 @@ const BillingStatusReports = () => {
   return (
     <>
       <section>
-        <div className="flex gap-3 flex-row h-[50px]">
-          <ReportSearch />
-          <Button onClick={() => setOpenSheet(true)} className="w-[109px] h-full" variant="outline">
+        <div className="flex gap-3 justify-center flex-row h-[50px] px-4">
+          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="outline">
             فلترة
           </Button>
-          <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
+          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="default">
+            تصدير
+          </Button>
         </div>
         <DailyReportTable
           data={{

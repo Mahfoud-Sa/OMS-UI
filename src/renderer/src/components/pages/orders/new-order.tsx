@@ -572,7 +572,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       onClick={() => setOpenDialog(true)}
                     >
                       <PlusCircle />
-                      إضافة تصميم
+                      إضافة منتج
                     </Button>
                   </div>
                   <StructureTable<localNewProduct, unknown>

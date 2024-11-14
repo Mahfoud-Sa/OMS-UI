@@ -1,8 +1,6 @@
-import CreateBtn from '@renderer/components/layouts/create-btn'
 import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
 import { useState } from 'react'
-import ReportSearch from '../../_components/reports-search'
 import FilterSheet from './components/filter-sheet'
 import DailyReportTable from './daily-report-table'
 
@@ -65,12 +63,13 @@ const DailyReport = () => {
   return (
     <>
       <section>
-        <div className="flex gap-3 flex-row h-[50px]">
-          <ReportSearch />
-          <Button className="w-[109px] h-full" variant="outline">
+        <div className="flex gap-3 flex-row h-[50px] px-4">
+          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="outline">
             فلترة
           </Button>
-          <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
+          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="default">
+            تصدير
+          </Button>
         </div>
         <DailyReportTable
           data={{

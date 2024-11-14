@@ -1,6 +1,5 @@
 import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import TablePagination from '@renderer/components/tables/table-pagination'
 import { Badge } from '@renderer/components/ui/badge'
 import { Button } from '@renderer/components/ui/button'
 import {
@@ -30,9 +29,11 @@ const BillingStatusReportsTable = ({ data }: Props) => {
   const columns = React.useMemo<ColumnDef<Order>[]>(
     () => [
       {
-        accessorKey: '',
+        accessorKey: 'orderId',
         header: 'الرقم',
-        cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
+        cell: ({ row }) => {
+          return row.original.orderId
+        }
       },
       {
         accessorKey: 'customerName',
@@ -115,7 +116,7 @@ const BillingStatusReportsTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.orders} />
-      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
+      {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )
 }

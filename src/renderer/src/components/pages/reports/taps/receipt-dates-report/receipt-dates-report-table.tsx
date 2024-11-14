@@ -1,6 +1,4 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,
@@ -8,15 +6,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
-import { Order } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
+import moment from 'moment'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { ReceiptDatesReportProps } from './receipt-dates-report'
 
 type Props = {
   data: {
-    orders: Order[]
+    orders: ReceiptDatesReportProps[]
     pageNumber: number
     pageSize: number
     pages: number
@@ -25,39 +24,44 @@ type Props = {
 }
 
 const ReceiptDatesReportTable = ({ data }: Props) => {
-  const columns = React.useMemo<ColumnDef<Order>[]>(
+  const columns = React.useMemo<ColumnDef<ReceiptDatesReportProps>[]>(
     () => [
       {
-        accessorKey: 'id',
+        accessorKey: 'orderId',
         header: 'الرقم',
-        cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
+        cell: ({ row }) => {
+          return row.original.orderId
+        }
       },
       {
-        accessorKey: 'customerName',
+        accessorKey: 'name',
+        header: 'اسم المنتج'
+      },
+      {
+        accessorKey: 'factory',
         header: 'اسم المصنع'
       },
       {
-        accessorKey: 'customerName',
+        accessorKey: 'line',
         header: 'خط الإنتاج'
       },
       {
         accessorKey: 'createAt',
-        header: 'التاريخ',
+        header: 'تاريخ الانشاء',
         cell: ({ row }) => {
-          return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
+          return <div>{moment(row.original.createAt).format('YYYY-MM-DD')}</div>
         }
       },
       {
-        accessorKey: 'billNo',
+        accessorKey: 'team',
         header: 'اسم الفرقة'
       },
       {
-        accessorKey: 'billNo',
-        header: 'رقم الطلب'
-      },
-      {
-        accessorKey: 'billNo',
-        header: 'تاريخ التسليم'
+        accessorKey: 'deliveryAt',
+        header: 'تاريخ التسليم',
+        cell: ({ row }) => {
+          return <div>{moment(row.original.deliveryAt).format('YYYY-MM-DD')}</div>
+        }
       },
       {
         id: 'actions',
@@ -69,13 +73,9 @@ const ReceiptDatesReportTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.id}`}>
+              <Link to={`/orders/${row.original?.orderId}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -87,7 +87,7 @@ const ReceiptDatesReportTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.orders} />
-      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
+      {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )
 }
