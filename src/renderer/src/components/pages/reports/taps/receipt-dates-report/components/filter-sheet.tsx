@@ -11,7 +11,7 @@ import {
 } from '@renderer/components/ui/sheet'
 import { getApi } from '@renderer/lib/http'
 import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
 interface FilterSheetProps {
@@ -30,7 +30,6 @@ interface FilterOptions {
     from: string
     to: string
   }
-  orderState: string
 }
 
 const FilterSheet: React.FC<FilterSheetProps> = ({
@@ -40,25 +39,9 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   filterOptions,
   setFilterOptions
 }: FilterSheetProps) => {
-  const orderStates = [
-    {
-      id: '5',
-      name: 'الكل'
-    },
-    { id: '0', name: 'قيد الانتظار' },
-    { id: '1', name: 'قيد التنفيذ' },
-    { id: '2', name: 'مكتمل' },
-    { id: '3', name: 'تم التسليم' },
-    {
-      id: '4',
-      name: 'ملغى'
-    }
-  ]
-
   const [factoryId, setFactoryId] = useState(1)
   const [productionLinesData, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
-  const queryClient = useQueryClient()
   const { data: factories } = useQuery({
     queryKey: ['Factories'],
     queryFn: () =>
@@ -110,8 +93,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       date: {
         from: '',
         to: ''
-      },
-      orderState: ''
+      }
     })
     onClose()
   }
@@ -177,20 +159,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
               }
             />
           </div>
-          <div>
-            <Label>حالة الطلب</Label>
-            <Combobox
-              selectedValue={
-                orderStates?.find((state) => state.id === filterOptions.orderState) || null
-              }
-              options={orderStates}
-              valueKey="id"
-              displayKey="name"
-              placeholder="أختر حالة الطلب"
-              onSelect={(state) => setFilterOptions({ ...filterOptions, orderState: state?.id })}
-            />
-          </div>
-
           <div>
             <Label>حسب التاريخ</Label>
             <div className="flex gap-4 mt-2">

@@ -1,18 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import Statistics from './_components/statistics'
 import BillingStatusReports from './taps/billing-status-reports/billing-status-reports'
-import BillingValues from './taps/billing-values/billing-values'
 import DailyReport from './taps/daily-report/daily-report'
 import ItemProductionReport from './taps/item-production-report/item-production-report'
 import ReceiptDatesReport from './taps/receipt-dates-report/receipt-dates-report'
 
 const Reports = () => {
   const tabs = [
-    {
-      content: <BillingValues />,
-      value: 'BillingValues',
-      label: 'قيم الفواتير'
-    },
     {
       content: <DailyReport />,
       value: 'DailyReport',
@@ -36,14 +29,14 @@ const Reports = () => {
   ]
   return (
     <section className="p-5">
-      <Statistics
+      {/* <Statistics
         selectedRole={undefined}
         filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
-      />
+      /> */}
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
-        <Tabs className="w-full" defaultValue={'BillingValues'}>
+        <Tabs className="w-full" defaultValue={'DailyReport'}>
           <TabsList className="bg-transparent mb-3">
             {tabs.map((tab, index) => (
               <TabsTrigger key={index} value={tab.value}>
