@@ -1,23 +1,69 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import Loader from '@renderer/components/layouts/loader'
+import { Button } from '@renderer/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Textarea } from '@renderer/components/ui/textarea'
-import { getApi } from '@renderer/lib/http'
+import { toast } from '@renderer/components/ui/use-toast_1'
+import { getApi, patchApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
+import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
+import * as z from 'zod'
+const schema = z.object({
+  costPrice: z.coerce
+    .number({ message: 'يرجى إدخال رقم صحيح.' })
+    .min(0, { message: 'يجب أن يكون المبلغ صفرًا أو أكثر.' })
+})
+
+export type Schema = z.infer<typeof schema>
 
 const MainInfo = () => {
+  const queryClient = useQueryClient()
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
-
   const { id } = useParams()
 
-  const { data, isPending, error, isError } = useQuery({
+  const { data, isPending, error, isError, isSuccess } = useQuery({
     queryKey: ['order', id],
     queryFn: () => getApi<Order>(`/Orders/${id}`)
+  })
+
+  const form = useForm<Schema>({
+    resolver: zodResolver(schema)
+  })
+
+  useEffect(() => {
+    if (data?.data) {
+      form.reset({
+        costPrice: data.data.costPrice
+      })
+    }
+  }, [isSuccess])
+
+  const { mutate, isPending: costPriceIsPending } = useMutation({
+    mutationFn: async (data: Schema) => {
+      await patchApi(`/Orders/${id}`, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+      toast({
+        variant: 'success',
+        title: `تم التعديل الطلب بنجاح`
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات المدخله أو لا يوجد أتصال بالشبكة'
+      })
+    }
   })
 
   if (isPending)
@@ -104,13 +150,35 @@ const MainInfo = () => {
         */}
 
         {['مشرف', 'منسق طلبات'].includes(userType) && (
-          <Input
-            disabled={true}
-            value={data.data.costPrice}
-            placeholder="سعر التكلفة"
-            martial
-            label="سعر التكلفة"
-          />
+          <Form {...form}>
+            <form
+              className="flex justify-between gap-x-1"
+              onSubmit={form.handleSubmit((data) => mutate(data))}
+            >
+              <FormField
+                control={form.control}
+                name="costPrice"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input
+                        // disabled={true}
+                        // value={data.data.costPrice}
+                        {...field}
+                        placeholder="سعر التكلفة"
+                        martial
+                        label="سعر التكلفة"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button className="h-[56px]" type="submit" disabled={costPriceIsPending}>
+                {costPriceIsPending ? <Loader color={'#fff'} size={15} /> : 'تعديل'}
+              </Button>
+            </form>
+          </Form>
         )}
 
         <div className="col-span-3">
