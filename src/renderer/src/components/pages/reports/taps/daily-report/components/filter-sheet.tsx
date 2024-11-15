@@ -10,12 +10,14 @@ import {
   SheetTitle
 } from '@renderer/components/ui/sheet'
 import { getApi } from '@renderer/lib/http'
-import { Factory, ProductionLines, ProductionTeam } from '@renderer/types/api'
+import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface FilterSheetProps {
   open: boolean
+  filterOptions: FilterOptions
+  setFilterOptions: (options: FilterOptions) => void
   onClose: () => void
   onApply: (filterOptions: FilterOptions) => void
 }
@@ -24,42 +26,22 @@ interface FilterOptions {
   factory: string
   productionLine: string
   productionTeam: string
-  sortBy: string
-  price: {
-    min: number
-    max: number
-  }
   date: {
     from: string
     to: string
   }
-  orderState: string
 }
 
-const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: FilterSheetProps) => {
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    factory: '',
-    productionLine: '',
-    productionTeam: '',
-    sortBy: 'asc',
-    price: {
-      min: 0,
-      max: 0
-    },
-    date: {
-      from: '',
-      to: ''
-    },
-    orderState: ''
-  })
-  const orderStates = [
-    { id: '0', name: 'قيد الانتظار' },
-    { id: '1', name: 'قيد التنفيذ' },
-    { id: '2', name: 'مكتمل' },
-    { id: '3', name: 'تم التسليم' },
-    { id: '4', name: 'ملغى' }
-  ]
-
+const FilterSheetDaily: React.FC<FilterSheetProps> = ({
+  open,
+  onClose,
+  onApply,
+  filterOptions,
+  setFilterOptions
+}: FilterSheetProps) => {
+  const [factoryId, setFactoryId] = useState(1)
+  const [productionLinesData, setProductionLines] = useState<ProductionLineProps[]>([])
+  const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const { data: factories } = useQuery({
     queryKey: ['Factories'],
     queryFn: () =>
@@ -69,14 +51,34 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
         }
       })
   })
-  const { data: productionLines } = useQuery({
-    queryKey: ['ProductionLines'],
-    queryFn: () => getApi<ProductionLines[]>('/productionLines')
+
+  const { data: factoryData, isSuccess: isFactoryDataSuccess } = useQuery({
+    queryKey: ['Factory', factoryId],
+    queryFn: () =>
+      factoryId
+        ? getApi<{
+            factory: FactoryInterface
+            productionLines: ProductionLineProps[]
+            productionTeams: ProductionTeam[]
+          }>(`/Factories/${factoryId}`, {}).then((response) => {
+            return response.data
+          })
+        : Promise.resolve(undefined),
+    enabled: !!factoryId
   })
-  const { data: productionTeamsData } = useQuery({
-    queryKey: ['production_teams'],
-    queryFn: () => getApi<ProductionTeam[]>('/ProductionTeams')
-  })
+
+  useEffect(() => {
+    if (isFactoryDataSuccess && factoryData) {
+      setProductionLines(factoryData.productionLines || [])
+    }
+  }, [isFactoryDataSuccess, factoryData])
+
+  const getProductionTeams = (line: ProductionLineProps) => {
+    const productionLine = productionLinesData.find((pl) => pl.id === line.id)
+    if (productionLine) {
+      setProductionTeams(productionLine.teams || [])
+    }
+  }
 
   const handleApply = () => {
     onApply(filterOptions)
@@ -88,16 +90,10 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
       factory: '',
       productionLine: '',
       productionTeam: '',
-      sortBy: 'asc',
-      price: {
-        min: 0,
-        max: 0
-      },
       date: {
         from: '',
         to: ''
-      },
-      orderState: '0'
+      }
     })
     onClose()
   }
@@ -124,6 +120,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
               emptyMessage="لم يتم العثور علئ مصنع"
               onSelect={(factory) => {
                 setFilterOptions({ ...filterOptions, factory: String(factory?.id) })
+                setFactoryId(factory?.id)
               }}
             />
           </div>
@@ -131,30 +128,28 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
             <Label>خط الانتاج</Label>
             <Combobox
               selectedValue={
-                productionLines?.data.find(
-                  (line) => line.id === Number(filterOptions.productionLine)
-                ) || null
+                productionLinesData.find((line) => line.id === filterOptions.productionLine) || null
               }
-              options={productionLines?.data || []}
+              options={productionLinesData || []}
               valueKey="id"
+              disabled={productionLinesData.length == 0}
               displayKey="name"
               placeholder="أختر خط انتاج"
               emptyMessage="لم يتم العثور علئ اي خط انتاج"
-              onSelect={(line) =>
+              onSelect={(line) => {
                 setFilterOptions({ ...filterOptions, productionLine: String(line?.id) })
-              }
+                getProductionTeams(line as ProductionLineProps)
+              }}
             />
           </div>
           <div>
             <Label>فرقة الانتاج</Label>
             <Combobox
               selectedValue={
-                productionTeamsData?.data.find(
-                  (team) => team.id === filterOptions.productionTeam
-                ) || null
+                productionTeams?.find((team) => team.id === filterOptions.productionTeam) || null
               }
-              disabled={productionTeamsData?.data.length == 0}
-              options={productionTeamsData?.data || []}
+              disabled={productionTeams.length == 0}
+              options={productionTeams || []}
               valueKey="id"
               displayKey="name"
               placeholder="أختر فريق"
@@ -163,69 +158,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
                 setFilterOptions({ ...filterOptions, productionTeam: String(team?.id) })
               }
             />
-          </div>
-          <div>
-            <Label>حالة الطلب</Label>
-            <Combobox
-              selectedValue={
-                orderStates?.find((state) => state.id === filterOptions.orderState) || null
-              }
-              options={orderStates}
-              valueKey="id"
-              displayKey="name"
-              placeholder="أختر حالة الطلب"
-              onSelect={(state) => setFilterOptions({ ...filterOptions, orderState: state?.id })}
-            />
-          </div>
-          <div>
-            <Label>الترتيب حسب</Label>
-            <div className="flex w-full">
-              <Button
-                onClick={() => setFilterOptions({ ...filterOptions, sortBy: 'desc' })}
-                className="w-full rounded-e-none"
-                variant={filterOptions.sortBy === 'desc' ? 'default' : 'outline'}
-                value={'desc'}
-              >
-                الاحدث
-              </Button>
-              <Button
-                onClick={() => setFilterOptions({ ...filterOptions, sortBy: 'asc' })}
-                className="w-full rounded-s-none"
-                variant={filterOptions.sortBy === 'asc' ? 'default' : 'outline'}
-                value={'asc'}
-              >
-                الاقدم
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>السعر</Label>
-            <div className="flex gap-4 mt-2">
-              <Input
-                type="number"
-                label={'الحد الادنى'}
-                onChangeCapture={(e) => {
-                  setFilterOptions({
-                    ...filterOptions,
-                    price: { ...filterOptions.price, min: +(e.target as HTMLInputElement).value }
-                  })
-                }}
-                value={filterOptions.price.min}
-                max={filterOptions.price.max}
-              />
-              <Input
-                type="number"
-                label={'الحد الاعلى'}
-                onChangeCapture={(e) => {
-                  setFilterOptions({
-                    ...filterOptions,
-                    price: { ...filterOptions.price, max: +(e.target as HTMLInputElement).value }
-                  })
-                }}
-                value={filterOptions.price.max}
-                min={filterOptions.price.min}
-              />
-            </div>
           </div>
           <div>
             <Label>حسب التاريخ</Label>
@@ -249,6 +181,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
                 min={filterOptions.date.from}
                 onChangeCapture={(e) => {
                   const toDate = (e.target as HTMLInputElement).value
+                  console.log(toDate)
                   setFilterOptions({
                     ...filterOptions,
                     date: { ...filterOptions.date, to: toDate }
@@ -274,4 +207,4 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
   )
 }
 
-export default FilterSheet
+export default FilterSheetDaily

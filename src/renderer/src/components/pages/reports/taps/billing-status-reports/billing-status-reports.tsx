@@ -5,8 +5,18 @@ import { useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import DailyReportTable from '../daily-report/daily-report-table'
+import * as XLSX from 'xlsx'
+import BillingStatusReportsTable from './billing-status-reports-table'
 import FilterSheet from './components/filter-sheet'
+
+export interface BillingStatusReportsProps {
+  orderId: string
+  createAt: string
+  factory: string
+  line: string
+  team: string
+  orderState: number
+}
 
 const BillingStatusReports = () => {
   const [openSheet, setOpenSheet] = useState(false)
@@ -32,32 +42,25 @@ const BillingStatusReports = () => {
     },
     orderState: searchParams.get('orderState') || '5'
   })
-  interface BillingStatusReportsProps {
-    orderId: string
-    createAt: string
-    factory: string
-    line: string
-    team: string
-  }
 
   const startDate = filterOptions.date.from
   const endDate = filterOptions.date.to
-  const factory = filterOptions.factory
-  const line = filterOptions.productionLine
-  const team = filterOptions.productionTeam
+  const factoryId = filterOptions.factory
+  const lineId = filterOptions.productionLine
+  const teamId = filterOptions.productionTeam
   const orderState = filterOptions.orderState
 
   const { data, isPending } = useQuery({
-    queryKey: ['orders', startDate, endDate, factory, line, team, orderState],
+    queryKey: ['orders', startDate, endDate, factoryId, lineId, teamId, orderState],
     queryFn: () =>
       getApi<BillingStatusReportsProps[]>(`/Reporters/OrdersStates`, {
         params: {
           startDate,
           endDate,
-          factory,
-          line,
-          team,
-          orderState
+          orderState,
+          factoryId: factoryId || 0,
+          productionId: lineId || 0,
+          teamId: teamId || 0
         }
       })
   })
@@ -79,6 +82,26 @@ const BillingStatusReports = () => {
         <Loader size={40} color={'#DA972E'} />
       </div>
     )
+  const handleExportToExcel = () => {
+    if (!data) return
+
+    const exportData = data.data.map((item) => ({
+      'رقم الطلب': item.orderId,
+      'تاريخ الطلب': moment(item.createAt).format('YYYY-MM-DD'),
+      المصنع: item.factory,
+      الخط: item.line,
+      الفريق: item.team
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Report')
+    const formattedStartDate = moment(startDate).format('YYYY-MM-DD')
+    const formattedEndDate = moment(endDate).format('YYYY-MM-DD')
+
+    const fileName = `تقرير حالات الفواتير_${formattedStartDate}_الى_${formattedEndDate}.xlsx`
+    XLSX.writeFile(workbook, fileName)
+  }
 
   const handleApplyFilters = (data) => {
     const filters = {
@@ -86,8 +109,8 @@ const BillingStatusReports = () => {
       productionLine: data.productionLine,
       productionTeam: data.productionTeam,
       date: {
-        from: moment(data.date.from).format('DD/MM/YYYY') || '02/01/2020',
-        to: moment(data.date.to).format('DD/MM/YYYY') || '02/01/2025'
+        from: moment(data.date.from).format('MM-DD-YYYY') || '02/01/2020',
+        to: moment(data.date.to).format('MM-DD-YYYY') || '02/01/2025'
       },
       orderState: data.orderState || '5'
     }
@@ -102,11 +125,11 @@ const BillingStatusReports = () => {
           <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="outline">
             فلترة
           </Button>
-          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="default">
+          <Button onClick={handleExportToExcel} className="w-full h-full" variant="default">
             تصدير
           </Button>
         </div>
-        <DailyReportTable
+        <BillingStatusReportsTable
           data={{
             orders: data?.data || [],
             pageNumber: 0,

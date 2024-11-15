@@ -9,12 +9,6 @@ export default function useNavItems() {
     {
       list: [
         {
-          href: '/',
-          icon: 'category',
-          label: 'الصفحة الرئيسية',
-          disabled: !['مشرف'].includes(userType)
-        },
-        {
           href: '/orders/',
           icon: 'bell',
           label: 'الطلبات',
@@ -60,7 +54,7 @@ export default function useNavItems() {
           href: '/backup',
           icon: 'databaseBackup',
           label: 'النسخ الاحتياطي',
-          disabled: false
+          disabled: true
         }
       ]
     }

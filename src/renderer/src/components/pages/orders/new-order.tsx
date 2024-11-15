@@ -150,7 +150,10 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
           payloadFormData.append('quantity', product.quantity.toString())
           payloadFormData.append('note', product.note)
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
-          payloadFormData.append('images[0]', product.image)
+          // loop over the images and upload them
+          product.images.forEach((image, index) => {
+            payloadFormData.append(`images`, image)
+          })
           const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
           createOrderItemsTimeline({
             id: orderItem?.data?.id,
@@ -236,6 +239,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     }
   }
   const handleAddProductToArray = (newProduct: localNewProduct) => {
+    console.log(newProduct)
     const product = {
       ...newProduct,
       // add id to the product

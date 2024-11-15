@@ -165,7 +165,7 @@ const LoginForm = () => {
             description: 'تم تسجيل الدخول بنجاح',
             variant: 'success'
           })
-          navigate('/')
+          navigate('/orders')
         } else {
           toast({
             title: 'حصل خطأ ما',
