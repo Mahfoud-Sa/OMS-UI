@@ -1,7 +1,13 @@
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@renderer/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow
+} from '@renderer/components/ui/table_custom'
 import { getApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
 import { Item, Order } from '@renderer/types/api'
@@ -62,13 +68,24 @@ const PrintItemBill = () => {
             <img src={print_logo} className="size-[65px]" />
           </header>
           <section className="print-body mt-7">
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                <p className="font-semibold">أسم العميل</p>
-                <p>{data.data.customerName}</p>
-                <p className="mt-2 font-semibold">رقم العميل</p>
-                <p>{data.data.customerNo}</p>
+            <div className="flex justify-between mt-4">
+              <div className="flex gap-x-2">
+                <div>
+                  <p className="font-semibold">أسم العميل</p>
+                  <p>{data.data.customerName}</p>
+                  <p className="mt-2 font-semibold">رقم العميل</p>
+                  <p>{data.data.customerNo}</p>
+                  <p className="font-semibold">المصنع</p>
+                  <p>{item?.factoryName}</p>
+                </div>
+                <div>
+                  <p className=" font-semibold">خط الإنتاج</p>
+                  <p>{item?.timelines[item.timelines.length - 1].productionLineName || ''}</p>
+                  <p className="mt-2 font-semibold">الفرقة</p>
+                  <p>{item?.timelines[item.timelines.length - 1].productionTeamName || ''}</p>
+                </div>
               </div>
+
               <div className="flex flex-col gap-2">
                 <p>
                   <span className="font-semibold">رقم الفاتوره</span> :{' '}
@@ -85,7 +102,7 @@ const PrintItemBill = () => {
               </div>
             </div>
             <div className="mt-6 print:mt-3">
-              <Table>
+              <Table className="!overflow-hidden">
                 <TableHeader className="pt-32">
                   <TableRow>
                     <TableCell className=" text-right font-bold">رقم</TableCell>
@@ -98,11 +115,10 @@ const PrintItemBill = () => {
                 <TableBody>
                   <TableRow>
                     <TableCell className="font-medium">01</TableCell>
-
-                    <TableCell className="font-medium">{item?.productName}</TableCell>
+                    <TableCell>{item?.productName}</TableCell>
                     <TableCell>{item?.quantity}</TableCell>
                     <TableCell>{item?.productDesignName}</TableCell>
-                    <TableCell className="text-right">{item?.fabric} </TableCell>
+                    <TableCell>{item?.fabric} </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
