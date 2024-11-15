@@ -323,7 +323,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const columns = [
     {
       accessorKey: 'productName',
-      header: 'اسم الصنف',
+      header: 'اسم المنتج',
       cell: (info) => {
         const { original } = info.row
         return original ? (
@@ -347,7 +347,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     },
     {
       accessorKey: 'productDesignName',
-      header: 'نوع الصنف',
+      header: 'تصميم المنتج',
       cell: (info) => {
         const { original } = info.row
         return original ? (
