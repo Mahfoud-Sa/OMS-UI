@@ -94,8 +94,8 @@ const ItemProductionReport = () => {
       productionTeam: data.productionTeam,
       product: data.product,
       date: {
-        from: moment(data.date.from).format('YYYY/MM/DD') || '02/01/2020',
-        to: moment(data.date.to).format('YYYY/MM/DD') || '02/01/2025'
+        from: moment(data.date.from).format('YYYY-MM-DD') || '02/01/2020',
+        to: moment(data.date.to).format('YYYY-MM-DD') || '02/01/2025'
       }
     }
     setFilterOptions(filters)
