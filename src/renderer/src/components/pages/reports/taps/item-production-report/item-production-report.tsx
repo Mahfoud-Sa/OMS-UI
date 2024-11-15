@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import * as XLSX from 'xlsx'
 import FilterSheet from './components/filter-sheet'
 import ItemProductionReportTable from './item-production-report-table'
 export interface ItemProductionReportProps {
@@ -52,11 +53,11 @@ const ItemProductionReport = () => {
     queryFn: () => {
       const params: any = {
         startDate,
-        endDate
+        endDate,
+        factoryId: factoryId || 0,
+        productionId: lineId || 0,
+        teamId: teamId || 0
       }
-      if (factoryId) params.factoryId = factoryId
-      if (lineId) params.lineId = lineId
-      if (teamId) params.teamId = teamId
       if (productId) params.productId = productId
 
       return getApi<{
@@ -87,6 +88,27 @@ const ItemProductionReport = () => {
       </div>
     )
 
+  const handleExportToExcel = () => {
+    if (!data) return
+
+    const exportData = data.data.result.map((item) => ({
+      'رقم الطلب': item.orderId,
+      'تاريخ الإنشاء': moment(item.createAt).format('YYYY-MM-DD'),
+      المصنع: item.factory,
+      الخط: item.line,
+      الفريق: item.team
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Report')
+    const formattedStartDate = moment(startDate).format('YYYY-MM-DD')
+    const formattedEndDate = moment(endDate).format('YYYY-MM-DD')
+
+    const fileName = `تقرير انتاج الصنف_${formattedStartDate}_الى_${formattedEndDate}.xlsx`
+    XLSX.writeFile(workbook, fileName)
+  }
+
   const handleApplyFilters = (data) => {
     const filters = {
       factory: data.factory,
@@ -94,8 +116,8 @@ const ItemProductionReport = () => {
       productionTeam: data.productionTeam,
       product: data.product,
       date: {
-        from: moment(data.date.from).format('YYYY-MM-DD') || '02/01/2020',
-        to: moment(data.date.to).format('YYYY-MM-DD') || '02/01/2025'
+        from: moment(data.date.from).format('MM-DD-YYYY') || '02/01/2020',
+        to: moment(data.date.to).format('MM-DD-YYYY') || '02/01/2025'
       }
     }
     setFilterOptions(filters)
@@ -109,7 +131,7 @@ const ItemProductionReport = () => {
           <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="outline">
             فلترة
           </Button>
-          <Button onClick={() => setOpenSheet(true)} className="w-full h-full" variant="default">
+          <Button onClick={handleExportToExcel} className="w-full h-full" variant="default">
             تصدير
           </Button>
         </div>
