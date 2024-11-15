@@ -65,10 +65,11 @@ const PrintOrderBill = () => {
               </div>
               <div className="flex flex-col gap-2">
                 <p>
-                  <span className="font-semibold">رقم الفاتوره</span> : {data.data.billNo}
+                  <span className="font-semibold">رقم الفاتوره</span> :{' '}
+                  <span>{data.data.billNo.split('-').reverse().join('-')}</span>
                 </p>
                 <p>
-                  <span className="font-semibold">تاريخ الطلب</span> :
+                  <span className="font-semibold">تاريخ الطلب</span> :{' '}
                   {new Date(data.data.createAt).toLocaleDateString()}
                 </p>
                 <p>
@@ -122,8 +123,20 @@ const PrintOrderBill = () => {
               <p>{data.data.note}</p>
             </div>
             <div className="flex justify-end">
-              <p className="bg-[#DA972E26] p-2 rounded">
-                <span className="font-bold text-lg">المبلغ</span> : {data.data.sellingPrice} ر.س
+              <p className="p-2 rounded w-[200px]">
+                <span className="font-bold text-lg">قيمة الشراء</span> : {data.data.sellingPrice}{' '}
+                ر.س
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <p className="p-2 rounded w-[200px]">
+                <span className="font-bold text-lg">قيمة التكلفة</span> : {data.data.costPrice} ر.س
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <p className="bg-[#DA972E26] p-2 rounded w-[200px]">
+                <span className="font-bold text-lg">فرق التكلفة</span> :{' '}
+                {data.data.sellingPrice - data.data.costPrice} ر.س
               </p>
             </div>
           </section>

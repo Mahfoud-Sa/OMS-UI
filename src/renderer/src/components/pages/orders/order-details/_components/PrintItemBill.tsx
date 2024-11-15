@@ -71,10 +71,11 @@ const PrintItemBill = () => {
               </div>
               <div className="flex flex-col gap-2">
                 <p>
-                  <span className="font-semibold">رقم الفاتوره</span> : {data.data.billNo}
+                  <span className="font-semibold">رقم الفاتوره</span> :{' '}
+                  <span>{data.data.billNo.split('-').reverse().join('-')}</span>
                 </p>
                 <p>
-                  <span className="font-semibold">تاريخ الطلب</span> :
+                  <span className="font-semibold">تاريخ الطلب</span> :{' '}
                   {new Date(data.data.createAt).toLocaleDateString()}
                 </p>
                 <p>

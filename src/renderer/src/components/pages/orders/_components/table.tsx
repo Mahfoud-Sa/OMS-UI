@@ -1,4 +1,3 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Badge } from '@renderer/components/ui/badge'
@@ -121,10 +120,6 @@ const OrdersTable = ({ data }: Props) => {
               <Link to={`/orders/${row.original?.id}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
