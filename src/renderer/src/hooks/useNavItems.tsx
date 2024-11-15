@@ -23,7 +23,7 @@ export default function useNavItems() {
         {
           href: '/products/',
           icon: 'shoppingBag',
-          label: 'العناصر',
+          label: 'المنتجات',
           disabled: !['مشرف'].includes(userType)
         },
         {
