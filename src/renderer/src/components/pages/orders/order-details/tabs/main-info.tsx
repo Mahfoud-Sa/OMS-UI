@@ -174,7 +174,7 @@ const MainInfo = () => {
                   </FormItem>
                 )}
               />
-              <Button className="h-full" type="submit" disabled={costPriceIsPending}>
+              <Button className="h-[56px]" type="submit" disabled={costPriceIsPending}>
                 {costPriceIsPending ? <Loader color={'#fff'} size={15} /> : 'تعديل'}
               </Button>
             </form>
