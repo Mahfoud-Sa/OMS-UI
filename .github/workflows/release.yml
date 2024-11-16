@@ -35,8 +35,8 @@ jobs:
           echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
           cat .env
 
-      - name: Build app
-        run: npm run make
+      # - name: Build app
+      #   run: npm run make
 
       - name: Publish app
         run: |
