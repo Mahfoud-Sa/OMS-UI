@@ -77,7 +77,6 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
   productToEdit, // Add this line
   clearProductToEdit // Add this line
 }) => {
-  const [newImages, setNewImages] = React.useState<File[]>([])
   const defaultValues: FormData = {
     images: [],
     productId: 0,

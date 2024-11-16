@@ -184,19 +184,6 @@ const InfoProduct = () => {
     setHasManyValues(hasMany)
   }
 
-  const handleNext = () => {
-    if (currentTab === 'reports') {
-      return
-    } else if (currentTab === 'general') setCurrentTab('productStats')
-    else if (currentTab === 'productStats') setCurrentTab('reports')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'general') return
-    else if (currentTab === 'productStats') setCurrentTab('general')
-    else if (currentTab === 'reports') setCurrentTab('productStats')
-  }
-
   const onSubmit = (data: Schema) => mutate(data)
 
   if (isPendingProducts)
@@ -230,22 +217,20 @@ const InfoProduct = () => {
                 >
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('general')
                     }}
                     value="general"
                   >
                     المعلومات العامة
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('productStats')
                     }}
                     value="productStats"
                   >
                     احصائيات المنتج
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                   {/* <TabsTrigger
                     onClick={() => {
                       if (isEdit) return
@@ -454,36 +439,16 @@ const InfoProduct = () => {
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">
-                  {currentTab !== 'general' && (
-                    <div className="hover:marker:" onClick={handleBack}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          السابق
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab !== 'reports' && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          التالي
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab === 'reports' && isEdit && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button
-                          disabled={isPending}
-                          className="bg-green-500 hover:bg-green-700"
-                          type="submit"
-                          size="lg"
-                        >
-                          {isPending ? <Loader color="black" /> : 'حفظ'}
-                        </Button>
-                      </div>
+                  {isEdit && (
+                    <div className="flex justify-end">
+                      <Button
+                        disabled={isPending}
+                        className="bg-green-500 hover:bg-green-700"
+                        type="submit"
+                        size="lg"
+                      >
+                        {isPending ? <Loader color="black" /> : 'حفظ'}
+                      </Button>
                     </div>
                   )}
                 </div>
