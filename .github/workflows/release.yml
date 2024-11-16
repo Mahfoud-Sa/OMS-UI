@@ -4,16 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
     permissions: write-all
-    runs-on: ${{ matrix.os.image }}
-    strategy:
-      matrix:
-        os:
-          - name: 'windows'
-            image: 'windows-latest'
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -29,15 +25,35 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
           echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}" >> .env
           echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
-          cat .env
+          type .env
 
       - name: Build app
-        run: npm run make
+        run: env $(cat .env | xargs) npm run build:win
 
-      - name: Publish app
+      - name: Get version from package.json
+        id: get_version
         run: |
-          env $(cat .env | xargs) npm run publish
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "dist/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ env.VERSION }}
