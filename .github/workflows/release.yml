@@ -2,18 +2,12 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
-    permissions: write-all
-    runs-on: ${{ matrix.os.image }}
-    strategy:
-      matrix:
-        os:
-          - name: 'windows'
-            image: 'windows-latest'
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -35,8 +29,8 @@ jobs:
           echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
           cat .env
 
-      # - name: Build app
-      #   run: npm run make
+      - name: Build app
+        run: npm run make
 
       - name: Publish app
         run: |
