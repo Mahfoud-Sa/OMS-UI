@@ -10,7 +10,7 @@ import {
 } from '@renderer/components/ui/dropdown-menu'
 import { Product } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -39,29 +39,13 @@ const ProductsTable = ({ data }: Props) => {
       {
         accessorKey: 'quantity',
         header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              الكمية
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
+          return <>عدد التصاميم</>
         }
       },
       {
         accessorKey: 'creatAt',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              تاريخ التسجيل
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
+        header: () => {
+          return <>تاريخ التسجيل</>
         }
         // cell: ({ row }) => new Date(row.original.creatAt)
       },
