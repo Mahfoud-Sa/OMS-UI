@@ -12,7 +12,8 @@ module.exports = {
         },
         prerelease: true,
         authToken: process.env.GITHUB_TOKEN,
-        draft: true
+        draft: true,
+        force: true
       }
     }
   ],
@@ -29,10 +30,13 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
+        name: 'oms',
         authors: 'Mahfoud Sa',
         description: 'OMS UI',
         certificateFile: './cert.pfx',
-        certificatePassword: process.env.CERTIFICATE_PASSWORD
+        certificatePassword: process.env.CERTIFICATE_PASSWORD,
+        setupExe: 'OMS-UI-Setup.exe',
+        setupIcon: './path/to/icon.ico'
       }
     },
     {
