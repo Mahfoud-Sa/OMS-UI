@@ -46,8 +46,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
+          release_name: Release v${{ env.VERSION }}
           draft: false
           prerelease: false
 
@@ -56,7 +56,7 @@ jobs:
           $files = Get-ChildItem -Path ./dist -Recurse -File
           foreach ($file in $files) {
             Write-Host "Uploading $file"
-            gh release upload "${{ steps.create_release.outputs.upload_url }}" $file.FullName --clobber
+            gh release upload "https://github.com/Mahfoud-Sa/OMS-UI/releases/edit/${{env.VERSION}}" $file.FullName --clobber
           }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
