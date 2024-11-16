@@ -244,9 +244,9 @@ const InfoProduct = () => {
                     }}
                     value="productStats"
                   >
-                    احصائيات الصنف
+                    احصائيات المنتج
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     onClick={() => {
                       if (isEdit) return
                       setCurrentTab('reports')
@@ -254,7 +254,7 @@ const InfoProduct = () => {
                     value="reports"
                   >
                     تقارير المنتج
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="general">
                   <div className="mt-4 grid grid-cols-2 gap-3">
@@ -406,7 +406,7 @@ const InfoProduct = () => {
                         year={selectedYear}
                         id={id || ''}
                         productName={form.getValues('name')}
-                        label="مبيعات الصنف"
+                        label="مبيعات المنتج"
                         queryFunction={(id: string, year: number) => {
                           return getApi<NoneMixedBarCharterProps[]>(
                             `Products/${id}/Chars/Bar?year=${year}`
@@ -446,12 +446,11 @@ const InfoProduct = () => {
                     </div>
                   </div>
                 </TabsContent>
-                <TabsContent value="reports">
+                {/* <TabsContent value="reports">
                   <div className="">
                     <h1 className="text-2xl font-bold">تقارير المنتج</h1>
-                    {/* Add your reports form fields here */}
                   </div>
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">

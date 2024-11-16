@@ -1,6 +1,5 @@
 import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import TablePagination from '@renderer/components/tables/table-pagination'
 import { Badge } from '@renderer/components/ui/badge'
 import { Button } from '@renderer/components/ui/button'
 import {
@@ -10,15 +9,15 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { cn } from '@renderer/lib/utils'
-import { Order } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { BillingStatusReportsProps } from './billing-status-reports'
 
 type Props = {
   data: {
-    orders: Order[]
+    orders: BillingStatusReportsProps[]
     pageNumber: number
     pageSize: number
     pages: number
@@ -27,12 +26,14 @@ type Props = {
 }
 
 const BillingStatusReportsTable = ({ data }: Props) => {
-  const columns = React.useMemo<ColumnDef<Order>[]>(
+  const columns = React.useMemo<ColumnDef<BillingStatusReportsProps>[]>(
     () => [
       {
-        accessorKey: 'id',
+        accessorKey: 'orderId',
         header: 'الرقم',
-        cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
+        cell: ({ row }) => {
+          return row.original.orderId
+        }
       },
       {
         accessorKey: 'customerName',
@@ -40,17 +41,7 @@ const BillingStatusReportsTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'createAt',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              تاريخ الأنشاء
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
-        },
+        header: 'تاريخ الانشاء',
         cell: ({ row }) => {
           return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
         }
@@ -97,12 +88,12 @@ const BillingStatusReportsTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.id}`}>
+              <Link to={`/orders/${row.original?.orderId}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
 
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
+                <DeleteDialog url={`/Orders/${row.original?.orderId}`} keys={['orders']} />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -115,7 +106,7 @@ const BillingStatusReportsTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.orders} />
-      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
+      {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )
 }

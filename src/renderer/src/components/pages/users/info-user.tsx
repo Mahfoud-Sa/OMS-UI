@@ -512,7 +512,9 @@ const InfoUser = () => {
                               إضافة دور
                             </DialogHeader>
                             <Combobox
-                              options={AllRoles?.data.roles || []}
+                              options={
+                                AllRoles?.data.roles.filter((role) => role.name !== 'Roles') || []
+                              }
                               valueKey="id"
                               displayKey="name"
                               localize={localizeRoles}

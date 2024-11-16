@@ -126,6 +126,7 @@ export type Order = {
   items: Item[]
   history: History[]
   timelines: Timeline[]
+  orderId?: string
 }
 
 export type Item = {
@@ -138,6 +139,8 @@ export type Item = {
   note: string
   productionTeamId: number
   orderId: number
+  productDesignName: string
+
   images: string[]
   timelines: Timeline[]
 }
@@ -210,7 +213,8 @@ export interface localNewProduct {
   productId: number
   fabric: string
   factoryId: number
-  image: File
+  image?: File
+  images: File[]
   note: string
   productDesignId: number
   productionLineId: number

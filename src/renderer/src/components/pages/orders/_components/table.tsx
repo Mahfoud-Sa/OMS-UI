@@ -1,4 +1,3 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Badge } from '@renderer/components/ui/badge'
@@ -14,6 +13,7 @@ import { Order } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import React from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -24,9 +24,29 @@ type Props = {
     pages: number
     total: number
   }
+  isAsc: boolean
+  setAsc: (value: boolean) => void
 }
 
-const OrdersTable = ({ data }: Props) => {
+const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
+  if (!deliveryDate) return false
+  const deliveryDateObj = new Date(deliveryDate)
+  const currentDate = new Date()
+  const timeDifference = deliveryDateObj.getTime() - currentDate.getTime()
+  const daysDifference = timeDifference / (1000 * 3600 * 24)
+  return daysDifference < 2
+}
+
+const rowClassName = (order: Order) => {
+  return isDeliveryDateLessThanTwoDays(order.deliveryAt) && ![3, 4].includes(order.orderState)
+    ? 'bg-red-400'
+    : ''
+}
+
+const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
+
   const columns = React.useMemo<ColumnDef<Order>[]>(
     () => [
       {
@@ -40,11 +60,15 @@ const OrdersTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'createAt',
-        header: ({ column }) => {
+        header: () => {
           return (
             <Button
               variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              onClick={() => {
+                console.log('clicked')
+                console.log(isAsc)
+                setAsc(!isAsc)
+              }}
             >
               تاريخ الأنشاء
               <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -82,7 +106,9 @@ const OrdersTable = ({ data }: Props) => {
           )
         }
       },
-      {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      ['مشرف', 'بائع'].includes(userType) && {
         accessorKey: 'sellingPrice',
         header: 'السعر البيع'
       },
@@ -100,21 +126,21 @@ const OrdersTable = ({ data }: Props) => {
               <Link to={`/orders/${row.original?.id}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     ],
-    []
+    [isAsc, setAsc]
   )
 
   return (
     <div>
-      <StructureTable columns={columns} data={data.orders} />
+      <StructureTable
+        columns={columns.filter(Boolean)}
+        data={data.orders}
+        rowClassName={rowClassName}
+      />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
   )

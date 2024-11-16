@@ -62,7 +62,7 @@ const schema = z.object({
   UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
-  UserRole: z.array(z.object({ id: z.string(), name: z.string() }), { message: 'مطلوب' }),
+  UserRole: z.array(z.object({ id: z.string(), name: z.string() })).min(1, { message: 'مطلوب' }),
   ImageFile: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
@@ -85,7 +85,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
   const { data: AllRoles } = useQuery({
     queryKey: ['AllRoles'],
-    queryFn: () => getApi<{ roles: Role[] }>('/Roles')
+    queryFn: () =>
+      getApi<{ roles: Role[] }>('/Roles', {
+        params: {
+          size: 100000
+        }
+      })
   })
 
   const { data: userTypeRole, refetch } = useQuery({
@@ -447,7 +452,9 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           إضافة دور
                         </DialogHeader>
                         <Combobox
-                          options={AllRoles?.data.roles || []}
+                          options={
+                            AllRoles?.data.roles.filter((role) => role.name !== 'Roles') || []
+                          }
                           valueKey="id"
                           displayKey="name"
                           placeholder="أختر دور"

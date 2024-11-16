@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import imageProfile from '@renderer/assets/images/input-frame.png'
-import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
+import FileUploader from '@renderer/components/file-uploader/FileUploader'
 import { Button } from '@renderer/components/ui/button'
 import { Dialog, DialogContent, DialogHeader } from '@renderer/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
@@ -39,15 +38,17 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
 const schema = z.object({
   id: z.number().optional(),
-  image: z
-    .instanceof(File)
-    .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
-    })
-    .refine((file) => file.type.startsWith('image/'), {
-      message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
-    })
-    .optional(),
+  images: z.array(
+    z.instanceof(File)
+    // .refine((file) => file.size <= MAX_FILE_SIZE, {
+    //   message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    // })
+    // .refine((file) => file.type.startsWith('image/'), {
+    //   message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
+    // })
+  ),
+  // .max(3, { message: 'يجب أن تكون الصور أقل من 3' })
+  // .optional(),
   productId: z.number({ message: 'اسم المنتج مطلوب' }),
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
   fabric: z.string({ message: 'القماش مطلوب' }),
@@ -76,8 +77,9 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
   productToEdit, // Add this line
   clearProductToEdit // Add this line
 }) => {
+  const [newImages, setNewImages] = React.useState<File[]>([])
   const defaultValues: FormData = {
-    image: new File([], ''),
+    images: [],
     productId: 0,
     productDesignId: 0,
     fabric: '',
@@ -106,14 +108,16 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
       updateProductInProductsArray({
         ...data,
         note: data.note || '',
-        image: data.image || new File([], '')
+        images: data.images || [],
+        image: data.images?.[0]
       })
     } else {
       // Add new product
       addProductToProductsArray({
         ...data,
         note: data.note || '',
-        image: data.image || new File([], '')
+        images: data.images || [],
+        image: data.images?.[0]
       })
     }
     // Clear the form
@@ -129,32 +133,38 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
         onClose && onClose()
       }}
     >
-      <DialogContent className="min-w-80" style={{ minWidth: '80%', height: '90%' }}>
+      <DialogContent
+        className="min-w-80 overflow-y-scroll"
+        style={{ minWidth: '80%', height: '90%' }}
+      >
         <DialogHeader>{productToEdit ? 'تعديل المنتج' : 'اضافة منتج جديد'}</DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)}>
             <div className="flex flex-wrap mb-2 flex-col">
-              <div className="my-3 grid grid-cols-3 gap-3 items-center">
+              <div className="my-3 grid grid-cols-1 gap-3 items-center">
                 <FormField
                   control={form.control}
-                  name="image"
+                  name="images"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <ProfileUploader
-                          className="h-[100px] w-[175px]"
-                          inputId="ImageFile"
+                        <FileUploader
+                          // className="h-[100px] w-[175px]"
+                          fieldName="images"
+                          inputId="images"
                           setValue={form.setValue}
+                          isMultiple={true}
                           onChange={async (files) => {
                             try {
-                              if (!files?.[0]) return
-                              field.onChange(files[0])
+                              if (!files?.length) return
+                              const currentImages = form.getValues('images')
+                              field.onChange([...currentImages, ...Array.from(files)])
                             } catch (error) {
                               JSON.stringify(error)
                             }
                           }}
-                          defaultImage={imageProfile}
+                          // defaultImage={imageProfile}
                         />
                       </FormControl>
                       <FormMessage />

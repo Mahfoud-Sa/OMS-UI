@@ -48,7 +48,8 @@ app.whenReady().then(() => {
   updateElectronApp({
     updateSource: {
       type: UpdateSourceType.ElectronPublicUpdateService,
-      repo: 'Mahfoud-Sa/OMS-UI'
+      repo: 'Mahfoud-Sa/OMS-UI',
+      host: 'https://github.com'
     },
     updateInterval: '1 hour'
   })

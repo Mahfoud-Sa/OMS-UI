@@ -2,20 +2,44 @@ import Loader from '@renderer/components/layouts/loader'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import FilterSheet from './filter-sheet'
 import OrdersTable from './table'
 
 type Props = {
   status: null | 0 | 1 | 2 | 3 | 4
+  getOrdersTotal?: (status: number) => void
+  openSheet?: boolean
+  setOpenSheet?: (value: boolean) => void
 }
 
-const OrdersWrapper = ({ status }: Props) => {
+const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Props) => {
   const [searchParams] = useSearchParams()
+  const [isAsc, setAsc] = useState<boolean>(false)
+  const [filterOptions, setFilterOptions] = useState({
+    minCostPrice: '',
+    maxCostPrice: '',
+    createdBefore: '',
+    createdAfter: '',
+    minSellingPrice: '',
+    maxSellingPrice: ''
+  })
+  const [editedFilterOptions, setEditedFilterOptions] = useState({
+    minCostPrice: '',
+    maxCostPrice: '',
+    createdBefore: '',
+    createdAfter: '',
+    minSellingPrice: '',
+    maxSellingPrice: ''
+  })
+
   const query = searchParams.get('query')
   const page = searchParams.get('page')
 
-  const { data, isPending, isError, error } = useQuery({
-    queryKey: ['orders', status, query, page],
+  const { data, isPending, isError, error, isSuccess } = useQuery({
+    queryKey: ['orders', status, query, page, isAsc, filterOptions],
     queryFn: () =>
       getApi<{
         total: number
@@ -27,10 +51,21 @@ const OrdersWrapper = ({ status }: Props) => {
         params: {
           query,
           page,
-          orderState: status
+          orderState: status,
+          ascending: isAsc,
+          ...filterOptions
         }
       })
   })
+
+  useEffect(() => {
+    if (isSuccess && data?.data) {
+      const total = data.data.total
+      if (total) {
+        getOrdersTotal && getOrdersTotal(total)
+      }
+    }
+  }, [isSuccess, data, getOrdersTotal])
 
   if (isPending)
     return (
@@ -40,8 +75,45 @@ const OrdersWrapper = ({ status }: Props) => {
     )
 
   if (isError) return <div>{error.message}</div>
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  return <OrdersTable data={data.data || []} />
+
+  const handleApplyFilters = (data) => {
+    const newFilterOptions = {
+      ...filterOptions,
+      createdBefore: data.createdBefore ? moment(data.createdBefore).format('MM-DD-YYYY') : '',
+      createdAfter: data.createdAfter ? moment(data.createdAfter).format('MM-DD-YYYY') : '',
+      ...data
+    }
+
+    Object.keys(newFilterOptions).forEach((key) => {
+      if (!newFilterOptions[key]) {
+        delete newFilterOptions[key]
+      }
+    })
+
+    setFilterOptions(newFilterOptions)
+  }
+
+  return (
+    <>
+      <section>
+        <OrdersTable
+          setAsc={(value) => {
+            console.log(value)
+            setAsc(value)
+          }}
+          isAsc={isAsc}
+          data={data?.data || { orders: [], pageNumber: 0, pageSize: 0, pages: 0, total: 0 }}
+        />
+      </section>
+      <FilterSheet
+        filterOptions={editedFilterOptions}
+        setFilterOptions={setEditedFilterOptions}
+        open={openSheet || false}
+        onClose={() => setOpenSheet && setOpenSheet(false)}
+        onApply={handleApplyFilters}
+      />
+    </>
+  )
 }
 
 export default OrdersWrapper

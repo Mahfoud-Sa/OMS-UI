@@ -32,42 +32,51 @@ import { Edit } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
-import { z } from 'zod'
+import { number, z } from 'zod'
 import ProductionLineDialog from '../_components/production-lines-dialog'
 import UpdateProductionTeamDialog from '../_components/production-team-dialog'
 import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
-  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
-  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  name: z
+    .string({ message: 'يجب ادخال اسم المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z
+    .string({ message: 'يرجى ادخال موقع المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
   createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   notes: z.string().optional(),
-  productionLines: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      phone: z.string().optional(),
-      teamsCount: z.number(),
-      teams: z.array(
-        z.object({
-          id: z.string().optional(),
-          name: z.string(),
-          phone: z.string(),
-          employsCount: z.number()
-        })
-      )
-    })
-  ),
+  productionLines: z
+    .array(
+      z.object({
+        id: z.string().or(number()).optional(),
+        name: z.string(),
+        phone: z.string().optional(),
+        teamsCount: z.number().optional(),
+        teams: z
+          .array(
+            z.object({
+              id: z.string().or(number()).optional(),
+              name: z.string().optional(),
+              phone: z.string().optional(),
+              employsCount: z.number().optional()
+            })
+          )
+          .optional()
+      })
+    )
+    .optional(),
   productionLineTeamsToBeDeleted: z
     .array(
       z.object({
-        productionLineId: z.string(),
+        productionLineId: z.string().optional(),
         teams: z.array(z.string())
       })
     )
     .optional(),
-  productionLinesToBeDeleted: z.array(z.string()).optional(),
-  image: z.string().url('يجب ان تكون الصورة صحيحة').optional()
+  productionLinesToBeDeleted: z.array(z.string()).optional()
 })
 
 type Schema = z.infer<typeof schema>
@@ -382,6 +391,7 @@ const FactoryDetails: React.FunctionComponent = () => {
         description: 'يرجى التحقق من الحقول المدخلة',
         variant: 'destructive'
       })
+      console.error(errors)
     }
   }, [errors])
 
@@ -457,7 +467,7 @@ const FactoryDetails: React.FunctionComponent = () => {
         {factoryId && (
           <InformationCard
             id={factoryId}
-            logoSrc={factory?.image || 'https://via.placeholder.com/100'}
+            logoSrc={'https://via.placeholder.com/100'}
             actionType="method"
             buttonAction={() => setIsEdit((prev) => !prev)}
             buttonText={!isEdit ? 'تعديل' : 'الغاء التعديل'}
@@ -608,7 +618,21 @@ const FactoryDetails: React.FunctionComponent = () => {
                   )}
                   <StructureTable<ProductionLineProps, unknown>
                     columns={columns}
-                    data={factory?.productionLines ? factory?.productionLines : []}
+                    data={
+                      factory?.productionLines
+                        ? factory?.productionLines.map((line) => ({
+                            ...line,
+                            id: line.id?.toString(),
+                            teamsCount: line.teamsCount ?? 0,
+                            teams: line.teams?.map((team) => ({
+                              ...team,
+                              id: team.id?.toString(),
+                              name: team.name ?? '',
+                              phone: team.phone ?? ''
+                            }))
+                          }))
+                        : []
+                    }
                     title="Factories"
                     onDeleteProductionLineTeam={(teamId) => {
                       deleteProductionTeam(teamId)
