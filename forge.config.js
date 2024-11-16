@@ -35,8 +35,7 @@ module.exports = {
         description: 'OMS UI',
         certificateFile: './cert.pfx',
         certificatePassword: process.env.CERTIFICATE_PASSWORD,
-        setupExe: 'OMS-UI-Setup.exe',
-        setupIcon: './path/to/icon.ico'
+        setupExe: 'OMS-UI-Setup.exe'
       }
     },
     {
