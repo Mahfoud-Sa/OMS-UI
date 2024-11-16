@@ -1,8 +1,11 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
-import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
 import icon from '../../resources/icon.png?asset'
+
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
 
 function createWindow(): void {
   // Create the browser window.
@@ -45,12 +48,9 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Auto update
-  updateElectronApp({
-    updateSource: {
-      type: UpdateSourceType.ElectronPublicUpdateService,
-      repo: 'Mahfoud-Sa/OMS-UI'
-    },
-    updateInterval: '1 hour'
+  autoUpdater.checkForUpdatesAndNotify({
+    title: 'تحديث جديد متوفر',
+    body: 'تم تنزيل التحديث وجاهز للتثبيت'
   })
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
