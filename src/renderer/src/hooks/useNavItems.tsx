@@ -36,6 +36,7 @@ export default function useNavItems() {
           href: '',
           icon: 'idCard',
           label: 'ادارة المستخدمين',
+          disabled: !['مشرف'].includes(userType),
           type: 'group',
           subLinks: [
             {

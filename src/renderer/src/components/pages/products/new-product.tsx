@@ -41,7 +41,13 @@ const NewProduct = () => {
   })
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await postApi('/Products', data)
+      const formData = new FormData()
+      formData.append('name', data.name)
+      // loop through the designs and append them to the form data
+      data.designs.forEach((design) => {
+        formData.append('designs', design)
+      })
+      await postApi('/Products', formData)
     },
     onSuccess: () => {
       toast({
