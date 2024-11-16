@@ -12,7 +12,7 @@ module.exports = {
         },
         prerelease: true,
         authToken: process.env.GITHUB_TOKEN,
-        force: true
+        draft: true
       }
     }
   ],
@@ -21,7 +21,8 @@ module.exports = {
       /^\/src/,
       /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/
     ],
-    asar: true
+    asar: true,
+    name: 'OMS-UI'
   },
   rebuildConfig: {},
   makers: [
