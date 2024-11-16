@@ -32,7 +32,7 @@ jobs:
           cat .env
 
       - name: Build app
-        run: npm run build:win
+        run: env $(cat .env | xargs) npm run build:win
 
       - name: Get version from package.json
         id: get_version
