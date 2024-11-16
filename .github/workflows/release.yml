@@ -49,52 +49,11 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload builder-debug.yml
-        uses: actions/upload-release-asset@v1
+      - name: Upload Release Assets
+        run: |
+          for file in $(find ./dist -type f); do
+            echo "Uploading $file"
+            gh release upload ${{ steps.create_release.outputs.upload_url }} "$file" --clobber
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/builder-debug.yml
-          asset_name: builder-debug.yml
-          asset_content_type: application/octet-stream
-
-      - name: Upload builder-effective-config.yaml
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/builder-effective-config.yaml
-          asset_name: builder-effective-config.yaml
-          asset_content_type: application/octet-stream
-
-      - name: Upload Herfh_App_Setup_${{ env.VERSION }}.exe
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/Herfh_App_Setup_${{ env.VERSION }}.exe
-          asset_name: Herfh_App_Setup_${{ env.VERSION }}.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
-          asset_name: Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
-          asset_content_type: application/octet-stream
-
-      - name: Upload latest.yml
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/latest.yml
-          asset_name: latest.yml
-          asset_content_type: application/octet-stream
