@@ -26,7 +26,7 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
           echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}" >> .env
           echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
           cat .env
