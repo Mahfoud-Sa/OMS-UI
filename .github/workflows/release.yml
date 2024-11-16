@@ -53,10 +53,10 @@ jobs:
 
       - name: Upload Release Assets
         run: |
-          $files = Get-ChildItem -Path ./dist -Recurse -File
+          $files = Get-ChildItem -Path ./dist -File
           foreach ($file in $files) {
             Write-Host "Uploading $file"
-            gh release upload "https://github.com/Mahfoud-Sa/OMS-UI/releases/edit/${{env.VERSION}}" $file.FullName --clobber
+            gh release upload ${{ steps.create_release.outputs.html_url }} $file.FullName --clobber
           }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
