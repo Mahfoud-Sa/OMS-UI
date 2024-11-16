@@ -209,19 +209,6 @@ const InfoUser = () => {
     }
   }
 
-  const handleNext = () => {
-    if (currentTab === 'permissions') {
-      return
-    } else if (currentTab === 'personalInfo') setCurrentTab('workInfo')
-    else if (currentTab === 'workInfo') setCurrentTab('permissions')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'personalInfo') return
-    else if (currentTab === 'permissions') setCurrentTab('workInfo')
-    else if (currentTab === 'workInfo') setCurrentTab('personalInfo')
-  }
-
   if (isPending)
     return (
       <div className="flex justify-center items-center bg-white rounded-lg min-h-[800px] shadow-sm">
@@ -271,9 +258,15 @@ const InfoUser = () => {
                     backgroundColor: 'transparent'
                   }}
                 >
-                  <TabsTrigger value="personalInfo">المعلومات الشخصية</TabsTrigger>
-                  <TabsTrigger value="workInfo">معلومات العمل</TabsTrigger>
-                  <TabsTrigger value="permissions">الصلاحيات</TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('personalInfo')} value="personalInfo">
+                    المعلومات الشخصية
+                  </TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('workInfo')} value="workInfo">
+                    معلومات العمل
+                  </TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('permissions')} value="permissions">
+                    الصلاحيات
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="personalInfo">
@@ -579,25 +572,7 @@ const InfoUser = () => {
               </Tabs>
             </div>
             <div className="flex flex-row gap-2 justify-end">
-              {currentTab !== 'personalInfo' && (
-                <div className="hover:marker:" onClick={handleBack}>
-                  <div className="flex justify-end">
-                    <Button type="button" size="lg">
-                      السابق
-                    </Button>
-                  </div>
-                </div>
-              )}
-              {currentTab !== 'permissions' && (
-                <div className="hover:marker:" onClick={handleNext}>
-                  <div className="flex justify-end">
-                    <Button type="button" size="lg">
-                      التالي
-                    </Button>
-                  </div>
-                </div>
-              )}
-              {isEdit && currentTab === 'permissions' && (
+              {isEdit && (
                 <div className="flex justify-end">
                   <Button type="submit" form="form-1" disabled={isPendingSubmit} size="lg">
                     {isPendingSubmit ? <Loader color={'#fff'} size={15} /> : 'حفظ'}

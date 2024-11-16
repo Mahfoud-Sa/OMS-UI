@@ -395,18 +395,6 @@ const FactoryDetails: React.FunctionComponent = () => {
     }
   }, [errors])
 
-  const handleNext = () => {
-    if (currentTab === 'reports') {
-      return
-    } else if (currentTab === 'account') setCurrentTab('productionLines')
-    else if (currentTab === 'productionLines') setCurrentTab('reports')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'account') return
-    else if (currentTab === 'productionLines') setCurrentTab('account')
-    else if (currentTab === 'reports') setCurrentTab('productionLines')
-  }
   const queryClient = useQueryClient()
   // update method
   const { mutate, isPending } = useMutation({
@@ -503,7 +491,6 @@ const FactoryDetails: React.FunctionComponent = () => {
                 >
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('account')
                     }}
                     value="account"
@@ -512,22 +499,20 @@ const FactoryDetails: React.FunctionComponent = () => {
                   </TabsTrigger>
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('productionLines')
                     }}
                     value="productionLines"
                   >
                     خطوط الانتاج
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('reports')
                     }}
                     value="reports"
                   >
                     التقارير
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="account">
                   <section className="flex flex-col w-full max-md:max-w-full">
@@ -701,36 +686,16 @@ const FactoryDetails: React.FunctionComponent = () => {
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">
-                  {currentTab !== 'account' && (
-                    <div className="hover:marker:" onClick={handleBack}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          السابق
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab !== 'reports' && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          التالي
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab === 'reports' && isEdit && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button
-                          disabled={isPending}
-                          className="bg-green-500 hover:bg-green-700"
-                          type="submit"
-                          size="lg"
-                        >
-                          {isPending ? <Loader color="black" /> : 'حفظ'}
-                        </Button>
-                      </div>
+                  {currentTab === 'productionLines' && isEdit && (
+                    <div className="flex justify-end">
+                      <Button
+                        disabled={isPending}
+                        className="bg-green-500 hover:bg-green-700"
+                        type="submit"
+                        size="lg"
+                      >
+                        {isPending ? <Loader color="black" /> : 'حفظ'}
+                      </Button>
                     </div>
                   )}
                 </div>

@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Icons } from '@renderer/components/icons/icons'
 import BackBtn from '@renderer/components/layouts/back-btn'
+import Loader from '@renderer/components/layouts/loader'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import { Button } from '@renderer/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
@@ -16,15 +17,15 @@ import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { getApi, postApi } from '@renderer/lib/http'
+import { deleteApi, getApi, postApi } from '@renderer/lib/http'
 import {
-    FactoryInterface,
-    localNewProduct,
-    NewOrderProp,
-    OrderItem,
-    Product,
-    ProductionLineProps,
-    ProductionTeam
+  FactoryInterface,
+  localNewProduct,
+  NewOrderProp,
+  OrderItem,
+  Product,
+  ProductionLineProps,
+  ProductionTeam
 } from '@renderer/types/api'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
@@ -43,7 +44,7 @@ const schema = z.object({
   deliveryAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
   sellingPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
-  notes: z.string(),
+  notes: z.string().optional(),
   deliveryNote: z.string().optional(),
   products: z
     .array(
@@ -80,7 +81,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const [productionLines, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
-  const [loader, setLoader] = useState(false)
   const navigate = useNavigate()
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
@@ -123,7 +123,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const getProductionTeams = async (productionLineId: string) =>
     // get it from the productionLines state array
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
-  const { mutate: createOrder } = useMutation({
+  const { mutate: createOrder, isPending: createOrderPending } = useMutation({
     mutationFn: (data: localNewProduct) => {
       return postApi<NewOrderProp>('/Orders', data)
     },
@@ -140,18 +140,19 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       console.error('Error creating order:', error)
     }
   })
-  const { mutate: createOrderItems } = useMutation({
+  const { mutate: createOrderItems, isPending: createOrderItemsPending } = useMutation({
     mutationFn: async (id: number) => {
       await Promise.all(
         addedProducts.map(async (product) => {
+          console.log(product)
           const payloadFormData = new FormData()
           payloadFormData.append('productDesignId', product.productDesignId.toString())
           payloadFormData.append('fabric', product.fabric)
           payloadFormData.append('quantity', product.quantity.toString())
-          payloadFormData.append('note', product.note)
+          payloadFormData.append('note', product.note || 'بدون ملاحظات')
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
           // loop over the images and upload them
-          product.images.forEach((image, index) => {
+          product.images.forEach((image) => {
             payloadFormData.append(`images`, image)
           })
           const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
@@ -169,13 +170,15 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         variant: 'success'
       })
     },
-    onError: (error) => {
+    onError: (error, id) => {
       toast({
         title: 'فشلت عملية الحفظ',
         description: `حصل خطأ ما`,
         variant: 'destructive'
       })
       console.error('Error creating order items', error)
+      // delete the order
+      deleteApi(`/Orders/${id}`)
     }
   })
   const { mutate: createOrderItemsTimeline } = useMutation({
@@ -213,7 +216,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       })
       return
     }
-    setLoader(true)
     try {
       const payload = {
         billNo: data.billNo,
@@ -234,8 +236,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         description: `حصل خطأ ما`,
         variant: 'destructive'
       })
-    } finally {
-      setLoader(false)
     }
   }
   const handleAddProductToArray = (newProduct: localNewProduct) => {
@@ -631,12 +631,16 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
               {currentTab === 'itemsList' && (
                 <div className="flex justify-end">
                   <Button
-                    disabled={loader}
+                    disabled={createOrderPending || createOrderItemsPending}
                     className="bg-green-500 hover:bg-green-700"
                     type="submit"
                     size="lg"
                   >
-                    {loader ? 'يرجى الانتظار' : 'حفظ'}
+                    {createOrderPending || createOrderItemsPending ? (
+                      <Loader color="black" />
+                    ) : (
+                      'حفظ'
+                    )}
                   </Button>
                 </div>
               )}
@@ -668,7 +672,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
             />
             <NewOrderNoteDialog
               addDeliveryNote={(note) => {
-                form.setValue('deliveryNote', note)
+                form.setValue('deliveryNote', note || '')
               }}
               isOpen={openNoteDialog}
               onClose={() => {

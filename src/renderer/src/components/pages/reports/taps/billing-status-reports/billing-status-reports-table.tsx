@@ -1,6 +1,4 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import { Badge } from '@renderer/components/ui/badge'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,
@@ -8,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
-import { cn } from '@renderer/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import React from 'react'
@@ -36,8 +33,13 @@ const BillingStatusReportsTable = ({ data }: Props) => {
         }
       },
       {
-        accessorKey: 'customerName',
-        header: 'اسم العميل'
+        accessorKey: 'billNo',
+        header: 'رقم الفاتورة'
+      },
+
+      {
+        accessorKey: 'factory',
+        header: 'اسم المصنع'
       },
       {
         accessorKey: 'createAt',
@@ -47,35 +49,12 @@ const BillingStatusReportsTable = ({ data }: Props) => {
         }
       },
       {
-        accessorKey: 'billNo',
-        header: 'رقم الفاتورة'
+        accessorKey: 'line',
+        header: 'خط الانتاج'
       },
       {
-        accessorKey: 'orderState',
-        header: 'حالة الطلب',
-        cell: ({ row }) => {
-          return (
-            <Badge
-              className={cn('', {
-                'bg-blue-200 text-blue-600': row.original.orderState == 0,
-                'bg-orange-200 text-orange-600': row.original.orderState == 1,
-                'bg-green-200 text-green-600': row.original.orderState == 2,
-                'bg-violet-200 text-violet-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4
-              })}
-            >
-              {row.original.orderState == 0 && 'جاري العمل'}
-              {row.original.orderState == 1 && 'قيد التنفيذ'}
-              {row.original.orderState == 2 && 'مكتمل'}
-              {row.original.orderState == 3 && 'تم التسليم'}
-              {row.original.orderState == 4 && 'ملغى'}
-            </Badge>
-          )
-        }
-      },
-      {
-        accessorKey: 'sellingPrice',
-        header: 'السعر البيع'
+        accessorKey: 'team',
+        header: 'فريق الانتاج'
       },
 
       {
@@ -91,10 +70,6 @@ const BillingStatusReportsTable = ({ data }: Props) => {
               <Link to={`/orders/${row.original?.orderId}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.orderId}`} keys={['orders']} />
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )

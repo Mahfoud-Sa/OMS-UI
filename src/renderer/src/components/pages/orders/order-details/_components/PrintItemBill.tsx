@@ -74,7 +74,7 @@ const PrintItemBill = () => {
                   <p className="font-semibold">أسم العميل</p>
                   <p>{data.data.customerName}</p>
                   <p className="mt-2 font-semibold">رقم العميل</p>
-                  <p>{data.data.customerNo}</p>
+                  <p style={{ direction: 'ltr' }}>{data.data.customerNo}</p>
                   <p className="font-semibold">المصنع</p>
                   <p>{item?.factoryName}</p>
                 </div>
