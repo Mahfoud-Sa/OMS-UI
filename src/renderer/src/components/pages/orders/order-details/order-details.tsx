@@ -22,7 +22,8 @@ const OrderDetails = () => {
     {
       content: <ListItems />,
       value: 'itmes',
-      label: 'حركة الطلب'
+      label: 'حركة الطلب',
+      disabled: true
     },
     {
       content: <Timeline />,
@@ -46,13 +47,16 @@ const OrderDetails = () => {
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={'main-info'}>
           <TabsList className="bg-transparent mb-3">
-            {tabs.map((tab, index) => (
-              <TabsTrigger key={index} value={tab.value}>
-                <div className="flex justify-center items-center gap-x-4">
-                  <span className="text-lg font-bold">{tab.label}</span>
-                </div>
-              </TabsTrigger>
-            ))}
+            {tabs.map(
+              (tab, index) =>
+                !tab.disabled && (
+                  <TabsTrigger key={index} value={tab.value}>
+                    <div className="flex justify-center items-center gap-x-4">
+                      <span className="text-lg font-bold">{tab.label}</span>
+                    </div>
+                  </TabsTrigger>
+                )
+            )}
           </TabsList>
           {tabs.map((tab) => (
             <TabsContent value={tab.value} key={tab.value}>

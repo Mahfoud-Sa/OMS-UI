@@ -181,11 +181,19 @@ const MainInfo = () => {
           </Form>
         )}
 
-        <div className="col-span-3">
-          <Label className="font-bold text-base">ملاحظات</Label>
+        <div className="col-span-2 ">
+          <Label className="font-bold text-base">ملاحظات عامه</Label>
           <Textarea disabled={true} className="bg-white mt-2" rows={10}>
             {data.data.note}
           </Textarea>
+        </div>
+        <div className="col">
+          <div className="col-span-1 ">
+            <Label className="font-bold text-base">ملاحظات التوصيل</Label> <Button>تعديل</Button>
+            <Textarea disabled={true} className="bg-white mt-2" rows={10}>
+              {data.data.deliveryNote}
+            </Textarea>
+          </div>
         </div>
       </div>
     </section>
