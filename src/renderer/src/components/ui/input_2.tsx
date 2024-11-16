@@ -22,7 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             className={cn(
               'peer h-14 w-full rounded-sm px-3 py-3 outline-none',
-              isInvalid ? 'border-red-500' : 'border-gray-300',
+              isInvalid ? 'border-red-500' : 'border-gray-400',
               InputClassName
             )}
             placeholder=" "
