@@ -25,24 +25,19 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
           echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
           echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_URL }}" >> .env
           echo "RENDERER_VITE_REACT_APP_ENV=production" >> .env
-          cat .env
+          type .env
 
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
 
-      - name: Get version from package.json
+      - name: Get package version
         id: get_version
         run: |
-          PACKAGE_VERSION=$(cat package.json \
-            | grep version \
-            | head -1 \
-            | awk -F: '{ print $2 }' \
-            | sed 's/[",]//g')
-          echo "VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+          VERSION=$(jq -r '.version' package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         id: create_release
@@ -50,8 +45,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
           draft: false
           prerelease: false
 
