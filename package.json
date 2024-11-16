@@ -1,6 +1,6 @@
 {
   "name": "oms",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "An Electron application with React and TypeScript",
   "main": "./dist/main/index.js",
   "author": "example.com",
