@@ -12,6 +12,7 @@ module.exports = {
         },
         prerelease: true,
         authToken: process.env.GITHUB_TOKEN,
+        draft: true,
         force: true
       }
     }
@@ -21,13 +22,21 @@ module.exports = {
       /^\/src/,
       /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/
     ],
-    asar: true
+    asar: true,
+    name: 'OMS-UI'
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {}
+      config: {
+        name: 'oms',
+        authors: 'Mahfoud Sa',
+        description: 'OMS UI',
+        certificateFile: './cert.pfx',
+        certificatePassword: process.env.CERTIFICATE_PASSWORD,
+        setupExe: 'OMS-UI-Setup.exe'
+      }
     },
     {
       name: '@electron-forge/maker-zip',
