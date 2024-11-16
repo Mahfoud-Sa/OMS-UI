@@ -7,5 +7,6 @@ export const localizeRoles = {
   'Update Profile': 'تحديث الملف الشخصي',
   'Add User': 'إضافة مستخدم',
   'Change Password': 'تغيير كلمة المرور',
-  'Get All Users': 'عرض جميع المستخدمين'
+  'Get All Users': 'عرض جميع المستخدمين',
+  Admin: 'مشرف'
 }

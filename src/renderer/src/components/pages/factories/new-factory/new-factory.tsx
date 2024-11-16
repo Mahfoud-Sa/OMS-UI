@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Icons } from '@renderer/components/icons/icons'
+import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import {
@@ -34,7 +35,10 @@ const schema = z.object({
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
   createdAt: z.string(),
-  notes: z.string({ message: 'يجب ادخال ملاحظة المصنع' }).max(200, 'يجب أن يكون أقل من 200 حرف'),
+  notes: z
+    .string({ message: 'يجب ادخال ملاحظة المصنع' })
+    .max(200, 'يجب أن يكون أقل من 200 حرف')
+    .optional(),
   productionLines: z.array(
     z.object({
       id: z.string().optional(),
@@ -115,19 +119,6 @@ const NewFactory: React.FunctionComponent = () => {
     console.log(form.getValues('createdAt'))
   }, [errors])
 
-  const handleNext = () => {
-    if (currentTab === 'productionLines') {
-      return
-    } else if (currentTab === 'account') {
-      setCurrentTab('productionLines')
-    }
-    console.log(form.getValues('productionLines'))
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'account') return
-    else if (currentTab === 'productionLines') setCurrentTab('account')
-  }
   const queryClient = useQueryClient()
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => {
@@ -156,7 +147,7 @@ const NewFactory: React.FunctionComponent = () => {
     const payloadFormData = new FormData()
     payloadFormData.append('name', data.name)
     payloadFormData.append('location', data.location)
-    payloadFormData.append('notes', data.notes)
+    payloadFormData.append('notes', data.notes || '')
     payloadFormData.append('createdAt', data.createdAt)
     const productionLinesWithoutId = data.productionLines.map((line) => {
       const { id, teamsCount, ...rest } = line
@@ -266,152 +257,137 @@ const NewFactory: React.FunctionComponent = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <section className="bg-white p-5">
-            <Tabs value={currentTab} defaultValue="account">
-              <TabsList
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                  backgroundColor: 'transparent'
-                }}
-              >
-                <TabsTrigger value="account">المعلومات الاساسية</TabsTrigger>
-                <TabsTrigger value="productionLines">خطوط الانتاج</TabsTrigger>
-              </TabsList>
-              <TabsContent value="account">
-                <main className="flex flex-col text-base font-medium text-zinc-700">
-                  <section className="flex flex-col w-full max-md:max-w-full">
-                    {' '}
-                    <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="اسم المصنع" label="اسم المصنع" />
-                            </FormControl>
-                            <FormMessage>{fieldState?.error?.message}</FormMessage>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="createdAt"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                                placeholder="تاريخ الانشاء"
-                                label="تاريخ الانشاء"
-                                value={
-                                  // current date as yyyy-mm-dd
-                                  new Date().toISOString().split('T')[0]
-                                }
-                                disabled
-                              />
-                            </FormControl>
-                            <FormMessage>{fieldState?.error?.message}</FormMessage>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="موقع المصنع" label="موقع المصنع" />
-                            </FormControl>
-                            <FormMessage>{fieldState?.error?.message}</FormMessage>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="items-center mt-5">
-                      <FormField
-                        control={form.control}
-                        name="notes"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea {...field} placeholder="ملاحظات" />
-                            </FormControl>
-                            <FormMessage>{fieldState?.error?.message}</FormMessage>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </section>{' '}
-                </main>
-              </TabsContent>
-              <TabsContent value="productionLines">
-                <div className="flex justify-end mt-2">
-                  <ProductionLineDialog
-                    addProductionLineWithTeams={addProductionLineWithTeams}
-                    editProductionLineWithTeams={editProductionLineWithTeams}
-                    openDialog={openDialog}
-                    onClose={() => {
-                      console.log('closed')
-                      setOpenDialog(false)
-                      setProductionLineToBeEdited(undefined)
-                    }}
-                    productionLine={productionLineToBeEdited}
-                    isEdit={!!productionLineToBeEdited}
-                  />
-                </div>
-                <div className="mt-5">
-                  <StructureTable<ProductionLineProps, unknown>
-                    columns={columns}
-                    data={productionLinesArray}
-                    title="خطوط الانتاج المضافة"
-                    displayActions={false}
-                    onDeleteProductionLineTeam={() => {}}
-                    onEditProductionLineTeam={() => {}}
-                  />
-                </div>
-                <FormMessage>{form.getFieldState('productionLines').error?.message}</FormMessage>
-              </TabsContent>
-              <TabsContent value="reports">Change your reports here.</TabsContent>
-            </Tabs>
-          </section>
-          <div className="flex mt-2 flex-row gap-2 justify-end">
-            {currentTab !== 'account' && (
-              <div className="hover:marker:" onClick={handleBack}>
-                <div className="flex justify-end">
-                  <Button type="button" size="lg">
-                    السابق
-                  </Button>
-                </div>
-              </div>
-            )}
-            {currentTab !== 'productionLines' && (
-              <div className="hover:marker:" onClick={handleNext}>
-                <div className="flex justify-end">
-                  <Button type="button" size="lg">
-                    التالي
-                  </Button>
-                </div>
-              </div>
-            )}
-            {currentTab === 'productionLines' && (
-              <div className="flex justify-end">
-                <Button
-                  disabled={isPending}
-                  className="bg-green-500 hover:bg-green-700"
-                  type="submit"
-                  size="lg"
+        <BackBtn href="/factories" />
+        <div className="mt-10">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <section className="bg-white p-5">
+              <Tabs value={currentTab} defaultValue="account" onValueChange={setCurrentTab}>
+                <TabsList
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    backgroundColor: 'transparent'
+                  }}
                 >
-                  {isPending ? <Loader color="black" /> : 'حفظ'}
-                </Button>
-              </div>
-            )}
-          </div>
-        </form>
+                  <TabsTrigger value="account">المعلومات الاساسية</TabsTrigger>
+                  <TabsTrigger value="productionLines">خطوط الانتاج</TabsTrigger>
+                </TabsList>
+                <TabsContent value="account">
+                  <main className="flex flex-col text-base font-medium text-zinc-700">
+                    <section className="flex flex-col w-full max-md:max-w-full">
+                      {' '}
+                      <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder="اسم المصنع" label="اسم المصنع" />
+                              </FormControl>
+                              <FormMessage>{fieldState?.error?.message}</FormMessage>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="createdAt"
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  type="date"
+                                  {...field}
+                                  placeholder="تاريخ الانشاء"
+                                  label="تاريخ الانشاء"
+                                  value={
+                                    // current date as yyyy-mm-dd
+                                    new Date().toISOString().split('T')[0]
+                                  }
+                                  disabled
+                                />
+                              </FormControl>
+                              <FormMessage>{fieldState?.error?.message}</FormMessage>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="location"
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder="موقع المصنع" label="موقع المصنع" />
+                              </FormControl>
+                              <FormMessage>{fieldState?.error?.message}</FormMessage>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="items-center mt-5">
+                        <FormField
+                          control={form.control}
+                          name="notes"
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea {...field} placeholder="ملاحظات" />
+                              </FormControl>
+                              <FormMessage>{fieldState?.error?.message}</FormMessage>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </section>{' '}
+                  </main>
+                </TabsContent>
+                <TabsContent value="productionLines">
+                  <div className="flex justify-end mt-2">
+                    <ProductionLineDialog
+                      addProductionLineWithTeams={addProductionLineWithTeams}
+                      editProductionLineWithTeams={editProductionLineWithTeams}
+                      openDialog={openDialog}
+                      onClose={() => {
+                        console.log('closed')
+                        setOpenDialog(false)
+                        setProductionLineToBeEdited(undefined)
+                      }}
+                      productionLine={productionLineToBeEdited}
+                      isEdit={!!productionLineToBeEdited}
+                    />
+                  </div>
+                  <div className="mt-5">
+                    <StructureTable<ProductionLineProps, unknown>
+                      columns={columns}
+                      data={productionLinesArray}
+                      title="خطوط الانتاج المضافة"
+                      displayActions={false}
+                      onDeleteProductionLineTeam={() => {}}
+                      onEditProductionLineTeam={() => {}}
+                    />
+                  </div>
+                  <FormMessage>{form.getFieldState('productionLines').error?.message}</FormMessage>
+                </TabsContent>
+                <TabsContent value="reports">Change your reports here.</TabsContent>
+              </Tabs>
+            </section>
+            <div className="flex mt-2 flex-row gap-2 justify-end">
+              {currentTab === 'productionLines' && (
+                <div className="flex justify-end">
+                  <Button
+                    disabled={isPending}
+                    className="bg-green-500 hover:bg-green-700"
+                    type="submit"
+                    size="lg"
+                  >
+                    {isPending ? <Loader color="black" /> : 'حفظ'}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
       </Form>
     </>
   )

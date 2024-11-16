@@ -13,7 +13,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { getApi, putApi } from '@renderer/lib/http'
+import { getApi, patchApi } from '@renderer/lib/http'
 import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit } from 'lucide-react'
@@ -82,7 +82,7 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await putApi(`/OrderItems/${itemId}/Timelines/${timeLineId}`, {
+      await patchApi(`/OrderItems/${itemId}/Timelines/${timeLineId}`, {
         ...data,
         productionTeamId: +data.productionTeamId,
         status: 0

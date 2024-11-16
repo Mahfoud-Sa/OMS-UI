@@ -4,11 +4,11 @@ import BackBtn from '@renderer/components/layouts/back-btn'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import { Button } from '@renderer/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
@@ -18,13 +18,13 @@ import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi } from '@renderer/lib/http'
 import {
-  FactoryInterface,
-  localNewProduct,
-  NewOrderProp,
-  OrderItem,
-  Product,
-  ProductionLineProps,
-  ProductionTeam
+    FactoryInterface,
+    localNewProduct,
+    NewOrderProp,
+    OrderItem,
+    Product,
+    ProductionLineProps,
+    ProductionTeam
 } from '@renderer/types/api'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
@@ -444,7 +444,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 }}
               >
                 <TabsTrigger value="basicInfo">البيانات الأساسية</TabsTrigger>
-                <TabsTrigger value="itemsList">قائمة الأصناف</TabsTrigger>
+                <TabsTrigger value="itemsList">قائمة المنتجات</TabsTrigger>
               </TabsList>
               <TabsContent value="basicInfo">
                 <div className="bg-white p-5 rounded-lg shadow-sm">
@@ -567,7 +567,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 <div className="bg-white p-5 rounded-lg shadow-sm col-span-3">
                   {/* add product button */}
                   <div className="flex items-center gap-1 justify-between">
-                    <h4 className="col-span-2 font-bold">قائمة الأصناف</h4>
+                    <h4 className="col-span-2 font-bold">قائمة المنتجات</h4>
 
                     <Button
                       variant="link"

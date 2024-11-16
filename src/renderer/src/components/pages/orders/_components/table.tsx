@@ -24,8 +24,10 @@ type Props = {
     pages: number
     total: number
   }
+  isAsc: boolean
+  setAsc: (value: boolean) => void
 }
-// get the orders and return it with new value if deliveryDate is less than 2 days
+
 const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
   if (!deliveryDate) return false
   const deliveryDateObj = new Date(deliveryDate)
@@ -41,7 +43,7 @@ const rowClassName = (order: Order) => {
     : ''
 }
 
-const OrdersTable = ({ data }: Props) => {
+const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
 
@@ -58,11 +60,15 @@ const OrdersTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'createAt',
-        header: ({ column }) => {
+        header: () => {
           return (
             <Button
               variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              onClick={() => {
+                console.log('clicked')
+                console.log(isAsc)
+                setAsc(!isAsc)
+              }}
             >
               تاريخ الأنشاء
               <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -125,7 +131,7 @@ const OrdersTable = ({ data }: Props) => {
         )
       }
     ],
-    []
+    [isAsc, setAsc]
   )
 
   return (
@@ -133,10 +139,7 @@ const OrdersTable = ({ data }: Props) => {
       <StructureTable
         columns={columns.filter(Boolean)}
         data={data.orders}
-        rowClassName={(order) => {
-          console.log(order)
-          return rowClassName(order)
-        }}
+        rowClassName={rowClassName}
       />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>

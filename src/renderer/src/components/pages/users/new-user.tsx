@@ -452,7 +452,9 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           إضافة دور
                         </DialogHeader>
                         <Combobox
-                          options={AllRoles?.data.roles || []}
+                          options={
+                            AllRoles?.data.roles.filter((role) => role.name !== 'Roles') || []
+                          }
                           valueKey="id"
                           displayKey="name"
                           placeholder="أختر دور"
