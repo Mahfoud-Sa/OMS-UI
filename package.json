@@ -1,6 +1,6 @@
 {
   "name": "oms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -31,9 +31,10 @@
   },
   "build": {
     "appId": "com.Herfh.app",
-    "productName": "Herfh App",
+    "productName": "Herfh_App",
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "artifactName": "${productName}_Setup_${version}.${ext}"
     },
     "directories": {
       "output": "dist"

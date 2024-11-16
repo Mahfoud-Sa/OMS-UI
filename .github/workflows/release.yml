@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -29,8 +32,69 @@ jobs:
           cat .env
 
       - name: Build app
-        run: npm run make
+        run: npm run build:win
 
-      - name: Publish app
-        run: |
-          env $(cat .env | xargs) npm run publish
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(node -p -e \"require('./package.json').version\")" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: Release v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload builder-debug.yml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/builder-debug.yml
+          asset_name: builder-debug.yml
+          asset_content_type: application/octet-stream
+
+      - name: Upload builder-effective-config.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/builder-effective-config.yaml
+          asset_name: builder-effective-config.yaml
+          asset_content_type: application/octet-stream
+
+      - name: Upload Herfh_App_Setup_${{ env.VERSION }}.exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/win-unpacked/Herfh_App_Setup_${{ env.VERSION }}.exe
+          asset_name: Herfh_App_Setup_${{ env.VERSION }}.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/win-unpacked/Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
+          asset_name: Herfh_App_Setup_${{ env.VERSION }}.exe.blockmap
+          asset_content_type: application/octet-stream
+
+      - name: Upload latest.yml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/latest.yml
+          asset_name: latest.yml
+          asset_content_type: application/octet-stream
