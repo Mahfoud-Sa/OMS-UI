@@ -136,7 +136,7 @@ export default function DashboardNav({ items, expanded = false }: DashboardNavPr
                             isSelected(subLink.href) ? 'bg-primary' : 'bg-gray-600/75'
                           )}
                         ></div>{' '}
-                        {subLink.label}
+                        {expanded ? subLink.label : ''}
                       </Link>
                     ))}
                   </div>

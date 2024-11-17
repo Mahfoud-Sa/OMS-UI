@@ -77,10 +77,13 @@ const BillingStatusReportsTable = ({ data }: Props) => {
     ],
     []
   )
+  const sortedOrders = data.orders.sort((a, b) => {
+    return new Date(a.createAt).getTime() - new Date(b.createAt).getTime()
+  })
 
   return (
     <div>
-      <StructureTable columns={columns} data={data.orders} />
+      <StructureTable columns={columns} data={sortedOrders} />
       {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )

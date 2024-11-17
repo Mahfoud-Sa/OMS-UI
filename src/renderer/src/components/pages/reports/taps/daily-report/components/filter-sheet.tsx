@@ -87,13 +87,10 @@ const FilterSheetDaily: React.FC<FilterSheetProps> = ({
 
   const handleReset = () => {
     setFilterOptions({
+      ...filterOptions,
       factory: '',
       productionLine: '',
-      productionTeam: '',
-      date: {
-        from: '',
-        to: ''
-      }
+      productionTeam: ''
     })
     onClose()
   }

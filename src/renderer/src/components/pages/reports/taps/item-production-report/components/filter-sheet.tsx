@@ -105,14 +105,11 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   const handleReset = () => {
     setFilterOptions({
+      ...filterOptions,
       factory: '',
       productionLine: '',
       productionTeam: '',
-      product: '',
-      date: {
-        from: '',
-        to: ''
-      }
+      product: ''
     })
     onClose()
   }
