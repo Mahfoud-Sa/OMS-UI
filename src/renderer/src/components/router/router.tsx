@@ -45,83 +45,90 @@ export const router = createHashRouter([
       {
         path: '/users',
         // element: <ProtectedRoute element={<Users />} />
-        element: <Users />
+        element: <ProtectedRoute element={<Users />} />
       },
       {
         path: '/users/new',
-        // element: <ProtectedRoute element={<Users />} />
-        element: <NewUser />
+        element: <ProtectedRoute element={<NewUser />} />
+        // element: <NewUser />
       },
       {
         path: '/users/:id',
         // element: <ProtectedRoute element={<Users />} />
-        element: <InfoUser />
+        element:  <ProtectedRoute element={<InfoUser /> } />
+        
       },
       // reset password page
       {
         path: '/users/:id/reset-password',
-        element: <ResetPassword />
+        element:  <ProtectedRoute element={<ResetPassword /> } />
       },
       {
         path: '/profile',
-        element: <UserProfile />
+        element: <ProtectedRoute element={<UserProfile /> } />  
       },
       {
         path: '/orders',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <Orders />
+        element: <ProtectedRoute element={<Orders />} />
+        // element: <Orders />
       },
       {
         path: '/orders/new',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <NewOrder />
+        element: <ProtectedRoute element={<NewOrder />} />
+        // element: <NewOrder />
       },
       {
         path: '/orders/:id',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <OrderDetails />
+        element: <ProtectedRoute element={<OrderDetails />} />
+        // element: <OrderDetails />
       },
       {
         path: '/orders/:id/print',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <PrintOrderBill />
+        element: <ProtectedRoute element={<PrintOrderBill />} />
+        // element: <PrintOrderBill />
       },
       {
         path: '/orders/:id/:itemId/print',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <PrintItemBill />
+        element: <ProtectedRoute element={<PrintItemBill />} />
+        // element: <PrintItemBill />
       },
       {
         path: '/factories',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <Factories />
+        element: <ProtectedRoute element={<Factories />} />
+        // element: <Factories />
       },
       {
         path: '/products',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <Products />
+        element: <ProtectedRoute element={<Products />} />
+        // element: <Products />
       },
       {
         path: '/products/new',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <NewProduct />
+        element: <ProtectedRoute element={<NewProduct />} />
+        // element: <NewProduct />
       },
       {
         path: '/products/:id',
-        // element: <ProtectedRoute element={<Orders />} />
-        element: <InfoProduct />
+        element: <ProtectedRoute element={<InfoProduct />} />
+        // element: <InfoProduct />
       },
       {
         path: '/factories/:factoryId',
-        element: <FactoryDetails />
+        element: <ProtectedRoute element={<FactoryDetails />} />
+
+        // element: <FactoryDetails />
       },
       {
         path: '/factories/new',
-        element: <NewFactory />
+        element: <ProtectedRoute element={<NewFactory />} />
+
+        // element: <NewFactory />
       },
       {
         path: '/reports',
-        element: <Reports />
+        element: <ProtectedRoute element={<Reports />} />
+
+        // element: <Reports />
       }
     ]
   }
