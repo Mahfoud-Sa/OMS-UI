@@ -23,8 +23,8 @@ const DailyReport = () => {
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
     date: {
-      from: searchParams.get('from') || '02-01-2020',
-      to: searchParams.get('to') || '02-01-2025'
+      from: '2020-01-02',
+      to: '2025-01-02'
     }
   })
   const [filterOptions, setFilterOptions] = useState({
@@ -32,8 +32,8 @@ const DailyReport = () => {
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
     date: {
-      from: searchParams.get('from') || '02-01-2020',
-      to: searchParams.get('to') || '02-01-2025'
+      from: searchParams.get('from') || '2020-01-02',
+      to: searchParams.get('to') || '2025-01-02'
     }
   })
 
@@ -50,9 +50,9 @@ const DailyReport = () => {
         params: {
           startDate,
           endDate,
-          factoryId: factoryId || 0,
-          productionId: productionId || 0,
-          teamId: teamId || 0
+          ...(factoryId && { factoryId }),
+          ...(productionId && { productionId }),
+          ...(teamId && { teamId })
         }
       })
   })

@@ -85,19 +85,12 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
 
   const handleReset = () => {
     setFilterOptions({
+      ...filterOptions,
       factory: '',
       productionLine: '',
       productionTeam: '',
       sortBy: 'asc',
-      price: {
-        min: 0,
-        max: 0
-      },
-      date: {
-        from: '',
-        to: ''
-      },
-      orderState: '0'
+      orderState: '5'
     })
     onClose()
   }

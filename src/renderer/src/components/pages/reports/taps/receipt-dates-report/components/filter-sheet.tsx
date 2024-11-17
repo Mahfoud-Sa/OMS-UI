@@ -87,13 +87,10 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   const handleReset = () => {
     setFilterOptions({
+      ...filterOptions,
       factory: '',
       productionLine: '',
-      productionTeam: '',
-      date: {
-        from: '',
-        to: ''
-      }
+      productionTeam: ''
     })
     onClose()
   }
@@ -160,7 +157,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
             />
           </div>
           <div>
-            <Label>حسب التاريخ</Label>
+            <Label>حسب تاريخ التسليم المتوقع</Label>
             <div className="flex gap-4 mt-2">
               <Input
                 type="date"

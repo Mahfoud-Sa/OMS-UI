@@ -31,10 +31,13 @@ const DailyReportTable = ({ data }: Props) => {
     ],
     []
   )
+  const sortedOrders = data.orders.sort((a, b) => {
+    return moment(a.createAt).diff(moment(b.createAt))
+  })
 
   return (
     <div>
-      <StructureTable columns={columns} data={data.orders} />
+      <StructureTable columns={columns} data={sortedOrders} />
       {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )

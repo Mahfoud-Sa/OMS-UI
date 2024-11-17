@@ -27,8 +27,8 @@ const BillingStatusReports = () => {
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
     date: {
-      from: searchParams.get('from') || '02/01/2020',
-      to: searchParams.get('to') || '02/01/2025'
+      from: searchParams.get('from') || '2020-02-01',
+      to: searchParams.get('to') || '2025-02-01'
     },
     orderState: searchParams.get('orderState') || '5'
   })

@@ -24,17 +24,17 @@ const ItemProductionReport = () => {
     factory: searchParams.get('factory') || '',
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
-    product: searchParams.get('product') || '',
+    product: searchParams.get('product') || '1',
     date: {
-      from: searchParams.get('from') || '02-01-2020',
-      to: searchParams.get('to') || '02-01-2025'
+      from: searchParams.get('from') || '2020-02-01',
+      to: searchParams.get('to') || '2025-02-01'
     }
   })
   const [editedFilterOptions, setEditedFilterOptions] = useState({
     factory: searchParams.get('factory') || '',
     productionLine: searchParams.get('productionLine') || '',
     productionTeam: searchParams.get('productionTeam') || '',
-    product: searchParams.get('product') || '',
+    product: searchParams.get('product') || '1',
     date: {
       from: searchParams.get('from') || '02-01-2020',
       to: searchParams.get('to') || '02-01-2025'
@@ -53,12 +53,13 @@ const ItemProductionReport = () => {
     queryFn: () => {
       const params: any = {
         startDate,
-        endDate,
-        factoryId: factoryId || 0,
-        productionId: lineId || 0,
-        teamId: teamId || 0
+        endDate
       }
+      if (factoryId) params.factoryId = factoryId
+      if (lineId) params.productionId = lineId
+      if (teamId) params.teamId = teamId
       if (productId) params.productId = productId
+      params.productId = productId || 0
 
       return getApi<{
         total: number
