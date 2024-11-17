@@ -13,7 +13,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useSignIn } from 'react-auth-kit'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import Loader from '../layouts/loader'
 import { Button } from '../ui/button'
@@ -200,7 +200,7 @@ const LoginForm = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error)
-      if (error.status === 400) {
+      if (error.status === 400 || error.status === 401) {
         toast({
           title: 'حصل خطأ',
           description: 'أسم المستخدم أو كلمة المرور غير صحيحة',
@@ -331,9 +331,6 @@ const LoginForm = () => {
               />
             </div>
 
-            <Link to="/" className="text-sm font-medium text-primary">
-              نسيت كلمة المرور ؟
-            </Link>
             <Button
               className="!mt-4 !h-12 w-full hover:bg-[#ca8d2a]"
               type="submit"

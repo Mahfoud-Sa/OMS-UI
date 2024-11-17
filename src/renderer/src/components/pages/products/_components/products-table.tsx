@@ -38,7 +38,7 @@ const ProductsTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'quantity',
-        header: ({ column }) => {
+        header: () => {
           return <>عدد التصاميم</>
         }
       },
