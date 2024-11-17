@@ -38,17 +38,19 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
 const schema = z.object({
   id: z.number().optional(),
-  images: z.array(
-    z.instanceof(File)
-    // .refine((file) => file.size <= MAX_FILE_SIZE, {
-    //   message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
-    // })
-    // .refine((file) => file.type.startsWith('image/'), {
-    //   message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
-    // })
-  ),
-  // .max(3, { message: 'يجب أن تكون الصور أقل من 3' })
-  // .optional(),
+  images: z
+    .array(
+      z
+        .instanceof(File)
+        .refine((file) => file.size <= MAX_FILE_SIZE, {
+          message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+        })
+        .refine((file) => file.type.startsWith('image/'), {
+          message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
+        })
+    )
+    .max(3, { message: 'يجب أن تكون الصور أقل من 3' })
+    .optional(),
   productId: z.number({ message: 'اسم المنتج مطلوب' }),
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
   fabric: z.string({ message: 'القماش مطلوب' }),
@@ -158,11 +160,14 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                             try {
                               if (!files?.length) return
                               const currentImages = form.getValues('images')
-                              field.onChange([...currentImages, ...Array.from(files)])
+                              field.onChange([...(currentImages || []), ...Array.from(files)])
                             } catch (error) {
                               JSON.stringify(error)
                             }
                           }}
+                          uploadFileText="رفع صورة"
+                          moveFileText="اختر الصورة أو اسحبها للرفع"
+                          accept=".jpg,.jpeg,.png,.gif"
                           // defaultImage={imageProfile}
                         />
                       </FormControl>

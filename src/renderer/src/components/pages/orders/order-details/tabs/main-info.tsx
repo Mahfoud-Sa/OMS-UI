@@ -19,6 +19,8 @@ const schema = z.object({
   costPrice: z.coerce
     .number({ message: 'يرجى إدخال رقم صحيح.' })
     .min(0, { message: 'يجب أن يكون المبلغ صفرًا أو أكثر.' })
+    .optional(),
+  deliveryNote: z.string().optional()
 })
 
 export type Schema = z.infer<typeof schema>
@@ -65,6 +67,25 @@ const MainInfo = () => {
       })
     }
   })
+  const { mutate: mutateDeliveryNote, isPending: deliveryNotePending } = useMutation({
+    mutationFn: async (data: Schema) => {
+      await patchApi(`/Orders/${id}`, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+      toast({
+        variant: 'success',
+        title: `تم التعديل الطلب بنجاح`
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات المدخله أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
 
   if (isPending)
     return (
@@ -78,13 +99,7 @@ const MainInfo = () => {
   return (
     <section className="mt-3">
       <div className="grid grid-cols-3 gap-3">
-        <Input
-          disabled={true}
-          value={data.data.id}
-          placeholder="رقم الطلب"
-          martial
-          label="رقم الطلب"
-        />
+        <Input disabled={true} value={data.data.id} martial label="رقم الطلب" />
         <Input
           disabled={true}
           value={data.data.billNo}
@@ -153,7 +168,7 @@ const MainInfo = () => {
           <Form {...form}>
             <form
               className="flex justify-between gap-x-1"
-              onSubmit={form.handleSubmit((data) => mutate(data))}
+              onSubmit={form.handleSubmit((data) => mutate({ costPrice: data.costPrice }))}
             >
               <FormField
                 control={form.control}
@@ -181,20 +196,50 @@ const MainInfo = () => {
           </Form>
         )}
 
-        <div className="col-span-2 ">
+        <div className="col-span-3">
           <Label className="font-bold text-base">ملاحظات عامه</Label>
           <Textarea disabled={true} className="bg-white mt-2" rows={10}>
             {data.data.note}
           </Textarea>
         </div>
-        <div className="col">
-          <div className="col-span-1 ">
-            <Label className="font-bold text-base">ملاحظات التوصيل</Label> <Button>تعديل</Button>
-            <Textarea disabled={true} className="bg-white mt-2" rows={10}>
-              {data.data.deliveryNote}
-            </Textarea>
-          </div>
-        </div>
+        <Form {...form}>
+          <form
+            className="col-span-3"
+            onSubmit={form.handleSubmit((data) =>
+              mutateDeliveryNote({
+                deliveryNote: data.deliveryNote
+              })
+            )}
+          >
+            <FormField
+              control={form.control}
+              name="deliveryNote"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="col-span-3">
+                      <div className="gap-3 flex items-baseline">
+                        <Label className="font-bold text-base">ملاحظات التوصيل</Label>
+                        <Button type="submit" disabled={deliveryNotePending}>
+                          {deliveryNotePending ? <Loader color={'#fff'} size={15} /> : 'تعديل'}
+                        </Button>
+                      </div>
+                      <Textarea
+                        disabled={deliveryNotePending}
+                        className="bg-white mt-2"
+                        rows={10}
+                        {...field}
+                      >
+                        {data.data.deliveryNote}
+                      </Textarea>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
       </div>
     </section>
   )

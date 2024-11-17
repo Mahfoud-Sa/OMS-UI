@@ -11,17 +11,23 @@ interface FileUploaderProps {
   onChange?: (files: HTMLInputElement['files']) => void
   setValue: UseFormSetValue<any>
   fieldName?: string
+  accept?: string
+  moveFileText?: string
+  uploadFileText?: string
 }
+
 export default function FileUploader({
   inputId,
   isMultiple = false,
   fieldName = inputId,
   onChange,
-  setValue
+  setValue,
+  accept = '',
+  moveFileText = 'اختر الملف أو اسحب الملف للرفع',
+  uploadFileText = 'رفع ملف'
 }: FileUploaderProps) {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
   const [isError, setIsError] = useState(false)
-  // const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let files: FileList | null = null
@@ -36,7 +42,6 @@ export default function FileUploader({
           setUploadedFiles((prevUploadedFiles) => [...prevUploadedFiles, file.name])
         })
       } else {
-        // if (files && files[0] && files[0].name)
         setUploadedFiles([files[0].name])
       }
       setIsError(false)
@@ -44,6 +49,7 @@ export default function FileUploader({
 
     onChange?.(files)
   }
+
   const handleFileRemove = (fileName: string) => {
     setUploadedFiles((prevUploadedFiles) => prevUploadedFiles.filter((file) => file !== fileName))
     if (uploadedFiles.length === 1) {
@@ -59,6 +65,7 @@ export default function FileUploader({
         type="file"
         name={inputId}
         id={inputId}
+        accept={accept}
         className="hidden"
         onChange={(e) => {
           handleFileChange(e)
@@ -67,24 +74,21 @@ export default function FileUploader({
       {uploadedFiles.length != 0 ? (
         <label
           htmlFor={inputId}
-          className="mt-0 flex w-full cursor-pointer items-center  justify-center gap-1.5
-         text-gray-700 decoration-2 hover:underline dark:text-primary"
+          className="mt-0 flex w-full cursor-pointer items-center justify-center gap-1.5 text-gray-700 decoration-2 hover:underline dark:text-primary"
         >
-          <span className="rounded bg-gray-200 p-2 text-blue-500">رفع ملف</span>
+          <span className="rounded bg-gray-200 p-2 text-blue-500">{uploadFileText}</span>
           <Upload size={24} />
-          اسحب الملف للرفع
+          {moveFileText}
         </label>
       ) : (
         <label
           htmlFor={inputId}
-          className="flex max-w-xl cursor-pointer items-center justify-center gap-1.5
-         text-gray-700 decoration-2 hover:underline dark:text-white"
+          className="flex max-w-xl cursor-pointer items-center justify-center gap-1.5 text-gray-700 decoration-2 hover:underline dark:text-white"
         >
           <Upload size={24} />
           <span className="text-blue-500 underline decoration-2 hover:text-blue-600">
-            اختر الملف
-          </span>{' '}
-          أو اسحب الملف للرفع
+            {moveFileText}
+          </span>
         </label>
       )}
       {uploadedFiles && (
