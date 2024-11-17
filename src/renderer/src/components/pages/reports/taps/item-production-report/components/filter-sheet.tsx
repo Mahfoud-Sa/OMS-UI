@@ -17,7 +17,7 @@ import {
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
 interface FilterSheetProps {
@@ -49,7 +49,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   const [factoryId, setFactoryId] = useState(1)
   const [productionLinesData, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
-  const queryClient = useQueryClient()
   const { data: factories } = useQuery({
     queryKey: ['Factories'],
     queryFn: () =>
