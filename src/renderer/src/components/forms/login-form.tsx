@@ -174,7 +174,7 @@ const LoginForm = () => {
 
         const signInResult = signIn({
           token: res.data.token,
-          expiresIn: res.data.expireIn,
+          expiresIn: 7000,
           tokenType: 'Bearer',
           authState: {
             ...userData.data
