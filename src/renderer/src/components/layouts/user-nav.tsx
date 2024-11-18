@@ -1,4 +1,5 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { postApi } from '@renderer/lib/http'
 import { ChevronDown } from 'lucide-react'
 import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
 import { Link, useNavigate } from 'react-router-dom'
@@ -27,6 +28,7 @@ export function UserNav() {
   const signOut = useSignOut()
   const handleSignOut = () => {
     signOut()
+    postApi('/Account/Logout', {})
     navigate('login')
   }
   const auth = useAuthUser()

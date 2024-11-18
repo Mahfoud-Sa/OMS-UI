@@ -53,9 +53,9 @@ const schema = z.object({
     .optional(),
   productId: z.number({ message: 'اسم المنتج مطلوب' }),
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
-  fabric: z.string({ message: 'القماش مطلوب' }),
+  fabric: z.string({ message: 'القماش مطلوب' }).optional(),
   quantity: z.number().min(1, { message: 'الكمية يجب أن تكون على الأقل 1' }),
-  note: z.string().optional(),
+  note: z.string(),
   factoryId: z.number({ message: 'المصنع مطلوب' }),
   productionLineId: z.number({ message: 'خط الإنتاج مطلوب' }),
   productionTeamId: z.number({ message: 'فريق الإنتاج مطلوب' })
@@ -104,13 +104,27 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
   }, [productToEdit])
 
   const handleSave = (data: FormData) => {
+    // check all fields if they are empty
+    let hasError = false
+    for (const key in data) {
+      if (data[key] === null || data[key] === '' || data[key] === 0) {
+        form.setError(key as keyof FormData, {
+          type: 'manual',
+          message: 'هذا الحقل مطلوب'
+        })
+        hasError = true
+      }
+    }
+    if (hasError) return
+
     if (productToEdit) {
       // Update existing product
       updateProductInProductsArray({
         ...data,
         note: data.note || '',
         images: data.images || [],
-        image: data.images?.[0]
+        image: data.images?.[0],
+        fabric: data.fabric || ''
       })
     } else {
       // Add new product
@@ -118,7 +132,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
         ...data,
         note: data.note || '',
         images: data.images || [],
-        image: data.images?.[0]
+        image: data.images?.[0],
+        fabric: data.fabric || ''
       })
     }
     // Clear the form

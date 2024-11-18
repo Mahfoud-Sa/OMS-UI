@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-// import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
+import ProfileUploader from '@renderer/components/file-uploader/ProfileUploader'
 import { Icons } from '@renderer/components/icons/icons'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
@@ -23,24 +23,24 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-// import imageProfile from '../../../../assets/images/profile.jpg'
+import imageProfile from '../../../../assets/images/profile.jpg'
 import ProductionLineDialog from '../_components/production-lines-dialog'
 import { StructureTable } from '../_components/structure-table'
 
-// const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
 const schema = z.object({
   name: z
     .string({ message: 'يجب ادخال اسم المصنع' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
     .max(100, 'يجب أن يكون أقل من 100 حرف'),
-  // image: z
-  //   .instanceof(File, {
-  //     message: 'يجب ادخال صورة المصنع'
-  //   })
-  //   .refine((file) => file.size <= MAX_FILE_SIZE, {
-  //     message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
-  //   }),
+  image: z
+    .instanceof(File, {
+      message: 'يجب ادخال صورة المصنع'
+    })
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+    }),
   location: z
     .string({ message: 'يجب ادخال موقع المصنع' })
     .min(3, 'يجب أن يكون أكبر من 3 أحرف')
@@ -160,7 +160,7 @@ const NewFactory: React.FunctionComponent = () => {
     payloadFormData.append('location', data.location)
     payloadFormData.append('notes', data.notes || '')
     payloadFormData.append('createdAt', data.createdAt)
-    // payloadFormData.append('image', data.image)
+    payloadFormData.append('image', data.image)
     const productionLinesWithoutId = data.productionLines.map((line) => {
       const { id, teamsCount, ...rest } = line
       return rest
@@ -288,7 +288,7 @@ const NewFactory: React.FunctionComponent = () => {
                 <TabsContent value="account">
                   <main className="flex flex-col text-base font-medium text-zinc-700">
                     <section className="flex flex-col w-full max-md:max-w-full">
-                      {/* <div className="flex flex-col gap-3 items-center w-full max-md:max-w-full mb-4">
+                      <div className="flex flex-col gap-3 items-center w-full max-md:max-w-full mb-4">
                         <div className="w-full flex">
                           <FormField
                             control={form.control}
@@ -318,7 +318,7 @@ const NewFactory: React.FunctionComponent = () => {
                             )}
                           />
                         </div>
-                      </div> */}
+                      </div>
                       <div className="flex flex-wrap gap-3 items-center w-full max-md:max-w-full">
                         <FormField
                           control={form.control}
