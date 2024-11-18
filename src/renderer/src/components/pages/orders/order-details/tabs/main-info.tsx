@@ -20,7 +20,7 @@ const schema = z.object({
     .number({ message: 'يرجى إدخال رقم صحيح.' })
     .min(0, { message: 'يجب أن يكون المبلغ صفرًا أو أكثر.' })
     .optional(),
-  deliveryNote: z.string().optional()
+  deliveryNote: z.string().max(100, 'الملاحظة يجب ان تكون اقصر من ١٠٠ حرف').optional()
 })
 
 export type Schema = z.infer<typeof schema>

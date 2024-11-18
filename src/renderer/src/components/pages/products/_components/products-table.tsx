@@ -1,4 +1,3 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
@@ -64,9 +63,9 @@ const ProductsTable = ({ data }: Props) => {
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
 
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <DeleteDialog url={`/products/${row.original?.id}`} keys={['products']} />
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         )

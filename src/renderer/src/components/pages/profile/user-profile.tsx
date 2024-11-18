@@ -48,7 +48,7 @@ const schema = z.object({
     .string()
     .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
     .optional(),
-  UserType: z.string().optional(),
+  userType: z.string().optional(),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
 
@@ -96,7 +96,8 @@ const UserProfile = () => {
         Username: data.data.userName,
         WorkPlace: data.data.workPlace,
         EmployDate: data.data.employDate,
-        PhoneNumber: data.data.phoneNumber
+        PhoneNumber: data.data.phoneNumber,
+        userType: data.data.userType
       })
       setUserRoles(data.data.roles)
       console.log(data.data.roles)
@@ -113,7 +114,7 @@ const UserProfile = () => {
       data.EmployDate && formData.set('employDate', data.EmployDate)
       data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
       formData.set('workPlace', data.WorkPlace)
-      data.UserType && formData.set('userType', data.UserType)
+      data.userType && formData.set('userType', data.userType)
       if (data.ImageFile) {
         formData.set('imageFile', data.ImageFile)
       }
@@ -184,7 +185,7 @@ const UserProfile = () => {
             iconSrc: 'user'
           },
           {
-            text: form.getValues('UserType') || 'المسمى الوظيفي',
+            text: form.getValues('userType') || 'المسمى الوظيفي',
             iconSrc: 'briefcaseBusiness'
           }
         ]}
@@ -423,7 +424,7 @@ const UserProfile = () => {
 
             <div className="mt-4 grid grid-cols-1 gap-3">
               <FormField
-                name="UserType"
+                name="userType"
                 control={form.control}
                 render={({ field: { onChange } }) => (
                   <FormItem>
