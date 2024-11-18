@@ -206,35 +206,37 @@ const UserProfile = () => {
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="col-span-3 mb-1">
-                <FormField
-                  control={form.control}
-                  name="ImageFile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div>
-                          <ProfileUploader
-                            className="h-[180px] w-[180px]"
-                            inputId="ImageFile"
-                            setValue={form.setValue}
-                            onChange={async (files) => {
-                              try {
-                                if (!files?.[0]) return
-                                field.onChange(files[0])
-                              } catch (error) {
-                                JSON.stringify(error)
-                              }
-                            }}
-                            defaultImage={imageProfile}
-                          />
-                          <FormMessage />
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {isEdit && (
+                <div className="col-span-3 mb-1">
+                  <FormField
+                    control={form.control}
+                    name="ImageFile"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div>
+                            <ProfileUploader
+                              className="h-[180px] w-[180px]"
+                              inputId="ImageFile"
+                              setValue={form.setValue}
+                              onChange={async (files) => {
+                                try {
+                                  if (!files?.[0]) return
+                                  field.onChange(files[0])
+                                } catch (error) {
+                                  JSON.stringify(error)
+                                }
+                              }}
+                              defaultImage={imageProfile}
+                            />
+                            <FormMessage />
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <FormField
                 control={form.control}
