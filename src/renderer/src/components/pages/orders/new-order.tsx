@@ -222,7 +222,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         customerName: data.customerName,
         deliveryAt: data.deliveryAt,
         deliveryNote: data.deliveryNote || '',
-        orderState: 0,
+        orderState: 1,
         sellingPrice: data.sellingPrice,
         costPrice: 0,
         customerNo: data.customerNo,
