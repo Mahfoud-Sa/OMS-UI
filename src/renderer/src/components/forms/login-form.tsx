@@ -160,9 +160,17 @@ const LoginForm = () => {
   const onSubmit = async (data: UserFormValue) => {
     try {
       setDelayedSubmitting(true)
-      const res = await postApi<LogInResponse>('/Account/Login', {
-        ...data
-      })
+      const res = await postApi<LogInResponse>(
+        '/Account/Login',
+        {
+          ...data
+        },
+        {
+          headers: {
+            Authorization: ''
+          }
+        }
+      )
 
       if (res?.status === 200 && res.data.message === 'Password change required') {
         setIsPasswordChangeRequired(true)
@@ -170,7 +178,11 @@ const LoginForm = () => {
       }
 
       if ([200, 201].includes(res?.status as number)) {
-        const userData = await getApi<User>(`/users/${res.data.id}`)
+        const userData = await getApi<User>(`/users/${res.data.id}`, {
+          headers: {
+            Authorization: ''
+          }
+        })
 
         const signInResult = signIn({
           token: res.data.token,

@@ -1,13 +1,14 @@
 import axios, { AxiosRequestConfig } from 'axios'
 
 const token = localStorage.getItem('_auth')
-const tokenType = localStorage.getItem('_auth_type') || 'Bearer'
+// const tokenType = localStorage.getItem('_auth_type') || 'Bearer'
+console.log('token', token)
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.RENDERER_VITE_REACT_APP_API_URL,
   headers: {
     // eslint-disable-next-line prettier/prettier
-    'Authorization': `${tokenType} ${token}`
+    'Authorization': `Bearer ${token}`
   }
 })
 
