@@ -107,7 +107,8 @@ const Timeline = () => {
             completeOrderIsPending ||
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
-            order?.data.orderState == 3
+            order?.data.orderState == 3 ||
+            !['مشرف', 'منسق طلبات'].includes(userType)
           }
           onClick={() => cancelOrderMutate()}
         >
@@ -128,7 +129,8 @@ const Timeline = () => {
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
-            order?.data.orderState == 2
+            order?.data.orderState == 2 ||
+            !['مشرف', 'منسق طلبات'].includes(userType)
           }
           onClick={() => completeOrderMutate()}
         >
@@ -148,7 +150,8 @@ const Timeline = () => {
             cancelOrderIsPending ||
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
-            order?.data.orderState == 3
+            order?.data.orderState == 3 ||
+            !['مشرف', 'منسق طلبات'].includes(userType)
           }
           onClick={() => deliverOrderMutate()}
         >
@@ -175,7 +178,8 @@ const Timeline = () => {
               disabled={
                 order?.data.orderState == 4 ||
                 order?.data.orderState == 3 ||
-                order?.data.orderState === 2
+                order?.data.orderState === 2 ||
+                !['مشرف', 'منسق طلبات'].includes(userType)
               }
               id={item.id.toString()}
             />
@@ -248,7 +252,8 @@ const Timeline = () => {
                 disable={
                   order?.data.orderState == 4 ||
                   order?.data.orderState == 3 ||
-                  order?.data.orderState === 2
+                  order?.data.orderState === 2 ||
+                  !['مشرف', 'منسق طلبات'].includes(userType)
                 }
                 itemId={item.id.toString()}
                 timeLineId={item.timelines[item.timelines.length - 1].id.toString()}

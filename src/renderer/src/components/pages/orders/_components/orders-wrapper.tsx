@@ -4,6 +4,7 @@ import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { useSearchParams } from 'react-router-dom'
 import FilterSheet from './filter-sheet'
 import OrdersTable from './table'
@@ -16,6 +17,8 @@ type Props = {
 }
 
 const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Props) => {
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
   const [searchParams] = useSearchParams()
   const [isAsc, setAsc] = useState<boolean>(false)
   const [filterOptions, setFilterOptions] = useState({
@@ -47,7 +50,7 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Orders`, {
+      }>(`/Orders${userType === 'بائع' ? '/User' : ''}`, {
         params: {
           query,
           page,

@@ -97,8 +97,8 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
                 'bg-red-200 text-red-600': row.original.orderState == 4
               })}
             >
-              {row.original.orderState == 0 && 'جاري العمل'}
-              {row.original.orderState == 1 && 'قيد التنفيذ'}
+              {row.original.orderState == 0 && 'جديد'}
+              {row.original.orderState == 1 && 'قيد العمل'}
               {row.original.orderState == 2 && 'مكتمل'}
               {row.original.orderState == 3 && 'تم التسليم'}
               {row.original.orderState == 4 && 'ملغى'}
