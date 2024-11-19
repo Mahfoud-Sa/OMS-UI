@@ -55,7 +55,7 @@ const schema = z.object({
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
   fabric: z.string({ message: 'القماش مطلوب' }).optional(),
   quantity: z.number().min(1, { message: 'الكمية يجب أن تكون على الأقل 1' }),
-  note: z.string(),
+  note: z.string().optional(),
   factoryId: z.number({ message: 'المصنع مطلوب' }),
   productionLineId: z.number({ message: 'خط الإنتاج مطلوب' }),
   productionTeamId: z.number({ message: 'فريق الإنتاج مطلوب' })
