@@ -1,5 +1,6 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { postApi } from '@renderer/lib/http'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
 import { Link, useNavigate } from 'react-router-dom'
@@ -26,10 +27,13 @@ export function UserNav() {
   const navigate = useNavigate()
   const issAuthenticated = useIsAuthenticated()
   const signOut = useSignOut()
+  const qc = useQueryClient()
   const handleSignOut = () => {
-    signOut()
-    postApi('/Account/Logout', {})
-    navigate('login')
+    postApi('/Account/Logout', {}).then(()=>{
+      signOut()
+      qc.clear()
+      navigate('login')
+    })
   }
   const auth = useAuthUser()
 
