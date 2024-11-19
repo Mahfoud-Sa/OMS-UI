@@ -147,9 +147,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
           console.log(product)
           const payloadFormData = new FormData()
           payloadFormData.append('productDesignId', product.productDesignId.toString())
-          payloadFormData.append('fabric', product.fabric)
+          if (product.fabric) {
+            payloadFormData.append('fabric', product.fabric)
+          }
           payloadFormData.append('quantity', product.quantity.toString())
-          payloadFormData.append('note', product.note || 'بدون ملاحظات')
+          if (product.note) {
+            payloadFormData.append('note', product.note || 'بدون ملاحظات')
+          }
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
           // loop over the images and upload them
           product.images.forEach((image) => {
@@ -430,7 +434,9 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/orders" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href="/orders" />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>

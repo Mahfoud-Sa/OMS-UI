@@ -122,22 +122,20 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
 
     if (productToEdit) {
       // Update existing product
-      updateProductInProductsArray({
-        ...data,
-        note: data.note || '',
-        images: data.images || [],
-        image: data.images?.[0],
-        fabric: data.fabric || ''
-      })
+      const payload: Partial<FormData> = { ...data }
+      if (!data.note) delete payload.note
+      if (!data.images) delete payload.images
+      if (!data.fabric) delete payload.fabric
+
+      updateProductInProductsArray(payload as localNewProduct)
     } else {
       // Add new product
-      addProductToProductsArray({
-        ...data,
-        note: data.note || '',
-        images: data.images || [],
-        image: data.images?.[0],
-        fabric: data.fabric || ''
-      })
+      const payload: Partial<FormData> = { ...data }
+      if (!data.note) delete payload.note
+      if (!data.images) delete payload.images
+      if (!data.fabric) delete payload.fabric
+
+      addProductToProductsArray(payload as localNewProduct)
     }
     // Clear the form
     form.reset(defaultValues)
