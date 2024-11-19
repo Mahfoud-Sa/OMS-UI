@@ -107,7 +107,10 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
     // check all fields if they are empty
     let hasError = false
     for (const key in data) {
-      if (data[key] === null || data[key] === '' || data[key] === 0) {
+      if (
+        schema.shape[key]?.isOptional() === false &&
+        (data[key] === null || data[key] === '' || data[key] === 0)
+      ) {
         form.setError(key as keyof FormData, {
           type: 'manual',
           message: 'هذا الحقل مطلوب'
@@ -442,7 +445,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" onClick={onClose}>
+              <Button variant="ghost" type="button" onClick={onClose}>
                 الغاء
               </Button>
               <Button onClick={form.handleSubmit(handleSave)} className="ml-2">
