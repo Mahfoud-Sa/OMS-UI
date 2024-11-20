@@ -3,20 +3,20 @@ import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
 import { Item, Order } from '@renderer/types/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useAuthUser } from 'react-auth-kit'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
 import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
+  const queryClient = useQueryClient()
 
   moment.locale('ar-ma')
 
@@ -39,7 +39,8 @@ const Timeline = () => {
         variant: 'default',
         title: `تم الغاء الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -58,7 +59,8 @@ const Timeline = () => {
         variant: 'default',
         title: `تم اكمال الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -77,7 +79,8 @@ const Timeline = () => {
         variant: 'default',
         title: `تم تسليم الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -214,8 +217,8 @@ const Timeline = () => {
                         <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
                         <p className="text-[#ABB7C2] text-sm">
                           {`${'انتهت خلال'}
-                          ${moment(new Date(timeline.receivedAt)).from(
-                            moment(new Date(timeline.deliveredAt)),
+                          ${moment(new Date(timeline.deliveredAt)).from(
+                            moment(new Date(timeline.receivedAt)),
                             true
                           )}`}
                         </p>
