@@ -50,7 +50,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       minSellingPrice: '',
       maxSellingPrice: ''
     })
-    onClose()
   }
 
   return (

@@ -109,7 +109,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       productionTeam: '',
       orderState: '5'
     })
-    onClose()
   }
 
   return (
@@ -223,7 +222,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
         <SheetFooter>
           <div className="flex gap-3 w-60">
             <Button onClick={handleReset} className="w-full" variant="outline">
-              الغاء
+              اعادة تعيين
             </Button>
             <Button onClick={handleApply} className="w-full">
               تطبيق

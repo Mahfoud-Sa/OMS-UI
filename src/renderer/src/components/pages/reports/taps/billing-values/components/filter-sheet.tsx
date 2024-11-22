@@ -92,7 +92,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
       sortBy: 'asc',
       orderState: '5'
     })
-    onClose()
   }
 
   return (
@@ -255,7 +254,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
         <SheetFooter>
           <div className="flex gap-3 w-60">
             <Button onClick={handleReset} className="w-full" variant="outline">
-              الغاء
+              اعادة تعيين
             </Button>
             <Button onClick={handleApply} className="w-full">
               تطبيق
