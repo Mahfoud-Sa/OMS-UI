@@ -59,7 +59,7 @@ const ItemProductionReport = () => {
       if (lineId) params.productionId = lineId
       if (teamId) params.teamId = teamId
       if (productId) params.productId = productId
-      params.productId = productId || 0
+      params.productId = productId || 1
 
       return getApi<{
         total: number
