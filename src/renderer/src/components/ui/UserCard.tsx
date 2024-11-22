@@ -43,6 +43,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ name, role, imagePath }) => {
         loading="lazy"
         src={imagePath || 'https://via.placeholder.com/50'}
         className="object-cover shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
+        onError={(e) => {
+          e.currentTarget.src = 'https://via.placeholder.com/50'
+        }}
         alt={`${name} - ${role}`}
       />
       <div className="flex flex-col self-stretch my-auto w-[107px]">

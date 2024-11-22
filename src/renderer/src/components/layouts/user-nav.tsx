@@ -29,7 +29,7 @@ export function UserNav() {
   const signOut = useSignOut()
   const qc = useQueryClient()
   const handleSignOut = () => {
-    postApi('/Account/Logout', {}).then(()=>{
+    postApi('/Account/Logout', {}).then(() => {
       signOut()
       qc.clear()
       navigate('login')
@@ -47,6 +47,9 @@ export function UserNav() {
               className="w-[35px] h-[35px]"
               src={auth()?.imagePath || userIcon}
               alt={'Unknown User'}
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/50'
+              }}
             />
             {/* {!session.user?.image && <span>{session.user?.employeeName}</span>}  */}
             <div className="flex flex-col space-y-1">
