@@ -44,7 +44,7 @@ const DailyReport = () => {
   const teamId = filterOptions.productionTeam
 
   const { data, isPending } = useQuery({
-    queryKey: ['orders', startDate, endDate, factoryId, productionId, teamId],
+    queryKey: ['orders', 'daily-report', startDate, endDate, factoryId, productionId, teamId],
     queryFn: () =>
       getApi<DailyReportProps[]>(`/Reporters/Daily`, {
         params: {
@@ -93,7 +93,7 @@ const DailyReport = () => {
 
     const exportData = data.data.map((item) => ({
       التاريخ: moment(item.createAt).format('YYYY-MM-DD'),
-      المجموع: item.total
+      'عدد المنتجات لهذا اليوم': item.total
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)

@@ -10,11 +10,12 @@ import BillingStatusReportsTable from './billing-status-reports-table'
 import FilterSheet from './components/filter-sheet'
 
 export interface BillingStatusReportsProps {
-  orderId: string
+  id: string
   createAt: string
-  factory: string
-  line: string
-  team: string
+  billNo: string
+  deliveryAt: string
+  sellingPrice: string
+  costPrice: string
   orderState: number
 }
 
@@ -51,16 +52,25 @@ const BillingStatusReports = () => {
   const orderState = filterOptions.orderState
 
   const { data, isPending } = useQuery({
-    queryKey: ['orders', startDate, endDate, factoryId, lineId, teamId, orderState],
+    queryKey: [
+      'orders',
+      'billing-status',
+      startDate,
+      endDate,
+      factoryId,
+      lineId,
+      teamId,
+      orderState
+    ],
     queryFn: () =>
       getApi<BillingStatusReportsProps[]>(`/Reporters/OrdersStates`, {
         params: {
           startDate,
           endDate,
           orderState,
-          factoryId: factoryId || 0,
-          productionId: lineId || 0,
-          teamId: teamId || 0
+          ...(factoryId && { factoryId }),
+          ...(lineId && { productionId: lineId }),
+          ...(teamId && { teamId })
         }
       })
   })
@@ -86,11 +96,12 @@ const BillingStatusReports = () => {
     if (!data) return
 
     const exportData = data.data.map((item) => ({
-      'رقم الطلب': item.orderId,
+      'الرقم التعريفي': item.id,
+      'رقم الفاتوره': item.billNo,
       'تاريخ الطلب': moment(item.createAt).format('YYYY-MM-DD'),
-      المصنع: item.factory,
-      الخط: item.line,
-      الفريق: item.team
+      'تاريخ التسليم': item.deliveryAt,
+      'تكلفة البيع': item.sellingPrice,
+      'تكلفة الشراء': item.costPrice
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
