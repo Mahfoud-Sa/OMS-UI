@@ -3,7 +3,7 @@ import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
 import { DailyReportInfo } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { Box, Boxes } from 'lucide-react'
+import { Boxes, DollarSign } from 'lucide-react'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -91,6 +91,11 @@ const BillingStatusReports: React.FC<DailyReportInfo> = ({
   }, [filterOptions, setSearchParams])
   useEffect(() => {
     if (isSuccess && data) {
+      const sellingPriceTotal = data.data.reduce(
+        (acc, item) => acc + parseInt(item.sellingPrice),
+        0
+      )
+      const costPriceTotal = data.data.reduce((acc, item) => acc + parseInt(item.costPrice), 0)
       const cards = [
         {
           title: `${moment(startDate).format('DD-MM-YYYY')} الى ${moment(endDate).format('DD-MM-YYYY')}`,
@@ -101,17 +106,24 @@ const BillingStatusReports: React.FC<DailyReportInfo> = ({
         },
         {
           title: 'اجمالي قيمة قيمة البيع',
-          value: data.data.reduce((acc, item) => acc + parseInt(item.sellingPrice), 0),
-          icon: Box,
-          iconClassName: 'text-[#041016]', // Replace with the actual class name
-          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+          value: sellingPriceTotal,
+          icon: DollarSign,
+          iconClassName: 'text-green-900', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-green-100' // Replace with the actual color
         },
         {
           title: 'اجمالي قيمة تكلفة الشراء',
-          value: data.data.reduce((acc, item) => acc + parseInt(item.costPrice), 0),
-          icon: Box,
-          iconClassName: 'text-[#041016]', // Replace with the actual class name
-          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+          value: costPriceTotal,
+          icon: DollarSign,
+          iconClassName: 'text-red-900', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-red-100' // Replace with the actual color
+        },
+        {
+          title: 'اجمالي فارق الربح',
+          value: sellingPriceTotal - costPriceTotal,
+          icon: DollarSign,
+          iconClassName: 'text-green-900', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-green-100' // Replace with the actual color
         }
       ]
       returnReportCards(cards)

@@ -17,54 +17,6 @@ type StatisticsProps = {
 }
 
 export default function Statistics({ filterData, data }: StatisticsProps) {
-  // const searchParams = useSearchParams();
-
-  // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
-  //   queryKey: ['UsersStatisticInfo'],
-  //   queryFn: () => getApi<StatisticalUserCards>('/Statices/Users')
-  // })
-
-  // const searchParams = useSearchParams()
-  // const pathname = usePathname()
-  // const router = useRouter()
-  // const [selectedCard, setSelectedCard] = useState<{
-  //   id: number | null
-  //   title?: string
-  // } | null>(null)
-  // const filterData = (isActive?: number) => {
-  //   const params = new URLSearchParams(searchParams)
-  //   if (isActive && isActive != 0) {
-  //     if (isActive == 1) {
-  //       params.set('isActive', 'true')
-  //     } else {
-  //       params.set('isActive', 'false')
-  //     }
-  //     // params.set("isActive", (isActive + 1).toString());
-  //   } else {
-  //     params.delete('isActive')
-  //   }
-  //   params.set('page', '1')
-  //   router.replace(`${pathname}?${params.toString()}`)
-  // }
-
-  // const data = [
-  //   {
-  //     title: 'منتج مباع شهريًا',
-  //     icon: Box,
-  //     value: 0,
-  //     iconClassName: 'text-[#041016]',
-  //     iconBgWrapperColor: 'bg-blue-100'
-  //   },
-  //   {
-  //     title: 'منتج مباع سنويًا',
-  //     icon: Box,
-  //     value: 0,
-  //     iconClassName: 'text-green-900',
-  //     iconBgWrapperColor: 'bg-green-100',
-  //     role: 'manager'
-  //   }
-  // ]
-
   return (
     <div
       className={`grid gap-2 sm:grid-cols-1 md:grid-cols-${data.length >= 3 ? '3' : data.length == 2 ? '2' : '1'}`}
