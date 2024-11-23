@@ -1,3 +1,6 @@
+import { LucideProps } from 'lucide-react'
+import { ForwardRefExoticComponent, RefAttributes } from 'react'
+
 export type LogInResponse = {
   token: string
   expireIn: number
@@ -220,4 +223,14 @@ export interface localNewProduct {
   productionLineId: number
   productionTeamId: number
   quantity: number
+}
+export interface cardsInterface {
+  title: string
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+  value: number | string
+  iconClassName: string
+  iconBgWrapperColor: string
+}
+export interface DailyReportInfo {
+  returnReportCards: (cards: cardsInterface[]) => void
 }

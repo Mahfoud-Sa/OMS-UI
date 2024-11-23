@@ -1,7 +1,9 @@
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
+import { DailyReportInfo } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { Box, Boxes } from 'lucide-react'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -19,7 +21,9 @@ export interface BillingStatusReportsProps {
   orderState: number
 }
 
-const BillingStatusReports = () => {
+const BillingStatusReports: React.FC<DailyReportInfo> = ({
+  returnReportCards
+}: DailyReportInfo) => {
   const [openSheet, setOpenSheet] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -51,7 +55,7 @@ const BillingStatusReports = () => {
   const teamId = filterOptions.productionTeam
   const orderState = filterOptions.orderState
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isSuccess } = useQuery({
     queryKey: [
       'orders',
       'billing-status',
@@ -85,6 +89,34 @@ const BillingStatusReports = () => {
       orderState: filterOptions.orderState
     })
   }, [filterOptions, setSearchParams])
+  useEffect(() => {
+    if (isSuccess && data) {
+      const cards = [
+        {
+          title: `${moment(startDate).format('DD-MM-YYYY')} الى ${moment(endDate).format('DD-MM-YYYY')}`,
+          value: `${data.data.length}`, // Replace with the actual icon component
+          icon: Boxes,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        },
+        {
+          title: 'اجمالي قيمة قيمة البيع',
+          value: data.data.reduce((acc, item) => acc + parseInt(item.sellingPrice), 0),
+          icon: Box,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        },
+        {
+          title: 'اجمالي قيمة تكلفة الشراء',
+          value: data.data.reduce((acc, item) => acc + parseInt(item.costPrice), 0),
+          icon: Box,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        }
+      ]
+      returnReportCards(cards)
+    }
+  }, [isSuccess, data, returnReportCards])
 
   if (isPending)
     return (

@@ -1,40 +1,54 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
+import { cardsInterface } from '@renderer/types/api'
+import { Box } from 'lucide-react'
+import { useState } from 'react'
+import Statistics from './_components/statistics'
 import BillingStatusReports from './taps/billing-status-reports/billing-status-reports'
 import DailyReport from './taps/daily-report/daily-report'
 import ItemProductionReport from './taps/item-production-report/item-production-report'
 import ReceiptDatesReport from './taps/receipt-dates-report/receipt-dates-report'
 
 const Reports = () => {
+  const [StatisticsCardsData, setStatisticsCardsData] = useState<cardsInterface[]>([
+    {
+      title: '',
+      icon: Box,
+      value: 0,
+      iconClassName: 'text-[#041016]',
+      iconBgWrapperColor: 'bg-blue-100'
+    }
+  ])
   const tabs = [
     {
-      content: <DailyReport />,
+      content: <DailyReport returnReportCards={setStatisticsCardsData} />,
       value: 'DailyReport',
       label: 'التقرير اليومي'
     },
     {
-      content: <BillingStatusReports />,
+      content: <BillingStatusReports returnReportCards={setStatisticsCardsData} />,
       value: 'BillingStatusReports',
       label: 'تقارير حالات الفواتير'
     },
     {
-      content: <ItemProductionReport />,
+      content: <ItemProductionReport returnReportCards={setStatisticsCardsData} />,
       value: 'ItemProductionReport',
       label: 'تقرير إنتاج صنف'
     },
     {
-      content: <ReceiptDatesReport />,
+      content: <ReceiptDatesReport returnReportCards={setStatisticsCardsData} />,
       value: 'ReceiptDatesReport',
       label: 'تقرير تواريخ الإستلام'
     }
   ]
   return (
     <section className="p-5">
-      {/* <Statistics
+      <Statistics
         selectedRole={undefined}
+        data={StatisticsCardsData}
         filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
-      /> */}
+      />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={'DailyReport'}>
           <TabsList className="bg-transparent mb-3">
