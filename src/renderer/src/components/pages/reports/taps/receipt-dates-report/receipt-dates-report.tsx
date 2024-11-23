@@ -9,7 +9,8 @@ import * as XLSX from 'xlsx'
 import FilterSheet from './components/filter-sheet'
 import ReceiptDatesReportTable from './receipt-dates-report-table'
 export interface ReceiptDatesReportProps {
-  orderId: number
+  id: number
+  billNo: string
   name: string
   createAt: string
   factory: string
@@ -23,18 +24,18 @@ const ReceiptDatesReport = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [filterOptions, setFilterOptions] = useState({
-    factory: searchParams.get('factory') || '1',
-    productionLine: searchParams.get('productionLine') || '1',
-    productionTeam: searchParams.get('productionTeam') || '1',
+    factory: searchParams.get('factory') || '',
+    productionLine: searchParams.get('productionLine') || '',
+    productionTeam: searchParams.get('productionTeam') || '',
     date: {
       from: searchParams.get('from') || '02-01-2020',
       to: searchParams.get('to') || '02-01-2025'
     }
   })
   const [editedFilterOptions, setEditedFilterOptions] = useState({
-    factory: searchParams.get('factory') || '1',
-    productionLine: searchParams.get('productionLine') || '1',
-    productionTeam: searchParams.get('productionTeam') || '1',
+    factory: searchParams.get('factory') || '',
+    productionLine: searchParams.get('productionLine') || '',
+    productionTeam: searchParams.get('productionTeam') || '',
     date: {
       from: searchParams.get('from') || '02-01-2020',
       to: searchParams.get('to') || '02-01-2025'
@@ -48,7 +49,7 @@ const ReceiptDatesReport = () => {
   const teamId = filterOptions.productionTeam
 
   const { data, isPending } = useQuery({
-    queryKey: ['orders', startDate, endDate, factoryId, productionId, teamId],
+    queryKey: ['orders', 'receipt-dates', startDate, endDate, factoryId, productionId, teamId],
     queryFn: () =>
       getApi<ReceiptDatesReportProps[]>(`/Reporters/DeliveryDates`, {
         params: {
@@ -82,7 +83,8 @@ const ReceiptDatesReport = () => {
     if (!data) return
 
     const exportData = data.data.map((item) => ({
-      'رقم الطلب': item.orderId,
+      id: item.id,
+      'رقم الفاتوره': item.billNo,
       الاسم: item.name,
       'تاريخ الانشاء': moment(item.createAt).format('YYYY-MM-DD'),
       المصنع: item.factory,

@@ -26,20 +26,15 @@ const BillingStatusReportsTable = ({ data }: Props) => {
   const columns = React.useMemo<ColumnDef<BillingStatusReportsProps>[]>(
     () => [
       {
-        accessorKey: 'orderId',
+        accessorKey: 'id',
         header: 'الرقم',
         cell: ({ row }) => {
-          return row.original.orderId
+          return row.original.id
         }
       },
       {
         accessorKey: 'billNo',
         header: 'رقم الفاتورة'
-      },
-
-      {
-        accessorKey: 'factory',
-        header: 'اسم المصنع'
       },
       {
         accessorKey: 'createAt',
@@ -49,12 +44,19 @@ const BillingStatusReportsTable = ({ data }: Props) => {
         }
       },
       {
-        accessorKey: 'line',
-        header: 'خط الانتاج'
+        accessorKey: 'deliveryAt',
+        header: 'تاريخ التسليم',
+        cell: ({ row }) => {
+          return <div>{new Date(row.original.deliveryAt).toLocaleDateString()}</div>
+        }
       },
       {
-        accessorKey: 'team',
-        header: 'فريق الانتاج'
+        accessorKey: 'sellingPrice',
+        header: 'تكلفة البيع'
+      },
+      {
+        accessorKey: 'costPrice',
+        header: 'تكلفة البيع'
       },
 
       {
@@ -67,7 +69,7 @@ const BillingStatusReportsTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.orderId}`}>
+              <Link to={`/orders/${row.original?.id}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

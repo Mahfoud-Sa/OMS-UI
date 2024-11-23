@@ -27,42 +27,39 @@ const ReceiptDatesReportTable = ({ data }: Props) => {
   const columns = React.useMemo<ColumnDef<ReceiptDatesReportProps>[]>(
     () => [
       {
-        accessorKey: 'orderId',
+        accessorKey: 'id',
         header: 'الرقم',
         cell: ({ row }) => {
-          return row.original.orderId
+          return row.original.id
         }
       },
       {
-        accessorKey: 'name',
-        header: 'اسم المنتج'
-      },
-      {
-        accessorKey: 'factory',
-        header: 'اسم المصنع'
-      },
-      {
-        accessorKey: 'line',
-        header: 'خط الإنتاج'
+        accessorKey: 'billNo',
+        header: 'رقم الفاتورة'
       },
       {
         accessorKey: 'createAt',
         header: 'تاريخ الانشاء',
         cell: ({ row }) => {
-          return <div>{moment(row.original.createAt).format('YYYY-MM-DD')}</div>
+          return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
         }
-      },
-      {
-        accessorKey: 'team',
-        header: 'اسم الفرقة'
       },
       {
         accessorKey: 'deliveryAt',
         header: 'تاريخ التسليم',
         cell: ({ row }) => {
-          return <div>{moment(row.original.deliveryAt).format('YYYY-MM-DD')}</div>
+          return <div>{new Date(row.original.deliveryAt).toLocaleDateString()}</div>
         }
       },
+      {
+        accessorKey: 'sellingPrice',
+        header: 'تكلفة البيع'
+      },
+      {
+        accessorKey: 'costPrice',
+        header: 'تكلفة البيع'
+      },
+
       {
         id: 'actions',
         cell: ({ row }) => (
@@ -73,7 +70,7 @@ const ReceiptDatesReportTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.orderId}`}>
+              <Link to={`/orders/${row.original?.id}`}>
                 <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

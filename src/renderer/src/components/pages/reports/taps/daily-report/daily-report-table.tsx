@@ -19,14 +19,14 @@ const DailyReportTable = ({ data }: Props) => {
     () => [
       {
         accessorKey: 'createAt',
-        header: 'تاريخ الانشاء',
+        header: 'التاريخ',
         cell: ({ row }) => {
           return moment(row.original.createAt).format('YYYY-MM-DD')
         }
       },
       {
         accessorKey: 'total',
-        header: 'المجموع'
+        header: 'عدد المنتجات في هذا اليوم'
       }
     ],
     []
