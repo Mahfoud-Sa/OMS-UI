@@ -1,7 +1,9 @@
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
+import { cardsInterface } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { Boxes } from 'lucide-react'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -14,7 +16,11 @@ export interface DailyReportProps {
   total: number
 }
 
-const DailyReport = () => {
+interface DailyReportInfo {
+  returnReportCards: (cards: cardsInterface[]) => void
+}
+
+const DailyReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyReportInfo) => {
   const [openSheet, setOpenSheet] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -43,7 +49,7 @@ const DailyReport = () => {
   const productionId = filterOptions.productionLine
   const teamId = filterOptions.productionTeam
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isSuccess } = useQuery({
     queryKey: ['orders', 'daily-report', startDate, endDate, factoryId, productionId, teamId],
     queryFn: () =>
       getApi<DailyReportProps[]>(`/Reporters/Daily`, {
@@ -56,6 +62,21 @@ const DailyReport = () => {
         }
       })
   })
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      const cards = [
+        {
+          title: `${moment(startDate).format('DD-MM-YYYY')} الى ${moment(endDate).format('DD-MM-YYYY')}`,
+          value: data.data.reduce((acc, item) => acc + item.total, 0),
+          icon: Boxes, // Replace with the actual icon component
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        }
+      ]
+      returnReportCards(cards)
+    }
+  }, [isSuccess, data, returnReportCards])
 
   useEffect(() => {
     setSearchParams({

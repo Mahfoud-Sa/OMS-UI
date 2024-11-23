@@ -1,7 +1,9 @@
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { getApi } from '@renderer/lib/http'
+import { DailyReportInfo } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
+import { Box, Boxes } from 'lucide-react'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -13,13 +15,12 @@ export interface ReceiptDatesReportProps {
   billNo: string
   name: string
   createAt: string
-  factory: string
-  line: string
-  team: string
+  costPrice: string
+  sellingPrice: string
   deliveryAt: string
 }
 
-const ReceiptDatesReport = () => {
+const ReceiptDatesReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyReportInfo) => {
   const [openSheet, setOpenSheet] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -48,7 +49,7 @@ const ReceiptDatesReport = () => {
   const productionId = filterOptions.productionLine
   const teamId = filterOptions.productionTeam
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isSuccess } = useQuery({
     queryKey: ['orders', 'receipt-dates', startDate, endDate, factoryId, productionId, teamId],
     queryFn: () =>
       getApi<ReceiptDatesReportProps[]>(`/Reporters/DeliveryDates`, {
@@ -71,6 +72,34 @@ const ReceiptDatesReport = () => {
       to: filterOptions.date.to
     })
   }, [filterOptions, setSearchParams])
+  useEffect(() => {
+    if (isSuccess && data) {
+      const cards = [
+        {
+          title: `${moment(startDate).format('DD-MM-YYYY')} الى ${moment(endDate).format('DD-MM-YYYY')}`,
+          value: `${data.data.length}`, // Replace with the actual icon component
+          icon: Boxes,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        },
+        {
+          title: 'اجمالي قيمة قيمة البيع',
+          value: data.data.reduce((acc, item) => acc + parseInt(item.sellingPrice), 0),
+          icon: Box,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        },
+        {
+          title: 'اجمالي قيمة تكلفة الشراء',
+          value: data.data.reduce((acc, item) => acc + parseInt(item.costPrice), 0),
+          icon: Box,
+          iconClassName: 'text-[#041016]', // Replace with the actual class name
+          iconBgWrapperColor: 'bg-blue-100' // Replace with the actual color
+        }
+      ]
+      returnReportCards(cards)
+    }
+  }, [isSuccess, data, returnReportCards])
 
   if (isPending)
     return (
@@ -87,10 +116,9 @@ const ReceiptDatesReport = () => {
       'رقم الفاتوره': item.billNo,
       الاسم: item.name,
       'تاريخ الانشاء': moment(item.createAt).format('YYYY-MM-DD'),
-      المصنع: item.factory,
-      الخط: item.line,
-      الفريق: item.team,
-      'تاريخ التسليم': moment(item.deliveryAt).format('YYYY-MM-DD')
+      'تاريخ التسليم': moment(item.deliveryAt).format('YYYY-MM-DD'),
+      'تكلفة الشراء': item.costPrice,
+      'تكلفة البيع': item.sellingPrice
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
