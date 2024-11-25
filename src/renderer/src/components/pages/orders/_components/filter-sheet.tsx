@@ -1,4 +1,5 @@
 import { Button } from '@renderer/components/ui/button'
+import { Combobox } from '@renderer/components/ui/combobox'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import {
@@ -8,6 +9,9 @@ import {
   SheetHeader,
   SheetTitle
 } from '@renderer/components/ui/sheet'
+import { getApi } from '@renderer/lib/http'
+import { Factory } from '@renderer/types/api'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthUser } from 'react-auth-kit'
 
 interface FilterSheetProps {
@@ -25,6 +29,7 @@ interface FilterOptions {
   createdAfter: string
   minSellingPrice: string
   maxSellingPrice: string
+  factoryId: string
 }
 
 const FilterSheet: React.FC<FilterSheetProps> = ({
@@ -40,6 +45,15 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
     onApply(filterOptions)
     onClose()
   }
+  const { data: factories } = useQuery({
+    queryKey: ['Factories'],
+    queryFn: () =>
+      getApi<{ factories: Factory[] }>('/Factories', {
+        params: {
+          size: 100000000
+        }
+      })
+  })
 
   const handleReset = () => {
     setFilterOptions({
@@ -48,7 +62,8 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       createdBefore: '',
       createdAfter: '',
       minSellingPrice: '',
-      maxSellingPrice: ''
+      maxSellingPrice: '',
+      factoryId: ''
     })
   }
 
@@ -61,6 +76,24 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
         <div className="grid gap-4 py-4">
           {['مشرف', 'منسق طلبات'].includes(userType) && (
             <>
+              <div>
+                <Label>المصنع</Label>
+                <Combobox
+                  selectedValue={
+                    factories?.data.factories.find(
+                      (factory) => factory.id === Number(filterOptions.factoryId)
+                    ) || null
+                  }
+                  options={factories?.data.factories || []}
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="أختر مصنع"
+                  emptyMessage="لم يتم العثور علئ مصنع"
+                  onSelect={(factory) => {
+                    setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
+                  }}
+                />
+              </div>
               <div>
                 <Input
                   type="number"
