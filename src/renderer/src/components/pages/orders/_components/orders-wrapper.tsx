@@ -27,7 +27,8 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
     createdBefore: '',
     createdAfter: '',
     minSellingPrice: '',
-    maxSellingPrice: ''
+    maxSellingPrice: '',
+    factoryId: ''
   })
   const [editedFilterOptions, setEditedFilterOptions] = useState({
     minCostPrice: '',
@@ -35,7 +36,8 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
     createdBefore: '',
     createdAfter: '',
     minSellingPrice: '',
-    maxSellingPrice: ''
+    maxSellingPrice: '',
+    factoryId: ''
   })
 
   const query = searchParams.get('query')
