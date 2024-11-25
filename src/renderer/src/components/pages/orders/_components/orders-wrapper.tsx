@@ -45,6 +45,9 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
 
   const { data, isPending, isError, error, isSuccess } = useQuery({
     queryKey: ['orders', status, query, page, isAsc, filterOptions],
+    // 5 seconds cache
+    gcTime: 5000,
+    staleTime: 5000,
     queryFn: () =>
       getApi<{
         total: number
