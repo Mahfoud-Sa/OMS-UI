@@ -1,5 +1,4 @@
 import { Button } from '@renderer/components/ui/button'
-import { Combobox } from '@renderer/components/ui/combobox'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import {
@@ -9,10 +8,6 @@ import {
   SheetHeader,
   SheetTitle
 } from '@renderer/components/ui/sheet'
-import { getApi } from '@renderer/lib/http'
-import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
 
 interface FilterSheetProps {
   open: boolean
@@ -23,9 +18,6 @@ interface FilterSheetProps {
 }
 
 interface FilterOptions {
-  factory: string
-  productionLine: string
-  productionTeam: string
   date: {
     from: string
     to: string
@@ -39,47 +31,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   filterOptions,
   setFilterOptions
 }: FilterSheetProps) => {
-  const [factoryId, setFactoryId] = useState(1)
-  const [productionLinesData, setProductionLines] = useState<ProductionLineProps[]>([])
-  const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
-  const { data: factories } = useQuery({
-    queryKey: ['Factories'],
-    queryFn: () =>
-      getApi<{ factories: Factory[] }>('/Factories', {
-        params: {
-          size: 100000000
-        }
-      })
-  })
-
-  const { data: factoryData, isSuccess: isFactoryDataSuccess } = useQuery({
-    queryKey: ['Factory', factoryId],
-    queryFn: () =>
-      factoryId
-        ? getApi<{
-            factory: FactoryInterface
-            productionLines: ProductionLineProps[]
-            productionTeams: ProductionTeam[]
-          }>(`/Factories/${factoryId}`, {}).then((response) => {
-            return response.data
-          })
-        : Promise.resolve(undefined),
-    enabled: !!factoryId
-  })
-
-  useEffect(() => {
-    if (isFactoryDataSuccess && factoryData) {
-      setProductionLines(factoryData.productionLines || [])
-    }
-  }, [isFactoryDataSuccess, factoryData])
-
-  const getProductionTeams = (line: ProductionLineProps) => {
-    const productionLine = productionLinesData.find((pl) => pl.id === line.id)
-    if (productionLine) {
-      setProductionTeams(productionLine.teams || [])
-    }
-  }
-
   const handleApply = () => {
     onApply(filterOptions)
     onClose()
@@ -87,10 +38,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
 
   const handleReset = () => {
     setFilterOptions({
-      ...filterOptions,
-      factory: '',
-      productionLine: '',
-      productionTeam: ''
+      ...filterOptions
     })
   }
 
@@ -100,61 +48,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
         <SheetHeader>
           <SheetTitle>تصفية النتائج</SheetTitle>
         </SheetHeader>
-        <div className="grid gap-4 py-4">
-          <div>
-            <Label>المصنع</Label>
-            <Combobox
-              selectedValue={
-                factories?.data.factories.find(
-                  (factory) => factory.id === Number(filterOptions.factory)
-                ) || null
-              }
-              options={factories?.data.factories || []}
-              valueKey="id"
-              displayKey="name"
-              placeholder="أختر مصنع"
-              emptyMessage="لم يتم العثور علئ مصنع"
-              onSelect={(factory) => {
-                setFilterOptions({ ...filterOptions, factory: String(factory?.id) })
-                setFactoryId(factory?.id)
-              }}
-            />
-          </div>
-          <div>
-            <Label>خط الانتاج</Label>
-            <Combobox
-              selectedValue={
-                productionLinesData.find((line) => line.id === filterOptions.productionLine) || null
-              }
-              options={productionLinesData || []}
-              valueKey="id"
-              disabled={productionLinesData.length == 0}
-              displayKey="name"
-              placeholder="أختر خط انتاج"
-              emptyMessage="لم يتم العثور علئ اي خط انتاج"
-              onSelect={(line) => {
-                setFilterOptions({ ...filterOptions, productionLine: String(line?.id) })
-                getProductionTeams(line as ProductionLineProps)
-              }}
-            />
-          </div>
-          <div>
-            <Label>فرقة الانتاج</Label>
-            <Combobox
-              selectedValue={
-                productionTeams?.find((team) => team.id === filterOptions.productionTeam) || null
-              }
-              disabled={productionTeams.length == 0}
-              options={productionTeams || []}
-              valueKey="id"
-              displayKey="name"
-              placeholder="أختر فريق"
-              emptyMessage="لم يتم العثور علئ الفريق"
-              onSelect={(team) =>
-                setFilterOptions({ ...filterOptions, productionTeam: String(team?.id) })
-              }
-            />
-          </div>
+        <div>
           <div>
             <Label>حسب تاريخ التسليم المتوقع</Label>
             <div className="flex gap-4 mt-2">
@@ -188,7 +82,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
             </div>
           </div>
         </div>
-        <SheetFooter>
+        <SheetFooter className="my-3">
           <div className="flex gap-3 w-60">
             <Button onClick={handleReset} className="w-full" variant="outline">
               اعادة تعيين

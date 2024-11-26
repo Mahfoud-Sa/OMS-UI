@@ -25,18 +25,12 @@ const ReceiptDatesReport: React.FC<DailyReportInfo> = ({ returnReportCards }: Da
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [filterOptions, setFilterOptions] = useState({
-    factory: searchParams.get('factory') || '',
-    productionLine: searchParams.get('productionLine') || '',
-    productionTeam: searchParams.get('productionTeam') || '',
     date: {
       from: searchParams.get('from') || '02-01-2020',
       to: searchParams.get('to') || '02-01-2025'
     }
   })
   const [editedFilterOptions, setEditedFilterOptions] = useState({
-    factory: searchParams.get('factory') || '',
-    productionLine: searchParams.get('productionLine') || '',
-    productionTeam: searchParams.get('productionTeam') || '',
     date: {
       from: searchParams.get('from') || '02-01-2020',
       to: searchParams.get('to') || '02-01-2025'
@@ -45,29 +39,20 @@ const ReceiptDatesReport: React.FC<DailyReportInfo> = ({ returnReportCards }: Da
 
   const startDate = filterOptions.date.from
   const endDate = filterOptions.date.to
-  const factoryId = filterOptions.factory
-  const productionId = filterOptions.productionLine
-  const teamId = filterOptions.productionTeam
 
   const { data, isPending, isSuccess } = useQuery({
-    queryKey: ['orders', 'receipt-dates', startDate, endDate, factoryId, productionId, teamId],
+    queryKey: ['orders', 'receipt-dates', startDate, endDate],
     queryFn: () =>
       getApi<ReceiptDatesReportProps[]>(`/Reporters/DeliveryDates`, {
         params: {
           startDate,
-          endDate,
-          ...(factoryId && { factoryId }),
-          ...(productionId && { productionId }),
-          ...(teamId && { teamId })
+          endDate
         }
       })
   })
 
   useEffect(() => {
     setSearchParams({
-      factory: filterOptions.factory,
-      productionLine: filterOptions.productionLine,
-      productionTeam: filterOptions.productionTeam,
       from: filterOptions.date.from,
       to: filterOptions.date.to
     })
@@ -145,9 +130,6 @@ const ReceiptDatesReport: React.FC<DailyReportInfo> = ({ returnReportCards }: Da
 
   const handleApplyFilters = (data) => {
     const filters = {
-      factory: data.factory,
-      productionLine: data.productionLine,
-      productionTeam: data.productionTeam,
       date: {
         from: moment(data.date.from).format('MM-DD-YYYY') || '02/01/2020',
         to: moment(data.date.to).format('MM-DD-YYYY') || '02/01/2025'
