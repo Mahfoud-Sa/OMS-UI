@@ -88,6 +88,10 @@ const FilterSheetDaily: React.FC<FilterSheetProps> = ({
   const handleReset = () => {
     setFilterOptions({
       ...filterOptions,
+      date: {
+        from: '2020-01-01',
+        to: '2025-01-01'
+      },
       factory: '',
       productionLine: '',
       productionTeam: ''
@@ -163,6 +167,7 @@ const FilterSheetDaily: React.FC<FilterSheetProps> = ({
                 label={'من'}
                 onChangeCapture={(e) => {
                   const fromDate = (e.target as HTMLInputElement).value
+                  console.log(fromDate)
                   setFilterOptions({
                     ...filterOptions,
                     date: { ...filterOptions.date, from: fromDate }
