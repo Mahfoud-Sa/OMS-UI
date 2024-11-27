@@ -86,6 +86,10 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
   const handleReset = () => {
     setFilterOptions({
       ...filterOptions,
+      date: {
+        from: '2020-01-01',
+        to: '2025-01-01'
+      },
       factory: '',
       productionLine: '',
       productionTeam: '',
