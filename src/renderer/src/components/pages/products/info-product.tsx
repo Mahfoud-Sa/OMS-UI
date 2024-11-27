@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import BarCharter from '@renderer/components/charts/BarChart'
 import LineCharter from '@renderer/components/charts/LineChart'
-import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
@@ -58,6 +57,7 @@ const InfoProduct = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [hasManyValues, setHasManyValues] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
+  const [originalName, setOriginalName] = useState<string | null>(null)
   const [designs, setDesigns] = useState<
     {
       isDelete: boolean
@@ -65,6 +65,7 @@ const InfoProduct = () => {
       id?: number
     }[]
   >([])
+  const [designId, setId] = useState<number | undefined>(0)
   const [design, setDesign] = useState<string | null>(null)
 
   const {
@@ -78,7 +79,11 @@ const InfoProduct = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await putApi(`/Products/${id}`, data)
+      const payload = {
+        designs: data.designs,
+        ...(data.name !== originalName ? { name: data.name } : { name: null })
+      }
+      await putApi(`/Products/${id}`, payload)
     },
     onSuccess: () => {
       toast({
@@ -126,6 +131,7 @@ const InfoProduct = () => {
         designs: newData
       })
       setDesigns([...newData!])
+      setOriginalName(data.data.name)
     }
   }, [data?.data])
 
@@ -142,28 +148,6 @@ const InfoProduct = () => {
     }
   }
 
-  const handleRemoveDesign = (indx: number) => {
-    const filterDesign = designs
-      .map((el, index) => {
-        if (index == indx) {
-          if (el.id != null) {
-            el.isDelete = true
-            return el
-          }
-
-          return null
-        }
-        return el
-      })
-      .filter((el) => el != null)
-
-    form.setValue('designs', filterDesign)
-
-    setDesigns(filterDesign)
-
-    console.log(form.getValues('designs'))
-  }
-
   const designsWatcher = form.watch('designs')
 
   useEffect(() => {
@@ -176,6 +160,7 @@ const InfoProduct = () => {
   useEffect(() => {
     form.setValue('designs', designs)
     setDesign(null)
+    setId(undefined)
     console.log(form.getValues('designs'))
   }, [designs])
 
@@ -320,7 +305,9 @@ const InfoProduct = () => {
                                         <Button
                                           type="button"
                                           onClick={() => {
+                                            console.log(d)
                                             setDesign(d.name)
+                                            setId(d.id)
                                             setShowDialog(true)
                                           }}
                                           variant="ghost"
@@ -340,12 +327,11 @@ const InfoProduct = () => {
                                           label="اسم التصميم"
                                           value={design || ''}
                                         />
-
                                         <DialogFooter>
                                           <Button
                                             type="button"
                                             onClick={() => {
-                                              handleEditDesign(d.id || 0)
+                                              handleEditDesign(designId!)
                                               setShowDialog(false)
                                             }}
                                           >
@@ -354,14 +340,6 @@ const InfoProduct = () => {
                                         </DialogFooter>
                                       </DialogContent>
                                     </Dialog>
-                                    <Button
-                                      type="button"
-                                      onClick={() => handleRemoveDesign(index)}
-                                      variant="ghost"
-                                      disabled={!isEdit}
-                                    >
-                                      <TrushSquare />
-                                    </Button>
                                   </TableCell>
                                 </TableRow>
                               )

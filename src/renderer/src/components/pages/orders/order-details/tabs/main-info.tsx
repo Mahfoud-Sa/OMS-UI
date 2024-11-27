@@ -142,13 +142,23 @@ const MainInfo = () => {
           type="date"
           label="تاريخ الإنشاء"
         />
+        {data.data.deliveryAt && (
+          <Input
+            type="date"
+            disabled={true}
+            value={new Date(data.data.deliveryAt).toISOString().split('T')[0]}
+            placeholder="تاريخ التسليم "
+            martial
+            label="تاريخ التسليم"
+          />
+        )}
         <Input
           type="date"
           disabled={true}
-          value={new Date(data.data.deliveryAt).toISOString().split('T')[0]}
-          placeholder="تاريخ التسليم "
+          value={new Date(data.data.readyAt).toISOString().split('T')[0]}
+          placeholder="تاريخ التسليم المتوقع"
           martial
-          label="تاريخ التسليم"
+          label="تاريخ التسليم المتوقع"
         />
         {/* TODO: this input should only appear to admin and retail user.*/}
         {['مشرف', 'بائع'].includes(userType) && (

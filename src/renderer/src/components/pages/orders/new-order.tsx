@@ -41,7 +41,7 @@ const schema = z.object({
   customerNo: z
     .string({ message: 'يجب أدخال رقم العميل' })
     .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
-  deliveryAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
+  readyAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
   sellingPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
   notes: z.string().optional(),
@@ -224,7 +224,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       const payload = {
         billNo: data.billNo,
         customerName: data.customerName,
-        deliveryAt: data.deliveryAt,
+        readyAt: data.readyAt,
         deliveryNote: data.deliveryNote || '',
         orderState: 1,
         sellingPrice: data.sellingPrice,
@@ -507,7 +507,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                     {/* deliveryDate */}
                     <FormField
                       control={form.control}
-                      name="deliveryAt"
+                      name="readyAt"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>

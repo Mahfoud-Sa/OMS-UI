@@ -29,9 +29,8 @@ export default function useNavItems() {
         {
           href: '/reports',
           icon: 'clipboardList',
-          label: 'التقارير'
-          // TODO: enable this link when the page is ready;
-          // disabled: true
+          label: 'التقارير',
+          disabled: !['مشرف'].includes(userType)
         },
         {
           href: '',
