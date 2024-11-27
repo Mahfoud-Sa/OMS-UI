@@ -97,7 +97,9 @@ const PrintItemBill = () => {
                 </p>
                 <p>
                   <span className="font-semibold">تاريخ التسليم</span> :{' '}
-                  {new Date(data.data.deliveryAt).toLocaleDateString()}
+                  {data.data.deliveryAt
+                    ? new Date(data.data.deliveryAt).toLocaleDateString()
+                    : 'لم يسلم بعد'}
                 </p>
               </div>
             </div>
@@ -106,7 +108,7 @@ const PrintItemBill = () => {
                 <TableHeader className="pt-32">
                   <TableRow>
                     <TableCell className=" text-right font-bold">رقم</TableCell>
-                    <TableCell className="text-right font-bold">وصف المنتج</TableCell>
+                    <TableCell className="text-right font-bold">اسم المنتج</TableCell>
                     <TableCell className="text-right font-bold">الكمية</TableCell>
                     <TableCell className="text-right font-bold">التصميم</TableCell>
                     <TableCell className="text-right font-bold">قماش</TableCell>
