@@ -47,7 +47,13 @@ const BillingStatusReportsTable = ({ data }: Props) => {
         accessorKey: 'deliveryAt',
         header: 'تاريخ التسليم',
         cell: ({ row }) => {
-          return <div>{new Date(row.original.deliveryAt).toLocaleDateString()}</div>
+          return (
+            <div>
+              {row.original.deliveryAt
+                ? new Date(row.original.deliveryAt).toLocaleDateString()
+                : 'لم يسلم بعد'}
+            </div>
+          )
         }
       },
       {
