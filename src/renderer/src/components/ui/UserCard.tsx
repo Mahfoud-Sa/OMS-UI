@@ -1,3 +1,4 @@
+import { gotRole } from '@renderer/lib/utils'
 import { UserIcon } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -100,19 +101,23 @@ export const UserCard: React.FC<DeliveryUserCardProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <Link to={`/users/${userId}`}>
-                    <DropdownMenuItem>تعديل</DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setIsDialogOpen(true)
-                    }}
-                    // backgroundColor="orange"
-                    // color="white"
-                    className="btn"
-                  >
-                    حذف
-                  </DropdownMenuItem>
+                  {gotRole('Get User') && (
+                    <Link to={`/users/${userId}`}>
+                      <DropdownMenuItem>تعديل</DropdownMenuItem>
+                    </Link>
+                  )}
+                  {userInfo.role !== 'مشرف' && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setIsDialogOpen(true)
+                      }}
+                      // backgroundColor="orange"
+                      // color="white"
+                      className="btn"
+                    >
+                      حذف
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

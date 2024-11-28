@@ -407,7 +407,6 @@ const NewFactory: React.FunctionComponent = () => {
                       data={productionLinesArray}
                       title="خطوط الانتاج المضافة"
                       displayActions={false}
-                      onDeleteProductionLineTeam={() => {}}
                       onEditProductionLineTeam={() => {}}
                     />
                   </div>

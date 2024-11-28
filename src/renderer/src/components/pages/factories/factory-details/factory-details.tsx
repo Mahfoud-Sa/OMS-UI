@@ -18,7 +18,7 @@ import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { deleteApi, getApi, postApi, putApi } from '@renderer/lib/http'
+import { getApi, postApi, putApi } from '@renderer/lib/http'
 import {
   LineChartResponse,
   MixedBarCharterProps,
@@ -170,26 +170,6 @@ const FactoryDetails: React.FunctionComponent = () => {
       })
     }
   })
-  const { mutate: deleteProductionLineMutate } = useMutation({
-    mutationFn: async (id: string) => {
-      await deleteApi(`/ProductionLines/${id}`)
-    },
-    onSuccess: () => {
-      toast({
-        title: 'تم الحذف',
-        description: `تم حذف خط الانتاج بنجاح`,
-        variant: 'success'
-      })
-      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
-    },
-    onError: () => {
-      toast({
-        title: 'فشلت عملية الحذف',
-        description: `حصل خطأ ما`,
-        variant: 'destructive'
-      })
-    }
-  })
   const { mutate: editProductionLineMutate } = useMutation({
     mutationFn: async ({
       id,
@@ -224,26 +204,6 @@ const FactoryDetails: React.FunctionComponent = () => {
       })
     }
   })
-  const { mutate: deleteProductionTeamMutate } = useMutation({
-    mutationFn: async (id: string) => {
-      await deleteApi(`/ProductionTeams/${id}`)
-    },
-    onSuccess: () => {
-      toast({
-        title: 'تم الحذف',
-        description: `تم حذف فريق الانتاج بنجاح`,
-        variant: 'success'
-      })
-      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
-    },
-    onError: () => {
-      toast({
-        title: 'فشلت عملية الحذف',
-        description: `حصل خطأ ما`,
-        variant: 'destructive'
-      })
-    }
-  })
   const { mutate: editProductionTeamMutate } = useMutation({
     mutationFn: async ({
       id,
@@ -273,12 +233,6 @@ const FactoryDetails: React.FunctionComponent = () => {
 
   // table structure
 
-  const deleteProductionLine = async (id: string) => {
-    deleteProductionLineMutate(id)
-  }
-  const deleteProductionTeam = async (productionLineTeamId: string) => {
-    deleteProductionTeamMutate(productionLineTeamId)
-  }
   const editProductionTeam = async (
     id: string,
     name: string,
@@ -347,14 +301,14 @@ const FactoryDetails: React.FunctionComponent = () => {
                   >
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
                   </a>
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() => {
                       deleteProductionLine(original.id || '')
                     }}
                     className="bg-orange-500 text-white"
                   >
                     حذف
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -619,9 +573,9 @@ const FactoryDetails: React.FunctionComponent = () => {
                         : []
                     }
                     title="Factories"
-                    onDeleteProductionLineTeam={(teamId) => {
-                      deleteProductionTeam(teamId)
-                    }}
+                    // onDeleteProductionLineTeam={(teamId) => {
+                    //   deleteProductionTeam(teamId)
+                    // }}
                     onEditProductionLineTeam={handleEditTeam}
                     displayActions={isEdit}
                   />

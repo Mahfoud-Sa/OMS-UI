@@ -34,7 +34,9 @@ const OrderDetails = () => {
   return (
     <section className="p-5">
       <div className="mb-3 flex items-center justify-between">
-        <BackBtn href={'/orders'} />
+        <div className="mb-3 flex items-start justify-between">
+          <BackBtn href="/orders" />
+        </div>
         <div className="flex gap-2">
           <Link to={['مشرف', 'منسق طلبات'].includes(userType) ? `/orders/${id}/print` : ''}>
             <Button disabled={!['مشرف', 'منسق طلبات'].includes(userType)} className="flex gap-2">

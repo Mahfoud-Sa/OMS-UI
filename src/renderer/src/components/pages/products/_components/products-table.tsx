@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
+import { gotRole } from '@renderer/lib/utils'
 import { Product } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
@@ -59,9 +60,11 @@ const ProductsTable = ({ data }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/products/${row.original?.id}`}>
-                <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
-              </Link>
+              {gotRole('Get Product') && (
+                <Link to={`/products/${row.original?.id}`}>
+                  <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
+                </Link>
+              )}
 
               {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <DeleteDialog url={`/products/${row.original?.id}`} keys={['products']} />

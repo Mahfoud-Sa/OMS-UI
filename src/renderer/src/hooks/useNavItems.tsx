@@ -1,9 +1,18 @@
 import { NavItem } from '@/types'
+import { gotAnyRole, gotRole } from '@renderer/lib/utils'
+import { useEffect, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 
 export default function useNavItems() {
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
+  const [userRoles, setUserRoles] = useState<string[]>([])
+  useEffect(() => {
+    const roles = localStorage.getItem('_auth_state')
+      ? JSON.parse(localStorage.getItem('_auth_state') || '{}').roles
+      : []
+    setUserRoles(roles)
+  }, [userType])
 
   const navItems: NavItem[] = [
     {
@@ -12,7 +21,7 @@ export default function useNavItems() {
           href: '/orders/',
           icon: 'bell',
           label: 'الطلبات',
-          disabled: !['مشرف', 'منسق طلبات', 'بائع'].includes(userType)
+          disabled: false
         },
         {
           href: '/factories/',
@@ -24,30 +33,36 @@ export default function useNavItems() {
           href: '/products/',
           icon: 'shoppingBag',
           label: 'المنتجات',
-          disabled: !['مشرف'].includes(userType)
+          disabled: !gotRole('Get Products') && userRoles.length > 0
         },
         {
           href: '/reports',
           icon: 'clipboardList',
           label: 'التقارير',
-          disabled: !['مشرف'].includes(userType)
+          disabled:
+            !gotAnyRole([
+              'Delivery Dates Reporter',
+              'Orders Production Reporter',
+              'Orders States Reporter',
+              'Daily Reporter'
+            ]) && userRoles.length > 0
         },
         {
           href: '',
           icon: 'idCard',
           label: 'ادارة المستخدمين',
-          disabled: !['مشرف'].includes(userType),
+          disabled: !gotAnyRole(['Get All Users', 'Recet Password']) && userRoles.length > 0,
           type: 'group',
           subLinks: [
             {
               label: 'المستخدمين',
               href: '/users',
-              disabled: !['مشرف'].includes(userType)
+              disabled: !gotRole('Get All Users') && userRoles.length > 0
             },
             {
               label: 'ضبط كلمة المرور',
               href: '/users/1/reset-password',
-              disabled: !['مشرف'].includes(userType)
+              disabled: !gotRole('Recet Password') && userRoles.length > 0
             }
           ]
         },

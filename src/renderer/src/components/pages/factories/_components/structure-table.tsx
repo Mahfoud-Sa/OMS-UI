@@ -35,7 +35,6 @@ interface DataTableProps<TData, TValue> {
   title?: string
   className?: string
   displayActions?: boolean
-  onDeleteProductionLineTeam: (productionLineTeamId: string) => void
   onEditProductionLineTeam: (productionLineTeam: ProductionTeam, productionLineId: string) => void
 }
 export function StructureTable<TData extends ProductionLineProps, TValue>({
@@ -43,7 +42,6 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
   data,
   className,
   displayActions = true,
-  onDeleteProductionLineTeam,
   onEditProductionLineTeam
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -147,16 +145,6 @@ export function StructureTable<TData extends ProductionLineProps, TValue>({
                                 >
                                   <DropdownMenuItem>تعديل</DropdownMenuItem>
                                 </a>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    onDeleteProductionLineTeam(String(team.id))
-                                  }}
-                                  style={{ backgroundColor: 'orange', color: 'white' }}
-                                  color="white"
-                                  className="btn"
-                                >
-                                  حذف
-                                </DropdownMenuItem>
                               </DropdownMenuGroup>
                             </DropdownMenuContent>
                           </DropdownMenu>

@@ -104,7 +104,9 @@ const NewProduct = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/products" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/products`} />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>

@@ -50,7 +50,9 @@ const PrintItemBill = () => {
 
   return (
     <div className="">
-      <BackBtn href={`/orders/${id}`} />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/orders/${id}`} />
+      </div>
       <div className="flex justify-center">
         <Button className="flex gap-2 mb-3 mt-4 w-[210mm]" onClick={() => reactToPrintFn()}>
           طباعة

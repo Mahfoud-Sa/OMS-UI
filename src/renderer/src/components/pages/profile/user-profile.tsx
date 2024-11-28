@@ -46,7 +46,7 @@ const schema = z.object({
   Password: z.string({ message: 'مطلوب' }).optional(),
   PhoneNumber: z
     .string()
-    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
     .optional(),
   userType: z.string().optional(),
   EmployDate: z.string().optional(),
@@ -370,7 +370,7 @@ const UserProfile = () => {
               />
             </div>
           </div>
-          {userRoles.includes('Admin') && (
+          {userRoles.includes('Change Password') && (
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <h1 className="text-2xl font-bold mb-3">تغير كلمة السر</h1>
               <div className="flex gap-3">
