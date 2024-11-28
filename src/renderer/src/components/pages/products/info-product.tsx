@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import {
   LineChartResponse,
   MixedBarCharterProps,
@@ -184,7 +185,9 @@ const InfoProduct = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/products" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href="/products" />
+      </div>
       <div className="mt-2">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
@@ -424,7 +427,7 @@ const InfoProduct = () => {
                   {isEdit && (
                     <div className="flex justify-end">
                       <Button
-                        disabled={isPending}
+                        disabled={isPending || !gotRole('Update Product')}
                         className="bg-green-500 hover:bg-green-700"
                         type="submit"
                         size="lg"

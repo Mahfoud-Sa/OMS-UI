@@ -97,7 +97,9 @@ const ResetPassword = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/users" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/users`} />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>

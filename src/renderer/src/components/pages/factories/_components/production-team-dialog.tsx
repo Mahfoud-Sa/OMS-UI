@@ -1,5 +1,6 @@
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { ProductionTeam } from '@renderer/types/api'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '../../../ui/dialog'
@@ -43,7 +44,7 @@ const UpdateProductionTeamDialog = ({
   }, [productionTeam])
 
   const validatePhone = (phone: string) => {
-    const phoneRegex = /^5\d{8}$/
+    const phoneRegex = /^\+9665\d{8}$/
     return phoneRegex.test(phone)
   }
 
@@ -108,14 +109,18 @@ const UpdateProductionTeamDialog = ({
             {teamNameError && <small className="text-red-500">{teamNameError}</small>}
           </div>
           <div className="my-3">
-            <Input
+            <PhoneInput
               value={teamPhone}
-              onChange={(e) => setTeamPhone(e.target.value)}
-              placeholder="رقم التواصل"
-              label="رقم التواصل"
-              type="tel"
-              maxLength={16}
-              prefix="+966"
+              onChange={(e) => setTeamPhone(e)}
+              countries={['SA']}
+              defaultCountry="SA"
+              maxLength={13}
+              className="flex-row-reverse rounded-sm"
+              labels={{
+                SA: 'السعودية'
+              }}
+              title="رقم العميل"
+              placeholder="5********"
             />
             {teamPhoneError && <small className="text-red-500">{teamPhoneError}</small>}
           </div>

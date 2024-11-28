@@ -29,6 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import { Role } from '@renderer/types'
 import { User } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -218,7 +219,9 @@ const InfoUser = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/users" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/users`} />
+      </div>
       <InformationCard
         displayButton={false}
         logoSrc={oldImage}
@@ -574,7 +577,12 @@ const InfoUser = () => {
             <div className="flex flex-row gap-2 justify-end">
               {isEdit && (
                 <div className="flex justify-end">
-                  <Button type="submit" form="form-1" disabled={isPendingSubmit} size="lg">
+                  <Button
+                    type="submit"
+                    form="form-1"
+                    disabled={isPendingSubmit || !gotRole('Update User')}
+                    size="lg"
+                  >
                     {isPendingSubmit ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
                   </Button>
                 </div>

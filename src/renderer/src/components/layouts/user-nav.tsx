@@ -1,5 +1,6 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { postApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
@@ -64,15 +65,19 @@ export function UserNav() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Link to="/profile" className=" block w-full">
-                الملف الشخصي
-              </Link>
-            </DropdownMenuItem>
-            {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
-          </DropdownMenuGroup>
+          {gotRole('Get Profile') && (
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Link to="/profile" className=" block w-full">
+                  الملف الشخصي
+                </Link>
+              </DropdownMenuItem>
+              {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
+            </DropdownMenuGroup>
+          )}
+
           <DropdownMenuSeparator />
+
           <DropdownMenuItem onClick={handleSignOut}>تسجيل الخروج</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

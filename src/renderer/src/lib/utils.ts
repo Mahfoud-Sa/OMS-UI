@@ -4,6 +4,20 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+export const gotRole = (role: string) => {
+  const userRoles: string[] = localStorage.getItem('_auth_state')
+    ? JSON.parse(localStorage.getItem('_auth_state') || '{}').roles
+    : []
+  return userRoles.includes(role)
+}
+
+export const gotAnyRole = (roles: string[]) => {
+  const userRoles: string[] = localStorage.getItem('_auth_state')
+    ? JSON.parse(localStorage.getItem('_auth_state') || '{}').roles
+    : []
+
+  return roles.some((role) => userRoles.includes(role))
+}
 
 export const hasAccess = (role: string, roles: string[]) => {
   return roles.includes(role)
