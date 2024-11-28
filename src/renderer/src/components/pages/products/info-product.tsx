@@ -80,7 +80,11 @@ const InfoProduct = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
       const payload = {
-        designs: data.designs,
+        designs: data.designs?.map((design) => ({
+          name: design.name,
+          isDelete: design.isDelete,
+          designId: design.id
+        })),
         ...(data.name !== originalName ? { name: data.name } : { name: null })
       }
       await putApi(`/Products/${id}`, payload)
