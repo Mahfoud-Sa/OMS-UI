@@ -384,7 +384,6 @@ const UserProfile = () => {
                           <div className="relative">
                             <Input
                               {...field}
-                              disabled={!isEdit}
                               placeholder="كلمة السر"
                               martial
                               type={showPassword ? 'text' : 'password'}
@@ -411,7 +410,7 @@ const UserProfile = () => {
 
                 <Button
                   type="button"
-                  disabled={!isEdit || isPendingChangPassWord}
+                  disabled={isPendingChangPassWord}
                   onClick={() => mutateChangPassWord(form.getValues('Password')!)}
                   className="w-[100px] h-[56px]"
                 >

@@ -9,6 +9,7 @@ import {
 import { getApi, postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
 import { LogInResponse, User } from '@renderer/types/api'
+import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useSignIn } from 'react-auth-kit'
@@ -156,6 +157,13 @@ const LoginForm = () => {
   })
   const [delayedSubmitting, setDelayedSubmitting] = useState(form.formState.isSubmitting)
 
+  const { mutateAsync } = useMutation({
+    mutationFn: async (id: string) => {
+      return await getApi<User>(`/users/${id}`)
+    },
+    retry: 3 // Retries the mutation 3 times before failing
+  })
+
   // login
   const onSubmit = async (data: UserFormValue) => {
     try {
@@ -178,11 +186,12 @@ const LoginForm = () => {
       }
 
       if ([200, 201].includes(res?.status as number)) {
-        const userData = await getApi<User>(`/users/${res.data.id}`, {
-          headers: {
-            Authorization: ''
-          }
+        signIn({
+          token: res.data.token,
+          expiresIn: 8640,
+          tokenType: 'Bearer'
         })
+        const userData = await mutateAsync(res?.data.id || '0')
 
         const signInResult = signIn({
           token: res.data.token,
@@ -192,7 +201,6 @@ const LoginForm = () => {
             ...userData.data
           }
         })
-        // debugger
 
         console.log(signInResult)
         if (signInResult) {
@@ -241,6 +249,7 @@ const LoginForm = () => {
       setDelayedSubmitting(false)
     }
   }
+
   const handlePasswordChangeSubmit = async (newPassword: string, confirmPassword: string) => {
     try {
       const res = await postApi(`/Account/ChangePassword/${form.getValues('username')}`, {
