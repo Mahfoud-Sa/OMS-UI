@@ -18,5 +18,10 @@ export const localizeRoles = {
   'Get Products': 'عرض المنتجات',
   'Change Password': 'تغيير كلمة المرور حسابه',
   'Get All Users': 'عرض جميع المستخدمين',
+  'Add Factory': 'إضافة مصنع',
+  'Get Factory': 'عرض المصنع',
+  'Delete Factory': 'حذف المصنع',
+  'Update Factory': 'تعديل المصنع',
+  'Factory charts': 'رسوم بيانية المصنع',
   Admin: 'مشرف'
 }

@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/u
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import {
   LineChartResponse,
   MixedBarCharterProps,
@@ -459,14 +460,16 @@ const FactoryDetails: React.FunctionComponent = () => {
                   >
                     خطوط الانتاج
                   </TabsTrigger>
-                  {/* <TabsTrigger
-                    onClick={() => {
-                      setCurrentTab('reports')
-                    }}
-                    value="reports"
-                  >
-                    التقارير
-                  </TabsTrigger> */}
+                  {gotRole('Factory charts') && (
+                    <TabsTrigger
+                      onClick={() => {
+                        setCurrentTab('reports')
+                      }}
+                      value="reports"
+                    >
+                      التقارير
+                    </TabsTrigger>
+                  )}
                 </TabsList>
                 <TabsContent value="account">
                   <section className="flex flex-col w-full max-md:max-w-full">
@@ -643,7 +646,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                   {currentTab === 'productionLines' && isEdit && (
                     <div className="flex justify-end">
                       <Button
-                        disabled={isPending}
+                        disabled={isPending || !gotRole('Update Factory')}
                         className="bg-green-500 hover:bg-green-700"
                         type="submit"
                         size="lg"
