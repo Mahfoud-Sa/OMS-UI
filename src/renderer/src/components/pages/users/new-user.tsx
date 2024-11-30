@@ -455,7 +455,10 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                         </DialogHeader>
                         <Combobox
                           options={
-                            AllRoles?.data.roles.filter((role) => role.name !== 'Roles') || []
+                            AllRoles?.data.roles.filter(
+                              (role) =>
+                                !['Roles', 'Delete Factory', 'Delete Product'].includes(role.name)
+                            ) || []
                           }
                           valueKey="id"
                           displayKey="name"

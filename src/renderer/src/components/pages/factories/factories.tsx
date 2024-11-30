@@ -142,7 +142,7 @@ const Factories = () => {
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
                   </Link>
                 )}
-                {gotRole('Delete Factory') && (
+                {/* {gotRole('Delete Factory') && (
                   <DropdownMenuItem
                     onClick={() => {
                       setSelectedFactoryId(info.row.original.id)
@@ -154,7 +154,7 @@ const Factories = () => {
                   >
                     حذف
                   </DropdownMenuItem>
-                )}
+                )} */}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
