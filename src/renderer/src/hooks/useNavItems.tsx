@@ -27,7 +27,7 @@ export default function useNavItems() {
           href: '/factories/',
           icon: 'factory',
           label: 'المصانع',
-          disabled: !gotRole('Get Factory') && userRoles.length > 0
+          disabled: !gotRole('Get Factories') && userRoles.length > 0
         },
         {
           href: '/products/',
