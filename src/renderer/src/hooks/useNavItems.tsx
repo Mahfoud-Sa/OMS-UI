@@ -57,7 +57,7 @@ export default function useNavItems() {
             {
               label: 'المستخدمين',
               href: '/users',
-              disabled: !gotRole('Get All Users') && userRoles.length > 0
+              disabled: !gotRole('Get Users') && userRoles.length > 0
             },
             {
               label: 'ضبط كلمة المرور',

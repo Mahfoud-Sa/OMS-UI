@@ -457,7 +457,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           options={
                             AllRoles?.data.roles.filter(
                               (role) =>
-                                !['Roles', 'Delete Factory', 'Delete Product'].includes(role.name)
+                                ![
+                                  'Roles',
+                                  'Delete Factory',
+                                  'Delete Product',
+                                  'Delete Order'
+                                ].includes(role.name)
                             ) || []
                           }
                           valueKey="id"
