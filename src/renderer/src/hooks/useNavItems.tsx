@@ -27,13 +27,13 @@ export default function useNavItems() {
           href: '/factories/',
           icon: 'factory',
           label: 'المصانع',
-          disabled: !gotRole('Get Factories') && userRoles.length > 0
+          disabled: !['مشرف'].includes(userType) && userRoles.length > 0
         },
         {
           href: '/products/',
           icon: 'shoppingBag',
           label: 'المنتجات',
-          disabled: !gotRole('Get Products') && userRoles.length > 0
+          disabled: !['مشرف'].includes(userType) && userRoles.length > 0
         },
         {
           href: '/reports',

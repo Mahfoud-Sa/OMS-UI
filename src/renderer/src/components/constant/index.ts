@@ -13,7 +13,7 @@ export const localizeRoles = {
   'Delivery Dates Reporter': 'تقرير تواريخ الإستلام',
   'Orders States Reporter': 'تقرير حالات الفواتير',
   'Delete Product': 'حذف المنتج',
-  'Get Orders': 'عرض الفواتير',
+  'Get Orders': 'عرض الطلبات',
   'Update Product': 'تعديل المنتج',
   'Daily Reporter': 'تقرير يومي',
   'Get Products': 'عرض المنتجات',

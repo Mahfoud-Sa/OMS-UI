@@ -460,7 +460,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                   >
                     خطوط الانتاج
                   </TabsTrigger>
-                  {gotRole('Factory charts') && (
+                  {/* {gotRole('Factory charts') && (
                     <TabsTrigger
                       onClick={() => {
                         setCurrentTab('reports')
@@ -469,7 +469,7 @@ const FactoryDetails: React.FunctionComponent = () => {
                     >
                       التقارير
                     </TabsTrigger>
-                  )}
+                  )} */}
                 </TabsList>
                 <TabsContent value="account">
                   <section className="flex flex-col w-full max-md:max-w-full">
