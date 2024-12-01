@@ -2,6 +2,7 @@ export const localizeRoles = {
   Roles: 'الأدوار',
   'Get Profile': 'عرض الملف الشخصي',
   'Update User': 'تعديل مستخدم',
+  'Delete User': 'حذف مستخدم',
   'Recet Password': 'إعادة تعيين كلمة المرور المستخدمين',
   'Get User': 'عرض المستخدم',
   'Update Profile': 'تحديث الملف الشخصي',
@@ -24,5 +25,10 @@ export const localizeRoles = {
   'Delete Factory': 'حذف المصنع',
   'Update Factory': 'تعديل المصنع',
   'Factory charts': 'رسوم بيانية المصنع',
+  'Get Order': 'عرض الطلب',
+  'Get Users': 'عرض المستخدمين',
+  'Delete Order': 'حذف الطلب',
+  'Add Order': 'إضافة طلب',
+  'Update Order': 'تحديث الطلب',
   Admin: 'مشرف'
 }
