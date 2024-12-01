@@ -42,6 +42,7 @@ const DailyReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyRepo
       to: searchParams.get('to') || '2025-01-02'
     }
   })
+  const [ordersData, setOrdersData] = useState<DailyReportProps[]>([])
 
   const startDate = filterOptions.date.from
   const endDate = filterOptions.date.to
@@ -75,6 +76,7 @@ const DailyReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyRepo
         }
       ]
       returnReportCards(cards)
+      setOrdersData(filterDataBasedOnDays(data.data))
     }
   }, [isSuccess, data, returnReportCards])
 
@@ -127,6 +129,22 @@ const DailyReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyRepo
     XLSX.writeFile(workbook, fileName)
   }
 
+  const filterDataBasedOnDays = (data: DailyReportProps[]) => {
+    // the data is in ISO format in seconds i want to group them by day
+    const groupedData = data.reduce((acc, item) => {
+      const date = moment(item.createAt).format('YYYY-MM-DD')
+      if (!acc[date]) {
+        acc[date] = []
+      }
+      acc[date].push(item)
+      return acc
+    }, {})
+    return Object.entries(groupedData).map(([date, items]) => ({
+      createAt: date,
+      total: (items as DailyReportProps[]).reduce((acc, item) => acc + item.total, 0)
+    }))
+  }
+
   return (
     <>
       <section>
@@ -140,7 +158,7 @@ const DailyReport: React.FC<DailyReportInfo> = ({ returnReportCards }: DailyRepo
         </div>
         <DailyReportTable
           data={{
-            orders: data?.data || [],
+            orders: ordersData || [],
             pageNumber: 0,
             pageSize: 0,
             pages: 0,
