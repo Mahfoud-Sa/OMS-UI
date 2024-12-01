@@ -170,6 +170,52 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   })
 
   const onSubmit = (data: Schema) => mutate(data)
+  const isImportant = (role: string) => {
+    /* if role is in [
+0
+:
+"Get Products"
+1
+:
+"Get Order"
+2
+:
+"Get Orders"
+3
+:
+"Get Factories"
+4
+:
+"Add Order"
+5
+:
+"Get Factory"
+6
+:
+"Add Factory"
+7
+:
+"Add Product"
+8
+:
+"Get Product"]' then the roles is important and return a text for that*/
+    if (
+      [
+        'Get Products',
+        'Get Order',
+        'Get Orders',
+        'Get Factories',
+        'Add Order',
+        'Get Factory',
+        'Add Factory',
+        'Add Product',
+        'Get Product'
+      ].includes(role)
+    ) {
+      return 'هذا الصلاحية مهمة لاضافة الطلب'
+    }
+    return ''
+  }
 
   const handleRemoveRole = (id: string) => {
     const filterUserRoles = userRoles.filter((el) => el.id != id)
@@ -501,6 +547,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       <TableRow>
                         <TableHead className="text-right">الرقم</TableHead>
                         <TableHead className="text-right">اسم الدور</TableHead>
+                        <TableHead className="text-right">ملاحظة</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -509,6 +556,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                         <TableRow key={index}>
                           <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
                           <TableCell>{localizeRoles[ur.name]}</TableCell>
+                          <TableCell>{isImportant(ur.name)}</TableCell>
                           <TableCell className="flex justify-end ">
                             <Button
                               type="button"
