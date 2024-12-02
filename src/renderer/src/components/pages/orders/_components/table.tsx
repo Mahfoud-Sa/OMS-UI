@@ -8,8 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
-import { cn } from '@renderer/lib/utils'
-import { Order } from '@renderer/types/api'
+import { cn, gotRole } from '@renderer/lib/utils'
+import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import React from 'react'
@@ -117,16 +117,23 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
         id: 'actions',
         cell: ({ row }) => (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.id}`}>
-                <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
+            {gotRole(Roles.GetOrder) && (
+              <>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0"
+                >
+                  <Link to={`/orders/${row.original?.id}`}>
+                    <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
+                  </Link>
+                </DropdownMenuContent>
+              </>
+            )}
           </DropdownMenu>
         )
       }

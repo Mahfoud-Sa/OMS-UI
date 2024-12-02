@@ -234,3 +234,36 @@ export interface cardsInterface {
 export interface DailyReportInfo {
   returnReportCards: (cards: cardsInterface[]) => void
 }
+export enum Roles {
+  Roles = 'Roles',
+  OrdersStatesReporter = 'Orders States Reporter',
+  RecetPassword = 'Recet Password',
+  DeleteUser = 'Delete User',
+  UpdateUser = 'Update User',
+  GetProducts = 'Get Products',
+  AddUser = 'Add User',
+  GetOrder = 'Get Order',
+  GetOrders = 'Get Orders',
+  DeleteFactory = 'Delete Factory',
+  Admin = 'Admin',
+  GetUsers = 'Get Users',
+  DeleteOrder = 'Delete Order',
+  DeliveryDatesReporter = 'Delivery Dates Reporter',
+  ChangePassword = 'Change Password',
+  GetFactories = 'Get Factories',
+  GetUser = 'Get User',
+  AddOrder = 'Add Order',
+  DeleteProduct = 'Delete Product',
+  GetFactory = 'Get Factory',
+  UpdateOrder = 'Update Order',
+  DailyReporter = 'Daily Reporter',
+  OrdersProductionReporter = 'Orders Production Reporter',
+  UpdateProfile = 'Update Profile',
+  UpdateProduct = 'Update Product',
+  GetProfile = 'Get Profile',
+  AddFactory = 'Add Factory',
+  AddProduct = 'Add Product',
+  FactoryCharts = 'Factory charts',
+  UpdateFactory = 'Update Factory',
+  GetProduct = 'Get Product'
+}
