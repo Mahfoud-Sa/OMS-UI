@@ -1,17 +1,18 @@
+import { Roles } from '@renderer/types/api'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-export const gotRole = (role: string) => {
+export const gotRole = (role: Roles | string) => {
   const userRoles: string[] = localStorage.getItem('_auth_state')
     ? JSON.parse(localStorage.getItem('_auth_state') || '{}').roles
     : []
   return userRoles.includes(role)
 }
 
-export const gotAnyRole = (roles: string[]) => {
+export const gotAnyRole = (roles: (Roles | string)[]) => {
   const userRoles: string[] = localStorage.getItem('_auth_state')
     ? JSON.parse(localStorage.getItem('_auth_state') || '{}').roles
     : []

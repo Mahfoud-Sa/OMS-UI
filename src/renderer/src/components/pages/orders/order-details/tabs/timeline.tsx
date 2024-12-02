@@ -2,7 +2,8 @@ import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
-import { Item, Order } from '@renderer/types/api'
+import { gotRole } from '@renderer/lib/utils'
+import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
 import moment from 'moment'
@@ -111,7 +112,7 @@ const Timeline = () => {
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
-            !['مشرف', 'منسق طلبات'].includes(userType)
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => cancelOrderMutate()}
         >
@@ -133,7 +134,7 @@ const Timeline = () => {
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
             order?.data.orderState == 2 ||
-            !['مشرف', 'منسق طلبات'].includes(userType)
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => completeOrderMutate()}
         >
@@ -154,7 +155,7 @@ const Timeline = () => {
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
-            !['مشرف', 'منسق طلبات'].includes(userType)
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => deliverOrderMutate()}
         >
@@ -182,7 +183,7 @@ const Timeline = () => {
                 order?.data.orderState == 4 ||
                 order?.data.orderState == 3 ||
                 order?.data.orderState === 2 ||
-                !['مشرف', 'منسق طلبات'].includes(userType)
+                !gotRole(Roles.UpdateOrder)
               }
               id={item.id.toString()}
             />
@@ -256,7 +257,7 @@ const Timeline = () => {
                   order?.data.orderState == 4 ||
                   order?.data.orderState == 3 ||
                   order?.data.orderState === 2 ||
-                  !['مشرف', 'منسق طلبات'].includes(userType)
+                  !gotRole(Roles.UpdateOrder)
                 }
                 itemId={item.id.toString()}
                 timeLineId={item.timelines[item.timelines.length - 1].id.toString()}

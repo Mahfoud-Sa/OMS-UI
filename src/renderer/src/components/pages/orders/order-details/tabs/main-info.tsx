@@ -8,7 +8,8 @@ import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
-import { Order } from '@renderer/types/api'
+import { gotRole } from '@renderer/lib/utils'
+import { Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
@@ -199,7 +200,11 @@ const MainInfo = () => {
                   </FormItem>
                 )}
               />
-              <Button className="h-[56px]" type="submit" disabled={costPriceIsPending}>
+              <Button
+                className="h-[56px]"
+                type="submit"
+                disabled={costPriceIsPending || !gotRole(Roles.UpdateOrder)}
+              >
                 {costPriceIsPending ? <Loader color={'#fff'} size={15} /> : 'تعديل'}
               </Button>
             </form>
@@ -228,7 +233,10 @@ const MainInfo = () => {
                     <div className="col-span-3">
                       <div className="gap-3 flex items-baseline">
                         <Label className="font-bold text-base">ملاحظات التوصيل</Label>
-                        <Button type="submit" disabled={deliveryNotePending}>
+                        <Button
+                          type="submit"
+                          disabled={deliveryNotePending || !gotRole(Roles.UpdateOrder)}
+                        >
                           {deliveryNotePending ? <Loader color={'#fff'} size={15} /> : 'تعديل'}
                         </Button>
                       </div>

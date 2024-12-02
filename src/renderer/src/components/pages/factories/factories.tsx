@@ -132,17 +132,17 @@ const Factories = () => {
       cell: (info) => (
         <>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                {gotRole('Get Factory') && (
-                  <Link to={`/factories/${info.row.original.id}`}>
-                    <DropdownMenuItem>تعديل</DropdownMenuItem>
-                  </Link>
-                )}
-                {/* {gotRole('Delete Factory') && (
+            {gotRole('Get Factory') && (
+              <>
+                <DropdownMenuTrigger>
+                  <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <Link to={`/factories/${info.row.original.id}`}>
+                      <DropdownMenuItem>تعديل</DropdownMenuItem>
+                    </Link>
+                    {/* {gotRole('Delete Factory') && (
                   <DropdownMenuItem
                     onClick={() => {
                       setSelectedFactoryId(info.row.original.id)
@@ -155,8 +155,11 @@ const Factories = () => {
                     حذف
                   </DropdownMenuItem>
                 )} */}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </>
+            )}
+            ;
           </DropdownMenu>
         </>
       )
