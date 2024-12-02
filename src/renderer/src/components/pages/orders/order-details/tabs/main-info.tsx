@@ -208,9 +208,7 @@ const MainInfo = () => {
 
         <div className="col-span-3">
           <Label className="font-bold text-base">ملاحظات عامه</Label>
-          <Textarea disabled={true} className="bg-white mt-2" rows={10}>
-            {data.data.note}
-          </Textarea>
+          <Textarea disabled={true} value={data.data.note} className="bg-white mt-2" rows={10} />
         </div>
         <Form {...form}>
           <form
@@ -239,9 +237,8 @@ const MainInfo = () => {
                         className="bg-white mt-2"
                         rows={10}
                         {...field}
-                      >
-                        {data.data.deliveryNote}
-                      </Textarea>
+                        value={data.data.deliveryNote}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
