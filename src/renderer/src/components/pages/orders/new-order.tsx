@@ -52,7 +52,7 @@ const schema = z.object({
         id: z.number().optional(),
         productId: z.number(),
         productDesignId: z.number(),
-        fabric: z.string(),
+        fabric: z.string().optional(),
         quantity: z.number(),
         note: z.string().optional(),
         productionTeamId: z.number(),

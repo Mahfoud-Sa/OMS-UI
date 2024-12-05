@@ -5,11 +5,11 @@ import { getApi, patchApi } from '@renderer/lib/http'
 import { gotRole } from '@renderer/lib/utils'
 import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
+import { Check, LucideHand, PackageCheck, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useAuthUser } from 'react-auth-kit'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
 import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
@@ -110,8 +110,6 @@ const Timeline = () => {
             cancelOrderIsPending ||
             completeOrderIsPending ||
             deliverOrderIsPending ||
-            order?.data.orderState == 4 ||
-            order?.data.orderState == 3 ||
             !gotRole(Roles.UpdateOrder)
           }
           onClick={() => cancelOrderMutate()}
@@ -263,18 +261,6 @@ const Timeline = () => {
                 timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
               />
             )}
-
-            <Link
-              to={['مشرف', 'منسق طلبات'].includes(userType) ? `/orders/${id}/${item.id}/print` : ''}
-            >
-              <Button
-                disabled={!['مشرف', 'منسق طلبات'].includes(userType)}
-                className="flex gap-2 w-fit"
-              >
-                طباعة
-                <Printer size={15} />
-              </Button>
-            </Link>
           </div>
         </div>
       ))}

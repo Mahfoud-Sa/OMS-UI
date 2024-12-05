@@ -5,10 +5,9 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHeader,
   TableRow
-} from '@renderer/components/ui/table'
+} from '@renderer/components/ui/table_custom'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
@@ -17,7 +16,8 @@ import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useReactToPrint } from 'react-to-print'
 import print_logo from '../.,/../../../../../assets/images/print_logo.svg'
-const PrintOrderBill = () => {
+
+const PrintItemBill = () => {
   const { id } = useParams()
   const contentRef = useRef<HTMLDivElement>(null)
   const reactToPrintFn = useReactToPrint({ contentRef })
@@ -49,22 +49,31 @@ const PrintOrderBill = () => {
       </div>
       <div className="flex justify-center">
         <div
-          className=" bg-white rounded-lg shadow-sm p-5 w-[210mm] print:shadow-none print-container"
+          className="bg-white rounded-lg shadow-sm p-5 w-[210mm] print:shadow-none print-container"
           ref={contentRef}
           dir="rtl"
         >
-          <header className="flex justify-between flex-wrap items-center mb-2 print-header">
-            <p className="text-3xl font-bold">فاتورة الطلب</p>
+          <header className="flex justify-between flex-wrap items-center mb-2 print-header print:sticky print:top-0 print:bg-white print:mb-4 print:pb-2 print:border-b">
+            <p className="text-3xl font-bold">فاتورة المنتج</p>
             <img src={print_logo} className="size-[65px]" />
           </header>
-          <section className="print-body mt-7">
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                <p className="font-semibold">أسم العميل</p>
-                <p>{data.data.customerName}</p>
-                <p className="mt-2 font-semibold">رقم العميل</p>
-                <p style={{ direction: 'ltr' }}>{data.data.customerNo}</p>
+          <section className="print-body mt-4">
+            <div className="flex justify-between mt-4 print:mb-4">
+              <div className="flex gap-x-2">
+                <div>
+                  <p className="font-semibold">أسم العميل: </p>
+                  <p>{data.data.customerName}.</p>
+                  <p className="font-semibold">المصنع: </p>
+                  <p>{data.data.items[0]?.factoryName}.</p>
+                </div>
+                <div>
+                  <p className="font-semibold">خط الانتاج:</p>
+                  <p>{data.data.items[0]?.timelines[0]?.productionLineName || ''}.</p>
+                  <p className="mt-2 font-semibold">الفرقة:</p>
+                  <p>{data.data.items[0]?.timelines[0]?.productionTeamName || ''}.</p>
+                </div>
               </div>
+
               <div className="flex flex-col gap-2">
                 <p>
                   <span className="font-semibold">الرقم التسلسلي</span> :{' '}
@@ -72,7 +81,7 @@ const PrintOrderBill = () => {
                 </p>
                 <p>
                   <span className="font-semibold">رقم الفاتوره</span> :{' '}
-                  <span>{data.data.billNo.split('-').reverse().join('-')}</span>
+                  <span>{data.data.billNo}</span>
                 </p>
                 <p>
                   <span className="font-semibold">تاريخ الطلب</span> :{' '}
@@ -90,67 +99,47 @@ const PrintOrderBill = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-6 print:mt-0">
-              <Table>
-                <TableHeader className="hidden print:table-header-group bg-transparent">
+            <div className="mt-4 print:mt-0">
+              <Table className="!overflow-hidden border-collapse">
+                <TableHeader className="print:table-header-group border-r">
                   <TableRow>
-                    <TableCell className="h-[2.3cm]  border-none "></TableCell>
-                  </TableRow>
-                </TableHeader>
-                <TableHeader className="pt-32">
-                  <TableRow>
-                    <TableCell className="text-right font-bold">اسم المنتج</TableCell>
-                    <TableCell className="text-right font-bold">الكمية</TableCell>
-                    <TableCell className="text-right font-bold">التصميم</TableCell>
-                    <TableCell className="text-right font-bold">قماش</TableCell>
+                    <TableCell className="text-right font-bold border-r">اسم المنتج</TableCell>
+                    <TableCell className="text-right font-bold border-r">التصميم</TableCell>
+                    <TableCell className="text-right font-bold border-r">الكمية</TableCell>
+                    <TableCell className="text-right font-bold border-r">قماش</TableCell>
+                    <TableCell className="text-right font-bold border-r">الوصف</TableCell>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.data.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.productName}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>{item.productDesignName}</TableCell>
-                      <TableCell className="text-right">{item.fabric} </TableCell>
+                  {data.data.items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className=" border-r">{item.productName}</TableCell>
+                      <TableCell className=" border-r">{item.productDesignName}</TableCell>
+                      <TableCell className=" border-r">{item.quantity}</TableCell>
+                      <TableCell className=" border-r">{item.fabric}</TableCell>
+                      <TableCell className=" border-r align-top">
+                        <div className="space-y-2">
+                          {item.images.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`${item.productName} ${index + 1}`}
+                              className="w-40 h-40 object-fill"
+                            />
+                          ))}
+                          {item.note && <p className="text-sm">{item.note}</p>}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
-                <TableFooter className="hidden print:table-footer-group bg-transparent">
-                  <TableRow>
-                    <TableCell className="h-[2.3cm] border-none"></TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
-            </div>
-            <div className="mt-4 print:mt-0">
-              <h4 className="font-semibold">ملاحظة التوصيل:</h4>
-              <p> {data.data.deliveryNote}.</p>
-
-              <h4 className="font-semibold mt-3">ملاحظة الطلب:</h4>
-              <p>{data.data.note}.</p>
-            </div>
-            <div className="flex justify-end">
-              <p className="p-2 rounded w-[200px]">
-                <span className="font-bold text-lg">قيمة الشراء</span> : {data.data.sellingPrice}{' '}
-                ر.س
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <p className="p-2 rounded w-[200px]">
-                <span className="font-bold text-lg">قيمة التكلفة</span> : {data.data.costPrice} ر.س
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <p className="bg-[#DA972E26] p-2 rounded w-[200px]">
-                <span className="font-bold text-lg">فرق التكلفة</span> :{' '}
-                {data.data.sellingPrice - data.data.costPrice} ر.س
-              </p>
             </div>
           </section>
 
-          <footer className="footer flex w-full justify-between items-center mt-4 border-t pt-4 print-footer">
+          <footer className="footer flex w-full justify-between items-center mt-8 border-t pt-4 print-footer print:fixed print:bottom-0 print:left-0 print:right-0 print:bg-white">
             <div className="flex items-center gap-2">
-              <img src={print_logo} className=" size-[40px]" />
+              <img src={print_logo} className="size-[40px]" />
               <p>نظام إدارة الطلبات (OMS)</p>
             </div>
             <div className="flex items-center gap-5">
@@ -174,4 +163,4 @@ const PrintOrderBill = () => {
   )
 }
 
-export default PrintOrderBill
+export default PrintItemBill

@@ -52,7 +52,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
       {
         accessorKey: 'id',
         header: 'الرقم',
-        cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
+        cell: ({ row }) => row.original.id.toString().padStart(2, '0')
       },
       {
         accessorKey: 'customerName',
