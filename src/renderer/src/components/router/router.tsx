@@ -8,7 +8,7 @@ import NewFactory from '../pages/factories/new-factory/new-factory'
 import Home from '../pages/home/home'
 import Login from '../pages/login/login'
 import NewOrder from '../pages/orders/new-order'
-import PrintItemBill from '../pages/orders/order-details/_components/PrintItemBill'
+import PrintItemBill from '../pages/orders/order-details/_components/PrintItemsBill'
 import PrintOrderBill from '../pages/orders/order-details/_components/PrintOrderBill'
 import OrderDetails from '../pages/orders/order-details/order-details'
 import Orders from '../pages/orders/orders'
@@ -55,17 +55,16 @@ export const router = createHashRouter([
       {
         path: '/users/:id',
         // element: <ProtectedRoute element={<Users />} />
-        element:  <ProtectedRoute element={<InfoUser /> } />
-        
+        element: <ProtectedRoute element={<InfoUser />} />
       },
       // reset password page
       {
         path: '/users/:id/reset-password',
-        element:  <ProtectedRoute element={<ResetPassword /> } />
+        element: <ProtectedRoute element={<ResetPassword />} />
       },
       {
         path: '/profile',
-        element: <ProtectedRoute element={<UserProfile /> } />  
+        element: <ProtectedRoute element={<UserProfile />} />
       },
       {
         path: '/orders',
@@ -88,7 +87,7 @@ export const router = createHashRouter([
         // element: <PrintOrderBill />
       },
       {
-        path: '/orders/:id/:itemId/print',
+        path: '/orders/:id/items/print',
         element: <ProtectedRoute element={<PrintItemBill />} />
         // element: <PrintItemBill />
       },
