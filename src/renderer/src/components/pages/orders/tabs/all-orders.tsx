@@ -4,10 +4,7 @@ import CreateOrderButton from '../_components/CreateOrderButton'
 import OrdersSearch from '../_components/orders-search'
 import OrdersWrapper from '../_components/orders-wrapper'
 
-type Props = {
-  getOrdersTotal: (total: number) => void
-}
-const AllOrders = ({ getOrdersTotal }: Props) => {
+const AllOrders = () => {
   const [openSheet, setOpenSheet] = useState(false)
   return (
     <section>
@@ -18,12 +15,7 @@ const AllOrders = ({ getOrdersTotal }: Props) => {
         </Button>
         <CreateOrderButton />
       </div>
-      <OrdersWrapper
-        openSheet={openSheet}
-        setOpenSheet={setOpenSheet}
-        status={null}
-        getOrdersTotal={getOrdersTotal}
-      />
+      <OrdersWrapper openSheet={openSheet} setOpenSheet={setOpenSheet} status={null} />
     </section>
   )
 }

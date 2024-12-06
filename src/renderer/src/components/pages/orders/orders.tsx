@@ -9,12 +9,12 @@ import ReadyOrders from './tabs/ready-orders'
 const Orders = () => {
   const tabs = [
     {
-      content: <AllOrders getOrdersTotal={() => {}} />,
+      content: <AllOrders />,
       value: 'AllOrders',
       label: 'كل الطلبات'
     },
     {
-      content: <ProgressOrders getOrdersInProgressTotal={() => {}} />,
+      content: <ProgressOrders />,
       value: 'ProgressOrders',
       label: 'طلبات قيد العمل'
     },
@@ -24,7 +24,7 @@ const Orders = () => {
       label: 'الطلبات الجاهزة'
     },
     {
-      content: <DeliveredOrders getOrdersDeliveredTotal={() => {}} />,
+      content: <DeliveredOrders />,
       value: 'DeliveredOrders',
       label: 'طلبات تم التسليم'
     },
