@@ -1,5 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { useState } from 'react'
 import Statistics from './_components/statistics'
 import AllOrders from './tabs/all-orders'
 import CanceledOrders from './tabs/canceled-orders'
@@ -8,17 +7,14 @@ import ProgressOrders from './tabs/progress-orders'
 import ReadyOrders from './tabs/ready-orders'
 
 const Orders = () => {
-  const [ordersTotal, setOrdersTotal] = useState<number>(0)
-  const [ordersTotalInProgress, setOrdersTotalInProgress] = useState<number>(0)
-  const [ordersTotalDelivered, setOrdersTotalDelivered] = useState<number>(0)
   const tabs = [
     {
-      content: <AllOrders getOrdersTotal={setOrdersTotal} />,
+      content: <AllOrders getOrdersTotal={() => {}} />,
       value: 'AllOrders',
       label: 'كل الطلبات'
     },
     {
-      content: <ProgressOrders getOrdersInProgressTotal={setOrdersTotalInProgress} />,
+      content: <ProgressOrders getOrdersInProgressTotal={() => {}} />,
       value: 'ProgressOrders',
       label: 'طلبات قيد العمل'
     },
@@ -28,7 +24,7 @@ const Orders = () => {
       label: 'الطلبات الجاهزة'
     },
     {
-      content: <DeliveredOrders getOrdersDeliveredTotal={setOrdersTotalDelivered} />,
+      content: <DeliveredOrders getOrdersDeliveredTotal={() => {}} />,
       value: 'DeliveredOrders',
       label: 'طلبات تم التسليم'
     },
@@ -45,9 +41,9 @@ const Orders = () => {
         filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
-        totalOrders={ordersTotal}
-        totalOrdersInProgress={ordersTotalInProgress}
-        totalOrdersDelivered={ordersTotalDelivered}
+        // totalOrders={ordersTotal}
+        // totalOrdersInProgress={ordersTotalInProgress}
+        // totalOrdersDelivered={ordersTotalDelivered}
       />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={'AllOrders'}>
