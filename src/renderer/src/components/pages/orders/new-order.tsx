@@ -27,7 +27,7 @@ import {
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -82,6 +82,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
     queryFn: () =>
@@ -144,7 +145,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     mutationFn: async (id: number) => {
       await Promise.all(
         addedProducts.map(async (product) => {
-          console.log(product)
           const payloadFormData = new FormData()
           payloadFormData.append('productDesignId', product.productDesignId.toString())
           if (product.fabric) {
@@ -155,12 +155,15 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
             payloadFormData.append('note', product.note || 'بدون ملاحظات')
           }
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
-          // loop over the images and upload them
-          product.images.forEach((image) => {
-            payloadFormData.append(`images`, image)
-          })
+
+          // Handle both File objects and string URLs for images
+          if (product.images && product.images.length > 0) {
+            product.images.forEach((image) => {
+              payloadFormData.append(`images`, image)
+            })
+          }
           const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
-          createOrderItemsTimeline({
+          return createOrderItemsTimeline({
             id: orderItem?.data?.id,
             productTeamId: product.productionTeamId
           })
@@ -282,28 +285,32 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const handleUpdateProductInArray = (updatedProduct: localNewProduct) => {
     const editProduct = {
       ...updatedProduct,
-      // ensure id is included and not undefined
       id: updatedProduct.id ?? Math.random(),
-      // update the names
       productionTeamName:
         productionTeams.find((team) => Number(team.id) === updatedProduct.productionTeamId)?.name ||
         '',
-      // add product design name
       productDesignName:
         designs.find((design) => design.id === updatedProduct.productDesignId)?.name || '',
-      // add product name
       productName:
         productsData?.data.products.find((product) => product.id === updatedProduct.productId)
-          ?.name || ''
+          ?.name || '',
+      // Ensure images are preserved
+      images: updatedProduct.images || []
     }
     setAddedProducts((prevProducts) =>
       prevProducts.map((product) => (product.id === updatedProduct.id ? editProduct : product))
     )
     clearProductToEdit()
-    console.log(productToBeEdited)
   }
   const clearProductToEdit = () => {
     setProductToBeEdited(undefined)
+  }
+  const clearFactoriesProductionLinesTeams = () => {
+    queryClient.resetQueries({ queryKey: ['factories'] })
+    queryClient.resetQueries({ queryKey: ['productionLines'] })
+    queryClient.resetQueries({ queryKey: ['productionTeams'] })
+    queryClient.resetQueries({ queryKey: ['products'] })
+    clearProductToEdit()
   }
 
   const handleNext = () => {
@@ -579,7 +586,11 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                       variant="link"
                       className="text-lg text-primary flex items-center gap-1"
                       type="button"
-                      onClick={() => setOpenDialog(true)}
+                      onClick={() => {
+                        setProductToBeEdited(undefined)
+                        clearFactoriesProductionLinesTeams()
+                        setOpenDialog(true)
+                      }}
                     >
                       <PlusCircle />
                       إضافة منتج
@@ -672,9 +683,9 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 getDesigns(id)
               }}
               addProductToProductsArray={handleAddProductToArray}
-              updateProductInProductsArray={handleUpdateProductInArray} // Add this line
+              updateProductInProductsArray={handleUpdateProductInArray}
               productToEdit={productToBeEdited}
-              clearProductToEdit={clearProductToEdit} // Add this line
+              clearProductToEdit={clearProductToEdit}
             />
             <NewOrderNoteDialog
               addDeliveryNote={(note) => {

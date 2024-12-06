@@ -45,7 +45,7 @@ const OrderDetails = () => {
             </Button>
           </Link>
           <Link to={`/orders/${id}/items/print`}>
-            <Button disabled={!['مشرف', 'منسق طلبات'].includes(userType)} className="flex gap-2">
+            <Button className="flex gap-2">
               طباعة تقرير منتجات الطلب
               <Printer />
             </Button>
