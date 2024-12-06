@@ -50,7 +50,7 @@ app.whenReady().then(() => {
   // Auto update
   autoUpdater.checkForUpdatesAndNotify({
     title: 'تحديث جديد متوفر',
-    body: 'تم تنزيل التحديث وجاهز للتثبيت'
+    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
   })
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows

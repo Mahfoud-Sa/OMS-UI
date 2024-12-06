@@ -62,7 +62,7 @@ const schema = z.object({
   UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
-  UserRole: z.array(z.object({ id: z.string(), name: z.string() }), { message: 'مطلوب' }),
+  UserRole: z.array(z.object({ id: z.string(), name: z.string() })).min(1, { message: 'مطلوب' }),
   ImageFile: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
@@ -85,7 +85,12 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
   const { data: AllRoles } = useQuery({
     queryKey: ['AllRoles'],
-    queryFn: () => getApi<{ roles: Role[] }>('/Roles')
+    queryFn: () =>
+      getApi<{ roles: Role[] }>('/Roles', {
+        params: {
+          size: 100000
+        }
+      })
   })
 
   const { data: userTypeRole, refetch } = useQuery({
@@ -165,6 +170,52 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
   })
 
   const onSubmit = (data: Schema) => mutate(data)
+  const isImportant = (role: string) => {
+    /* if role is in [
+0
+:
+"Get Products"
+1
+:
+"Get Order"
+2
+:
+"Get Orders"
+3
+:
+"Get Factories"
+4
+:
+"Add Order"
+5
+:
+"Get Factory"
+6
+:
+"Add Factory"
+7
+:
+"Add Product"
+8
+:
+"Get Product"]' then the roles is important and return a text for that*/
+    if (
+      [
+        'Get Products',
+        'Get Order',
+        'Get Orders',
+        'Get Factories',
+        'Add Order',
+        'Get Factory',
+        'Add Factory',
+        'Add Product',
+        'Get Product'
+      ].includes(role)
+    ) {
+      return 'هذا الصلاحية مهمة لاضافة الطلب'
+    }
+    return ''
+  }
 
   const handleRemoveRole = (id: string) => {
     const filterUserRoles = userRoles.filter((el) => el.id != id)
@@ -196,7 +247,9 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/users" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/users`} />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
@@ -447,7 +500,17 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                           إضافة دور
                         </DialogHeader>
                         <Combobox
-                          options={AllRoles?.data.roles || []}
+                          options={
+                            AllRoles?.data.roles.filter(
+                              (role) =>
+                                ![
+                                  'Roles',
+                                  'Delete Factory',
+                                  'Delete Product',
+                                  'Delete Order'
+                                ].includes(role.name)
+                            ) || []
+                          }
                           valueKey="id"
                           displayKey="name"
                           placeholder="أختر دور"
@@ -484,6 +547,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       <TableRow>
                         <TableHead className="text-right">الرقم</TableHead>
                         <TableHead className="text-right">اسم الدور</TableHead>
+                        <TableHead className="text-right">ملاحظة</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -492,6 +556,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                         <TableRow key={index}>
                           <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
                           <TableCell>{localizeRoles[ur.name]}</TableCell>
+                          <TableCell>{isImportant(ur.name)}</TableCell>
                           <TableCell className="flex justify-end ">
                             <Button
                               type="button"

@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils'
 
 type StatisticCardProps = {
   title?: string
-  total?: number
+  total?: number | string
   icon?: any
   handleClick?: () => void
   className?: string
