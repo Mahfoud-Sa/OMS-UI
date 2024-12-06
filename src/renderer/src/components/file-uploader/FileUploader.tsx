@@ -1,9 +1,8 @@
 'use client'
 import React, { useState } from 'react'
 
-import { AlertCircle, Check, Upload, X } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { UseFormSetValue } from 'react-hook-form'
-import { Button } from '../ui/button'
 
 interface FileUploaderProps {
   inputId: string
@@ -19,22 +18,22 @@ interface FileUploaderProps {
 export default function FileUploader({
   inputId,
   isMultiple = false,
-  fieldName = inputId,
+  // fieldName = inputId,
   onChange,
-  setValue,
+  // setValue,
   accept = '',
   moveFileText = 'اختر الملف أو اسحب الملف للرفع',
   uploadFileText = 'رفع ملف'
 }: FileUploaderProps) {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
-  const [isError, setIsError] = useState(false)
+  // const [isError, setIsError] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let files: FileList | null = null
     if (event.target.files)
       if (event.target.files[0] != null) {
         files = event?.target?.files
-        setIsError(true)
+        // setIsError(true)
       }
     if (files) {
       if (isMultiple) {
@@ -44,19 +43,19 @@ export default function FileUploader({
       } else {
         setUploadedFiles([files[0].name])
       }
-      setIsError(false)
+      // setIsError(false)
     }
 
     onChange?.(files)
   }
 
-  const handleFileRemove = (fileName: string) => {
-    setUploadedFiles((prevUploadedFiles) => prevUploadedFiles.filter((file) => file !== fileName))
-    if (uploadedFiles.length === 1) {
-      setUploadedFiles([])
-    }
-    setValue(fieldName, undefined)
-  }
+  // const handleFileRemove = (fileName: string) => {
+  //   setUploadedFiles((prevUploadedFiles) => prevUploadedFiles.filter((file) => file !== fileName))
+  //   if (uploadedFiles.length === 1) {
+  //     setUploadedFiles([])
+  //   }
+  //   setValue(fieldName, undefined)
+  // }
 
   return (
     <div className="flex w-full justify-center space-y-4 rounded border-2 border-dashed px-5 py-3">
@@ -91,7 +90,7 @@ export default function FileUploader({
           </span>
         </label>
       )}
-      {uploadedFiles && (
+      {/* {uploadedFiles && (
         <div>
           {uploadedFiles.map((file, i) => {
             return (
@@ -115,7 +114,7 @@ export default function FileUploader({
             )
           })}
         </div>
-      )}
+      )} */}
     </div>
   )
 }

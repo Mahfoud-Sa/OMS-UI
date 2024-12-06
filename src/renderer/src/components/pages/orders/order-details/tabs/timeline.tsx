@@ -8,15 +8,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, LucideHand, PackageCheck, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
-import { useAuthUser } from 'react-auth-kit'
 import { useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
 import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()
-  const authUser = useAuthUser()
-  const userType = authUser()?.userType as string
   const queryClient = useQueryClient()
 
   moment.locale('ar-ma')

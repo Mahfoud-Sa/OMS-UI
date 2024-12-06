@@ -13,6 +13,7 @@ import {
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
+import { X } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import Select, { SingleValue } from 'react-select'
@@ -30,9 +31,9 @@ interface NewOrderItemDialogProps {
   productionTeams: ProductionTeam[]
   products: Product[]
   addProductToProductsArray: (newProduct: localNewProduct) => void
-  updateProductInProductsArray: (updatedProduct: localNewProduct) => void // Add this line
-  productToEdit?: localNewProduct // Add this line
-  clearProductToEdit: () => void // Add this line
+  updateProductInProductsArray: (updatedProduct: localNewProduct) => void
+  productToEdit?: localNewProduct
+  clearProductToEdit: () => void
 }
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
 
@@ -75,9 +76,9 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
   selectFactory,
   selectProductionLine,
   addProductToProductsArray,
-  updateProductInProductsArray, // Add this line
-  productToEdit, // Add this line
-  clearProductToEdit // Add this line
+  updateProductInProductsArray,
+  productToEdit,
+  clearProductToEdit
 }) => {
   const defaultValues: FormData = {
     images: [],
@@ -98,10 +99,19 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
 
   React.useEffect(() => {
     if (productToEdit) {
-      form.reset(productToEdit)
+      // Reset form with product data
+      form.reset({
+        ...productToEdit,
+        // Preserve existing images if they exist
+        images: productToEdit.images || []
+      })
       form.setValue('id', productToEdit.id)
     }
-  }, [productToEdit])
+    form.resetField('images', {
+      defaultValue: []
+    })
+    console.log(form.getValues('images'))
+  }, [productToEdit, form])
 
   const handleSave = (data: FormData) => {
     // check all fields if they are empty
@@ -122,9 +132,12 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
 
     if (productToEdit) {
       // Update existing product
-      const payload: Partial<FormData> = { ...data }
+      const payload: Partial<FormData> = {
+        ...data,
+        // Ensure images are included in the payload
+        images: data.images || productToEdit.images || []
+      }
       if (!data.note) delete payload.note
-      if (!data.images) delete payload.images
       if (!data.fabric) delete payload.fabric
 
       updateProductInProductsArray(payload as localNewProduct)
@@ -132,14 +145,22 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
       // Add new product
       const payload: Partial<FormData> = { ...data }
       if (!data.note) delete payload.note
-      if (!data.images) delete payload.images
       if (!data.fabric) delete payload.fabric
+      if (!data.images?.length) delete payload.images
 
       addProductToProductsArray(payload as localNewProduct)
     }
     // Clear the form
     form.reset(defaultValues)
     clearProductToEdit()
+    form.resetField('images')
+    onClose()
+  }
+  const handleReset = () => {
+    form.reset(defaultValues)
+    form.resetField('images')
+    clearProductToEdit()
+    // clear the factory, production line, and product
     onClose()
   }
 
@@ -166,26 +187,50 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <FileUploader
-                          // className="h-[100px] w-[175px]"
-                          fieldName="images"
-                          inputId="images"
-                          setValue={form.setValue}
-                          isMultiple={true}
-                          onChange={async (files) => {
-                            try {
-                              if (!files?.length) return
-                              const currentImages = form.getValues('images')
-                              field.onChange([...(currentImages || []), ...Array.from(files)])
-                            } catch (error) {
-                              JSON.stringify(error)
-                            }
-                          }}
-                          uploadFileText="رفع صورة"
-                          moveFileText="اختر الصورة أو اسحبها للرفع"
-                          accept=".jpg,.jpeg,.png,.gif"
-                          // defaultImage={imageProfile}
-                        />
+                        <div className="space-y-4">
+                          {field.value && field.value?.length > 0 && (
+                            <div className="flex gap-2 mb-4">
+                              {field.value.map((file, index) => (
+                                <div key={index} className="relative">
+                                  <img
+                                    src={file instanceof File ? URL.createObjectURL(file) : file}
+                                    alt={`Preview ${index + 1}`}
+                                    className="h-20 w-20 object-cover rounded-md"
+                                  />
+                                  <button
+                                    type="button"
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                                    onClick={() => {
+                                      const newImages = field.value ? [...field.value] : []
+                                      newImages.splice(index, 1)
+                                      field.onChange(newImages)
+                                    }}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <FileUploader
+                            fieldName="images"
+                            inputId="images"
+                            setValue={form.setValue}
+                            isMultiple={true}
+                            onChange={async (files) => {
+                              try {
+                                if (!files?.length) return
+                                const currentImages = form.getValues('images') || []
+                                field.onChange([...currentImages, ...Array.from(files)])
+                              } catch (error) {
+                                console.error(error)
+                              }
+                            }}
+                            uploadFileText="رفع صورة"
+                            moveFileText="اختر الصورة أو اسحبها للرفع"
+                            accept=".jpg,.jpeg,.png,.gif"
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -443,8 +488,8 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" type="button" onClick={onClose}>
-                الغاء
+              <Button variant="ghost" type="button" onClick={handleReset}>
+                اعادة تعيين
               </Button>
               <Button onClick={form.handleSubmit(handleSave)} className="ml-2">
                 {productToEdit ? 'تعديل' : 'حفظ'}
