@@ -3,7 +3,7 @@ import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
 import moment from 'moment'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useSearchParams } from 'react-router-dom'
 import FilterSheet from './filter-sheet'
@@ -11,12 +11,11 @@ import OrdersTable from './table'
 
 type Props = {
   status: null | 0 | 1 | 2 | 3 | 4
-  getOrdersTotal?: (status: number) => void
   openSheet?: boolean
   setOpenSheet?: (value: boolean) => void
 }
 
-const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Props) => {
+const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
   const [searchParams] = useSearchParams()
@@ -43,7 +42,7 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
   const query = searchParams.get('query')
   const page = searchParams.get('page')
 
-  const { data, isPending, isError, error, isSuccess } = useQuery({
+  const { data, isPending, isError, error } = useQuery({
     queryKey: ['orders', status, query, page, isAsc, filterOptions],
     // 5 seconds cache
     gcTime: 5000,
@@ -65,15 +64,6 @@ const OrdersWrapper = ({ status, getOrdersTotal, openSheet, setOpenSheet }: Prop
         }
       })
   })
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      const total = data.data.total
-      if (total) {
-        getOrdersTotal && getOrdersTotal(total)
-      }
-    }
-  }, [isSuccess, data, getOrdersTotal])
 
   if (isPending)
     return (
