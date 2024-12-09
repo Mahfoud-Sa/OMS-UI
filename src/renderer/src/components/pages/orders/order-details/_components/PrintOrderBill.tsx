@@ -2,12 +2,12 @@ import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHeader,
-  TableRow
+    Table,
+    TableBody,
+    TableCell,
+    TableFooter,
+    TableHeader,
+    TableRow
 } from '@renderer/components/ui/table'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
@@ -160,7 +160,7 @@ const PrintOrderBill = () => {
               </div>
               <div className="text-[#434749] flex items-center gap-1">
                 <Phone size={17} />
-                <span>50555454</span>
+                <span>0532839958</span>
               </div>
               <div className="text-[#434749] flex items-center gap-1">
                 <Mail size={17} />

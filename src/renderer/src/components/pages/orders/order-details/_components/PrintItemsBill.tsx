@@ -149,7 +149,7 @@ const PrintItemBill = () => {
               </div>
               <div className="text-[#434749] flex items-center gap-1">
                 <Phone size={17} />
-                <span>50555454</span>
+                <span>0532839958</span>
               </div>
               <div className="text-[#434749] flex items-center gap-1">
                 <Mail size={17} />
