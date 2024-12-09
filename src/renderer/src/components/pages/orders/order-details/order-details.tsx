@@ -38,8 +38,8 @@ const OrderDetails = () => {
           <BackBtn href="/orders" />
         </div>
         <div className="flex gap-2">
-          <Link to={['مشرف', 'منسق طلبات'].includes(userType) ? `/orders/${id}/print` : ''}>
-            <Button disabled={!['مشرف', 'منسق طلبات'].includes(userType)} className="flex gap-2">
+          <Link to={['مشرف'].includes(userType) ? `/orders/${id}/print` : ''}>
+            <Button disabled={!['مشرف'].includes(userType)} className="flex gap-2">
               طباعة تقرير الطلب
               <Printer />
             </Button>

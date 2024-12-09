@@ -44,6 +44,7 @@ const MainInfo = () => {
   useEffect(() => {
     if (data?.data) {
       form.reset({
+        ...data.data,
         costPrice: data.data.costPrice
       })
     }
@@ -245,7 +246,7 @@ const MainInfo = () => {
                         className="bg-white mt-2"
                         rows={10}
                         {...field}
-                        value={data.data.deliveryNote}
+                        value={form.getValues('deliveryNote')}
                       />
                     </div>
                   </FormControl>
