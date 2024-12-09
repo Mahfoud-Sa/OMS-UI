@@ -1,5 +1,6 @@
 import { NavItem } from '@/types'
 import { gotAnyRole, gotRole } from '@renderer/lib/utils'
+import { Roles } from '@renderer/types/api'
 import { useEffect, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 
@@ -33,7 +34,7 @@ export default function useNavItems() {
           href: '/products/',
           icon: 'shoppingBag',
           label: 'المنتجات',
-          disabled: !['مشرف'].includes(userType) && userRoles.length > 0
+          disabled: !gotRole(Roles.GetProducts) && userRoles.length > 0
         },
         {
           href: '/reports',

@@ -54,15 +54,18 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Orders${userType === 'بائع' ? '/User' : ''}`, {
-        params: {
-          query,
-          page,
-          orderState: status,
-          ascending: isAsc,
-          ...filterOptions
+      }>(
+        `/Orders${userType === 'بائع' ? '/User' : userType === 'منسق طلبات' ? '/OrderManager' : ''}`,
+        {
+          params: {
+            query,
+            page,
+            orderState: status,
+            ascending: isAsc,
+            ...filterOptions
+          }
         }
-      })
+      )
   })
 
   if (isPending)
