@@ -556,6 +556,9 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                                   'Roles',
                                   'Delete Factory',
                                   'Delete Product',
+                                  'Delete Order',
+                                  'Factory charts',
+                                  'Admin',
                                   'Delete Order'
                                 ].includes(role.name)
                             ) || []
@@ -601,22 +604,36 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {userRoles.map((ur, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
-                          <TableCell>{localizeRoles[ur.name]}</TableCell>
-                          <TableCell>{isImportant(ur.name)}</TableCell>
-                          <TableCell className="flex justify-end ">
-                            <Button
-                              type="button"
-                              onClick={() => handleRemoveRole(ur.id)}
-                              variant="ghost"
-                            >
-                              <TrushSquare />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {userRoles
+                        .filter(
+                          (ur) =>
+                            ![
+                              'Roles',
+                              'Delete Factory',
+                              'Delete Product',
+                              'Delete Order',
+                              'Factory charts',
+                              'Admin',
+                              'Delete Order',
+                              ''
+                            ].includes(ur.name)
+                        )
+                        .map((ur, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
+                            <TableCell>{localizeRoles[ur.name]}</TableCell>
+                            <TableCell>{isImportant(ur.name)}</TableCell>
+                            <TableCell className="flex justify-end ">
+                              <Button
+                                type="button"
+                                onClick={() => handleRemoveRole(ur.id)}
+                                variant="ghost"
+                              >
+                                <TrushSquare />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 )}

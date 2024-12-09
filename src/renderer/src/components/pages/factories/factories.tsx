@@ -159,7 +159,6 @@ const Factories = () => {
                 </DropdownMenuContent>
               </>
             )}
-            ;
           </DropdownMenu>
         </>
       )
