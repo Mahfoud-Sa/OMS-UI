@@ -1,4 +1,3 @@
-import CreateBtn from '@renderer/components/layouts/create-btn'
 import { Button } from '@renderer/components/ui/button'
 import { useState } from 'react'
 import ReportSearch from '../../_components/reports-search'
@@ -73,7 +72,6 @@ const BillingValues = () => {
           >
             فلترة
           </Button>
-          <CreateBtn title={'إضافة طلب'} href={'new'} className="w-[200px]" />
         </div>
         <BillingValuesTable
           data={{

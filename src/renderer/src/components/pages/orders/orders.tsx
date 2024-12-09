@@ -38,10 +38,12 @@ const Orders = () => {
   return (
     <section className="p-5">
       <Statistics
-        selectedRole={undefined}
         filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
+        // totalOrders={ordersTotal}
+        // totalOrdersInProgress={ordersTotalInProgress}
+        // totalOrdersDelivered={ordersTotalDelivered}
       />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={'AllOrders'}>

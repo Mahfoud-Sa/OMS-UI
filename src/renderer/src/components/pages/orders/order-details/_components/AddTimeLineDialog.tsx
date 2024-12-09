@@ -11,7 +11,6 @@ import {
   DialogTrigger
 } from '@renderer/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
-import { Input } from '@renderer/components/ui/input'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, postApi } from '@renderer/lib/http'
 import { Factory, FactoryInterface, ProductionLineProps, ProductionTeam } from '@renderer/types/api'
@@ -22,7 +21,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 const schema = z.object({
-  receivedAt: z.string({ message: 'مطلوب' }),
+  receivedAt: z.string({ message: 'مطلوب' }).optional(),
   productionTeamId: z.string({ message: 'مطلوب' })
 })
 export type Schema = z.infer<typeof schema>
@@ -139,7 +138,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
             onSubmit={form.handleSubmit((data) =>
               mutate({
                 ...data,
-                receivedAt: new Date(data.receivedAt).toISOString()
+                receivedAt: new Date().toISOString()
               })
             )}
           >
@@ -193,7 +192,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="receivedAt"
                 render={({ field }) => (
@@ -210,7 +209,7 @@ const AddTimeLineDialog = ({ id, disabled }: Props) => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
           </form>
         </Form>

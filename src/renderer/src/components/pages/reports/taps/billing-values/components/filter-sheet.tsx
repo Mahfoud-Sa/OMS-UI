@@ -85,21 +85,17 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
 
   const handleReset = () => {
     setFilterOptions({
+      ...filterOptions,
+      date: {
+        from: '2020-01-01',
+        to: '2025-01-01'
+      },
       factory: '',
       productionLine: '',
       productionTeam: '',
       sortBy: 'asc',
-      price: {
-        min: 0,
-        max: 0
-      },
-      date: {
-        from: '',
-        to: ''
-      },
-      orderState: '0'
+      orderState: '5'
     })
-    onClose()
   }
 
   return (
@@ -262,7 +258,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ open, onClose, onApply }: Fil
         <SheetFooter>
           <div className="flex gap-3 w-60">
             <Button onClick={handleReset} className="w-full" variant="outline">
-              الغاء
+              اعادة تعيين
             </Button>
             <Button onClick={handleApply} className="w-full">
               تطبيق
