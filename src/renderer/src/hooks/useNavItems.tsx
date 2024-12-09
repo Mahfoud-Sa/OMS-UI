@@ -61,7 +61,7 @@ export default function useNavItems() {
               disabled: !gotRole('Get Users') && userRoles.length > 0
             },
             {
-              label: 'ضبط كلمة المرور',
+              label: 'ضبط كلمات المرور',
               href: '/users/1/reset-password',
               disabled: !gotRole('Recet Password') && userRoles.length > 0
             }

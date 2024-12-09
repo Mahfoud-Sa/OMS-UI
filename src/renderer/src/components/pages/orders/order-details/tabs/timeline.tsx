@@ -107,6 +107,7 @@ const Timeline = () => {
             cancelOrderIsPending ||
             completeOrderIsPending ||
             deliverOrderIsPending ||
+            order?.data.orderState == 4 ||
             !gotRole(Roles.UpdateOrder)
           }
           onClick={() => cancelOrderMutate()}

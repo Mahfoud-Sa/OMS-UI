@@ -75,7 +75,6 @@ const ProductsTable = ({ data }: Props) => {
                 </DropdownMenuContent>
               </>
             )}
-            ;
           </DropdownMenu>
         )
       }

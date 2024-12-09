@@ -3,7 +3,7 @@ export const localizeRoles = {
   'Get Profile': 'عرض الملف الشخصي',
   'Update User': 'تعديل مستخدم',
   'Delete User': 'حذف مستخدم',
-  'Recet Password': 'إعادة تعيين كلمة المرور المستخدمين',
+  'Recet Password': 'ضبط كلمات المرور',
   'Get User': 'عرض المستخدم',
   'Update Profile': 'تحديث الملف الشخصي',
   'Add User': 'إضافة مستخدم',
