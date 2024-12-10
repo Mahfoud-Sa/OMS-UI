@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Icons } from '@renderer/components/icons/icons'
 import BackBtn from '@renderer/components/layouts/back-btn'
+import Loader from '@renderer/components/layouts/loader'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import { Button } from '@renderer/components/ui/button'
 import {
@@ -16,7 +17,7 @@ import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { getApi, postApi } from '@renderer/lib/http'
+import { deleteApi, getApi, postApi } from '@renderer/lib/http'
 import {
   FactoryInterface,
   localNewProduct,
@@ -26,7 +27,7 @@ import {
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -40,10 +41,10 @@ const schema = z.object({
   customerNo: z
     .string({ message: 'يجب أدخال رقم العميل' })
     .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
-  deliveryAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
+  readyAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
   sellingPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
-  notes: z.string(),
+  notes: z.string().optional(),
   deliveryNote: z.string().optional(),
   products: z
     .array(
@@ -51,7 +52,8 @@ const schema = z.object({
         id: z.number().optional(),
         productId: z.number(),
         productDesignId: z.number(),
-        fabric: z.string(),
+        fabric: z.string().optional(),
+        file: z.instanceof(File).optional(),
         quantity: z.number(),
         note: z.string().optional(),
         productionTeamId: z.number(),
@@ -80,8 +82,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const [productionLines, setProductionLines] = useState<ProductionLineProps[]>([])
   const [productionTeams, setProductionTeams] = useState<ProductionTeam[]>([])
   const [designs, setDesigns] = useState<{ id: number; name: string }[]>([])
-  const [loader, setLoader] = useState(false)
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { data: fetchedData } = useQuery({
     queryKey: ['factories'],
     queryFn: () =>
@@ -123,7 +125,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const getProductionTeams = async (productionLineId: string) =>
     // get it from the productionLines state array
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
-  const { mutate: createOrder } = useMutation({
+  const { mutate: createOrder, isPending: createOrderPending } = useMutation({
     mutationFn: (data: localNewProduct) => {
       return postApi<NewOrderProp>('/Orders', data)
     },
@@ -140,19 +142,32 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       console.error('Error creating order:', error)
     }
   })
-  const { mutate: createOrderItems } = useMutation({
+  const { mutate: createOrderItems, isPending: createOrderItemsPending } = useMutation({
     mutationFn: async (id: number) => {
       await Promise.all(
         addedProducts.map(async (product) => {
           const payloadFormData = new FormData()
           payloadFormData.append('productDesignId', product.productDesignId.toString())
-          payloadFormData.append('fabric', product.fabric)
+          if (product.fabric) {
+            payloadFormData.append('fabric', product.fabric)
+          }
           payloadFormData.append('quantity', product.quantity.toString())
-          payloadFormData.append('note', product.note)
+          if (product.note) {
+            payloadFormData.append('note', product.note || 'بدون ملاحظات')
+          }
+          if (product.file) {
+            payloadFormData.append('file', product.file)
+          }
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
-          payloadFormData.append('images[0]', product.image)
+
+          // Handle both File objects and string URLs for images
+          if (product.images && product.images.length > 0) {
+            product.images.forEach((image) => {
+              payloadFormData.append(`images`, image)
+            })
+          }
           const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
-          createOrderItemsTimeline({
+          return createOrderItemsTimeline({
             id: orderItem?.data?.id,
             productTeamId: product.productionTeamId
           })
@@ -166,13 +181,15 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         variant: 'success'
       })
     },
-    onError: (error) => {
+    onError: (error, id) => {
       toast({
         title: 'فشلت عملية الحفظ',
         description: `حصل خطأ ما`,
         variant: 'destructive'
       })
       console.error('Error creating order items', error)
+      // delete the order
+      deleteApi(`/Orders/${id}`)
     }
   })
   const { mutate: createOrderItemsTimeline } = useMutation({
@@ -180,7 +197,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       await postApi(`/OrderItems/${id}/Timelines`, {
         productionTeamId: productTeamId.toString(),
         status: 1,
-        receivedAt: new Date().toISOString()
+        receivedAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString() // Adding 3 hours
       })
     },
     onSuccess: () => {
@@ -210,14 +227,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       })
       return
     }
-    setLoader(true)
     try {
       const payload = {
         billNo: data.billNo,
         customerName: data.customerName,
-        deliveryAt: data.deliveryAt,
+        readyAt: data.readyAt,
         deliveryNote: data.deliveryNote || '',
-        orderState: 0,
+        orderState: 1,
         sellingPrice: data.sellingPrice,
         costPrice: 0,
         customerNo: data.customerNo,
@@ -231,11 +247,10 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         description: `حصل خطأ ما`,
         variant: 'destructive'
       })
-    } finally {
-      setLoader(false)
     }
   }
   const handleAddProductToArray = (newProduct: localNewProduct) => {
+    console.log(newProduct)
     const product = {
       ...newProduct,
       // add id to the product
@@ -274,28 +289,32 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const handleUpdateProductInArray = (updatedProduct: localNewProduct) => {
     const editProduct = {
       ...updatedProduct,
-      // ensure id is included and not undefined
       id: updatedProduct.id ?? Math.random(),
-      // update the names
       productionTeamName:
         productionTeams.find((team) => Number(team.id) === updatedProduct.productionTeamId)?.name ||
         '',
-      // add product design name
       productDesignName:
         designs.find((design) => design.id === updatedProduct.productDesignId)?.name || '',
-      // add product name
       productName:
         productsData?.data.products.find((product) => product.id === updatedProduct.productId)
-          ?.name || ''
+          ?.name || '',
+      // Ensure images are preserved
+      images: updatedProduct.images || []
     }
     setAddedProducts((prevProducts) =>
       prevProducts.map((product) => (product.id === updatedProduct.id ? editProduct : product))
     )
     clearProductToEdit()
-    console.log(productToBeEdited)
   }
   const clearProductToEdit = () => {
     setProductToBeEdited(undefined)
+  }
+  const clearFactoriesProductionLinesTeams = () => {
+    queryClient.resetQueries({ queryKey: ['factories'] })
+    queryClient.resetQueries({ queryKey: ['productionLines'] })
+    queryClient.resetQueries({ queryKey: ['productionTeams'] })
+    queryClient.resetQueries({ queryKey: ['products'] })
+    clearProductToEdit()
   }
 
   const handleNext = () => {
@@ -319,7 +338,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
   const columns = [
     {
       accessorKey: 'productName',
-      header: 'اسم الصنف',
+      header: 'اسم المنتج',
       cell: (info) => {
         const { original } = info.row
         return original ? (
@@ -343,7 +362,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     },
     {
       accessorKey: 'productDesignName',
-      header: 'نوع الصنف',
+      header: 'تصميم المنتج',
       cell: (info) => {
         const { original } = info.row
         return original ? (
@@ -426,7 +445,9 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/orders" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href="/orders" />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
@@ -440,7 +461,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 }}
               >
                 <TabsTrigger value="basicInfo">البيانات الأساسية</TabsTrigger>
-                <TabsTrigger value="itemsList">قائمة الأصناف</TabsTrigger>
+                <TabsTrigger value="itemsList">قائمة المنتجات</TabsTrigger>
               </TabsList>
               <TabsContent value="basicInfo">
                 <div className="bg-white p-5 rounded-lg shadow-sm">
@@ -497,7 +518,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                     {/* deliveryDate */}
                     <FormField
                       control={form.control}
-                      name="deliveryAt"
+                      name="readyAt"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -563,16 +584,20 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 <div className="bg-white p-5 rounded-lg shadow-sm col-span-3">
                   {/* add product button */}
                   <div className="flex items-center gap-1 justify-between">
-                    <h4 className="col-span-2 font-bold">قائمة الأصناف</h4>
+                    <h4 className="col-span-2 font-bold">قائمة المنتجات</h4>
 
                     <Button
                       variant="link"
                       className="text-lg text-primary flex items-center gap-1"
                       type="button"
-                      onClick={() => setOpenDialog(true)}
+                      onClick={() => {
+                        setProductToBeEdited(undefined)
+                        clearFactoriesProductionLinesTeams()
+                        setOpenDialog(true)
+                      }}
                     >
                       <PlusCircle />
-                      إضافة تصميم
+                      إضافة منتج
                     </Button>
                   </div>
                   <StructureTable<localNewProduct, unknown>
@@ -627,12 +652,16 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
               {currentTab === 'itemsList' && (
                 <div className="flex justify-end">
                   <Button
-                    disabled={loader}
+                    disabled={createOrderPending || createOrderItemsPending}
                     className="bg-green-500 hover:bg-green-700"
                     type="submit"
                     size="lg"
                   >
-                    {loader ? 'يرجى الانتظار' : 'حفظ'}
+                    {createOrderPending || createOrderItemsPending ? (
+                      <Loader color="black" />
+                    ) : (
+                      'حفظ'
+                    )}
                   </Button>
                 </div>
               )}
@@ -658,13 +687,13 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
                 getDesigns(id)
               }}
               addProductToProductsArray={handleAddProductToArray}
-              updateProductInProductsArray={handleUpdateProductInArray} // Add this line
+              updateProductInProductsArray={handleUpdateProductInArray}
               productToEdit={productToBeEdited}
-              clearProductToEdit={clearProductToEdit} // Add this line
+              clearProductToEdit={clearProductToEdit}
             />
             <NewOrderNoteDialog
               addDeliveryNote={(note) => {
-                form.setValue('deliveryNote', note)
+                form.setValue('deliveryNote', note || '')
               }}
               isOpen={openNoteDialog}
               onClose={() => {

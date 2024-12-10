@@ -4,9 +4,11 @@ import TablePagination from '@renderer/components/tables/table-pagination'
 import { useToast } from '@renderer/components/ui/use-toast_1'
 import { UserCard } from '@renderer/components/ui/UserCard'
 import { deleteApi, getApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import { DeliveryUserCardProps } from '@renderer/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { useSearchParams } from 'react-router-dom'
 import Statistics from './_components/statistics'
 import UsersSearch from './_components/users-search'
@@ -41,10 +43,15 @@ const Users = () => {
         }
       })
   })
+  const authUser = useAuthUser()
 
   useEffect(() => {
     if (fetchedData?.data.users) {
-      setUsersData(fetchedData.data.users)
+      // extract the current user from the fetched data if it exists
+      const filteredUsers = fetchedData.data.users.filter(
+        (user) => user.id !== (authUser()?.id as string)
+      )
+      setUsersData(filteredUsers)
     }
   }, [fetchedData])
 
@@ -92,7 +99,12 @@ const Users = () => {
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <div className="flex gap-3 flex-row h-[50px]">
           <UsersSearch />
-          <CreateBtn title={'إضافة مستخدم'} href={'new'} className="w-[200px]" />
+          <CreateBtn
+            disable={!gotRole('Add User')}
+            title={'إضافة مستخدم'}
+            href={'new'}
+            className="w-[200px]"
+          />
         </div>
 
         <div className="p-4 h-96 overflow-auto my-4">
