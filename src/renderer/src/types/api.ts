@@ -138,6 +138,7 @@ export type Item = {
   productName: string
   factoryName: string
   fabric: string
+  file?: string
   quantity: number
   note: string
   productionTeamId: number
@@ -215,6 +216,7 @@ export interface localNewProduct {
   id?: number
   productId: number
   fabric: string
+  file?: File
   factoryId: number
   image?: File
   images: File[]

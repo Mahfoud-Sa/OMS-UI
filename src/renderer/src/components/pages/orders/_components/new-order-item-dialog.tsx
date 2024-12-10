@@ -52,6 +52,7 @@ const schema = z.object({
     )
     .max(3, { message: 'يجب أن تكون الصور أقل من 3' })
     .optional(),
+  file: z.instanceof(File).optional(),
   productId: z.number({ message: 'اسم المنتج مطلوب' }),
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
   fabric: z.string({ message: 'القماش مطلوب' }).optional(),
@@ -82,6 +83,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
 }) => {
   const defaultValues: FormData = {
     images: [],
+    file: undefined,
     productId: 0,
     productDesignId: 0,
     fabric: '',
@@ -139,6 +141,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
       }
       if (!data.note) delete payload.note
       if (!data.fabric) delete payload.fabric
+      if (!data.file) delete payload.file
 
       updateProductInProductsArray(payload as localNewProduct)
     } else {
@@ -146,6 +149,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
       const payload: Partial<FormData> = { ...data }
       if (!data.note) delete payload.note
       if (!data.fabric) delete payload.fabric
+      if (!data.file) delete payload.file
       if (!data.images?.length) delete payload.images
 
       addProductToProductsArray(payload as localNewProduct)
@@ -180,7 +184,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)}>
             <div className="flex flex-wrap mb-2 flex-col">
-              <div className="my-3 grid grid-cols-1 gap-3 items-center">
+              <div className="my-3 grid grid-cols-2 gap-3 items-center">
                 <FormField
                   control={form.control}
                   name="images"
@@ -231,6 +235,28 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                             accept=".jpg,.jpeg,.png,.gif"
                           />
                         </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          label={'ملف الطلب (اختياري)'}
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              field.onChange(file)
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
