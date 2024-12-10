@@ -132,7 +132,7 @@ const EditTimeLineDialog = ({ itemId, timeLineId, disable }: Props) => {
             onSubmit={form.handleSubmit((data) =>
               mutate({
                 ...data,
-                receivedAt: new Date().toISOString()
+                receivedAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString() // Adding 3 hours
               })
             )}
           >
