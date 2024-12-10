@@ -197,7 +197,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       await postApi(`/OrderItems/${id}/Timelines`, {
         productionTeamId: productTeamId.toString(),
         status: 1,
-        receivedAt: new Date().toISOString()
+        receivedAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString() // Adding 3 hours
       })
     },
     onSuccess: () => {
