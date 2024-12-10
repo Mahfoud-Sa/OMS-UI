@@ -53,6 +53,7 @@ const schema = z.object({
         productId: z.number(),
         productDesignId: z.number(),
         fabric: z.string().optional(),
+        file: z.instanceof(File).optional(),
         quantity: z.number(),
         note: z.string().optional(),
         productionTeamId: z.number(),
@@ -153,6 +154,9 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
           payloadFormData.append('quantity', product.quantity.toString())
           if (product.note) {
             payloadFormData.append('note', product.note || 'بدون ملاحظات')
+          }
+          if (product.file) {
+            payloadFormData.append('file', product.file)
           }
           payloadFormData.append('productionTeamId', product.productionTeamId.toString())
 

@@ -246,19 +246,32 @@ const Timeline = () => {
               <div className="m-3 font-bold">لا يوجد خطوط إنتاج</div>
             )}
           </div>
-          <div className="flex justify-end gap-2">
-            {item.timelines.length > 0 && (
-              <EditTimeLineDialog
-                disable={
-                  order?.data.orderState == 4 ||
-                  order?.data.orderState == 3 ||
-                  order?.data.orderState === 2 ||
-                  !gotRole(Roles.UpdateOrder)
-                }
-                itemId={item.id.toString()}
-                timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
-              />
-            )}
+          <div className="flex justify-end gap-3">
+            <>
+              {item.file && (
+                <a
+                  href={item.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-lg text-primary flex items-center gap-1"
+                >
+                  <span>عرض الملف</span>
+                </a>
+              )}
+
+              {item.timelines.length > 0 && (
+                <EditTimeLineDialog
+                  disable={
+                    order?.data.orderState == 4 ||
+                    order?.data.orderState == 3 ||
+                    order?.data.orderState === 2 ||
+                    !gotRole(Roles.UpdateOrder)
+                  }
+                  itemId={item.id.toString()}
+                  timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
+                />
+              )}
+            </>
           </div>
         </div>
       ))}

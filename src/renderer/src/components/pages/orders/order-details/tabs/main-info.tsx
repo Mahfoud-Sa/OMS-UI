@@ -195,6 +195,8 @@ const MainInfo = () => {
                         placeholder="سعر التكلفة"
                         martial
                         label="سعر التكلفة"
+                        type="number"
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
