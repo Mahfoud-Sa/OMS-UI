@@ -1,3 +1,6 @@
+import { LucideProps } from 'lucide-react'
+import { ForwardRefExoticComponent, RefAttributes } from 'react'
+
 export type LogInResponse = {
   token: string
   expireIn: number
@@ -126,6 +129,7 @@ export type Order = {
   items: Item[]
   history: History[]
   timelines: Timeline[]
+  orderId?: string
 }
 
 export type Item = {
@@ -134,10 +138,13 @@ export type Item = {
   productName: string
   factoryName: string
   fabric: string
+  file?: string
   quantity: number
   note: string
   productionTeamId: number
   orderId: number
+  productDesignName: string
+
   images: string[]
   timelines: Timeline[]
 }
@@ -209,11 +216,56 @@ export interface localNewProduct {
   id?: number
   productId: number
   fabric: string
+  file?: File
   factoryId: number
-  image: File
+  image?: File
+  images: File[]
   note: string
   productDesignId: number
   productionLineId: number
   productionTeamId: number
   quantity: number
+}
+export interface cardsInterface {
+  title: string
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+  value: number | string
+  iconClassName: string
+  iconBgWrapperColor: string
+}
+export interface DailyReportInfo {
+  returnReportCards: (cards: cardsInterface[]) => void
+}
+export enum Roles {
+  Roles = 'Roles',
+  OrdersStatesReporter = 'Orders States Reporter',
+  RecetPassword = 'Recet Password',
+  DeleteUser = 'Delete User',
+  UpdateUser = 'Update User',
+  GetProducts = 'Get Products',
+  AddUser = 'Add User',
+  GetOrder = 'Get Order',
+  GetOrders = 'Get Orders',
+  DeleteFactory = 'Delete Factory',
+  Admin = 'Admin',
+  GetUsers = 'Get Users',
+  DeleteOrder = 'Delete Order',
+  DeliveryDatesReporter = 'Delivery Dates Reporter',
+  ChangePassword = 'Change Password',
+  GetFactories = 'Get Factories',
+  GetUser = 'Get User',
+  AddOrder = 'Add Order',
+  DeleteProduct = 'Delete Product',
+  GetFactory = 'Get Factory',
+  UpdateOrder = 'Update Order',
+  DailyReporter = 'Daily Reporter',
+  OrdersProductionReporter = 'Orders Production Reporter',
+  UpdateProfile = 'Update Profile',
+  UpdateProduct = 'Update Product',
+  GetProfile = 'Get Profile',
+  AddFactory = 'Add Factory',
+  AddProduct = 'Add Product',
+  FactoryCharts = 'Factory charts',
+  UpdateFactory = 'Update Factory',
+  GetProduct = 'Get Product'
 }

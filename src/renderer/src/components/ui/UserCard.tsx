@@ -1,3 +1,4 @@
+import { gotRole } from '@renderer/lib/utils'
 import { UserIcon } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -43,6 +44,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ name, role, imagePath }) => {
         loading="lazy"
         src={imagePath || 'https://via.placeholder.com/50'}
         className="object-cover shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
+        onError={(e) => {
+          e.currentTarget.src = 'https://via.placeholder.com/50'
+        }}
         alt={`${name} - ${role}`}
       />
       <div className="flex flex-col self-stretch my-auto w-[107px]">
@@ -97,19 +101,23 @@ export const UserCard: React.FC<DeliveryUserCardProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <Link to={`/users/${userId}`}>
-                    <DropdownMenuItem>تعديل</DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setIsDialogOpen(true)
-                    }}
-                    // backgroundColor="orange"
-                    // color="white"
-                    className="btn"
-                  >
-                    حذف
-                  </DropdownMenuItem>
+                  {gotRole('Get User') && (
+                    <Link to={`/users/${userId}`}>
+                      <DropdownMenuItem>تعديل</DropdownMenuItem>
+                    </Link>
+                  )}
+                  {userInfo.role !== 'مشرف' && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setIsDialogOpen(true)
+                      }}
+                      // backgroundColor="orange"
+                      // color="white"
+                      className="btn"
+                    >
+                      حذف
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

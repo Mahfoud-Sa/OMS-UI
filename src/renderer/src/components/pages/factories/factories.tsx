@@ -22,6 +22,7 @@ import {
 import { Skeleton } from '@renderer/components/ui/skeleton'
 import { useToast } from '@renderer/components/ui/use-toast_1'
 import { deleteApi, getApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
@@ -131,27 +132,33 @@ const Factories = () => {
       cell: (info) => (
         <>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                <Link to={`/factories/${info.row.original.id}`}>
-                  <DropdownMenuItem>تعديل</DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedFactoryId(info.row.original.id)
-                    setIsDialogOpen(true)
-                  }}
-                  style={{ backgroundColor: 'orange', color: 'white' }}
-                  color="white"
-                  className="btn"
-                >
-                  حذف
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
+            {gotRole('Get Factory') && (
+              <>
+                <DropdownMenuTrigger>
+                  <Icons.ellipsis className="object-contain shrink-0 w-6 aspect-square" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <Link to={`/factories/${info.row.original.id}`}>
+                      <DropdownMenuItem>تعديل</DropdownMenuItem>
+                    </Link>
+                    {/* {gotRole('Delete Factory') && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedFactoryId(info.row.original.id)
+                      setIsDialogOpen(true)
+                    }}
+                    style={{ backgroundColor: 'orange', color: 'white' }}
+                    color="white"
+                    className="btn"
+                  >
+                    حذف
+                  </DropdownMenuItem>
+                )} */}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </>
+            )}
           </DropdownMenu>
         </>
       )
@@ -175,7 +182,12 @@ const Factories = () => {
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <div className="flex gap-3 flex-row h-[50px]">
           <FactoriesSearch />
-          <CreateBtn title={'اضافة مصنع'} href={'new'} className="w-[200px]" />
+          <CreateBtn
+            disable={!gotRole('Add Factory')}
+            title={'اضافة مصنع'}
+            href={'new'}
+            className="w-[200px]"
+          />
         </div>
         <div className="p-4 h-96 overflow-auto mt-4">
           {isLoading && <Skeleton className="h-96" />}
