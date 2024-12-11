@@ -85,9 +85,6 @@ const NewOrderNoteDialog: React.FC<NewOrderNoteDialogProps> = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" onClick={onClose}>
-                الغاء
-              </Button>
               <Button onClick={form.handleSubmit(handleSave)} className="ml-2">
                 {'حفظ'}
               </Button>

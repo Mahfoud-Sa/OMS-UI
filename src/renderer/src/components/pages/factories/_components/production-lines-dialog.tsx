@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { Input } from '@renderer/components/ui/input'
+import { PhoneInput } from '@renderer/components/ui/phone-input'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { ProductionLineProps, ProductionTeam } from '@renderer/types/api'
 import { useEffect, useState } from 'react'
@@ -55,7 +56,7 @@ const ProductionLineDialog = ({
   }, [isEdit, productionLine])
 
   const validatePhone = (phone: string) => {
-    const phoneRegex = /^5\d{8}$/
+    const phoneRegex = /^\+9665\d{8}$/
     return phoneRegex.test(phone)
   }
 
@@ -251,14 +252,20 @@ const ProductionLineDialog = ({
                 {teamNameError && <small className="text-red-500">{teamNameError}</small>}
               </div>
               <div className="flex-1">
-                <Input
+                <PhoneInput
                   value={teamPhone}
-                  onChange={(e) => setTeamPhone(e.target.value)}
-                  placeholder="رقم التواصل"
-                  label="رقم التواصل"
-                  type="tel"
-                  maxLength={16}
-                  prefix="+966"
+                  onChange={(value) => {
+                    setTeamPhone(value)
+                  }}
+                  countries={['SA']}
+                  defaultCountry="SA"
+                  maxLength={13}
+                  className="flex-row-reverse rounded-sm"
+                  labels={{
+                    SA: 'السعودية'
+                  }}
+                  title="رقم العميل"
+                  placeholder="5********"
                 />
                 {teamPhoneError && <small className="text-red-500">{teamPhoneError}</small>}
               </div>

@@ -29,6 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import { Role } from '@renderer/types'
 import { User } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -188,6 +189,52 @@ const InfoUser = () => {
 
     setUserRoles(filterUserRoles)
   }
+  const isImportant = (role: string) => {
+    /* if role is in [
+0
+:
+"Get Products"
+1
+:
+"Get Order"
+2
+:
+"Get Orders"
+3
+:
+"Get Factories"
+4
+:
+"Add Order"
+5
+:
+"Get Factory"
+6
+:
+"Add Factory"
+7
+:
+"Add Product"
+8
+:
+"Get Product"]' then the roles is important and return a text for that*/
+    if (
+      [
+        'Get Products',
+        'Get Order',
+        'Get Orders',
+        'Get Factories',
+        'Add Order',
+        'Get Factory',
+        'Add Factory',
+        'Add Product',
+        'Get Product'
+      ].includes(role)
+    ) {
+      return 'هذا الصلاحية مهمة لاضافة الطلب'
+    }
+    return ''
+  }
 
   const handleAddRole = (role: Role) => {
     const findUserRole = userRoles.find((el) => el.name == role.name)
@@ -209,19 +256,6 @@ const InfoUser = () => {
     }
   }
 
-  const handleNext = () => {
-    if (currentTab === 'permissions') {
-      return
-    } else if (currentTab === 'personalInfo') setCurrentTab('workInfo')
-    else if (currentTab === 'workInfo') setCurrentTab('permissions')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'personalInfo') return
-    else if (currentTab === 'permissions') setCurrentTab('workInfo')
-    else if (currentTab === 'workInfo') setCurrentTab('personalInfo')
-  }
-
   if (isPending)
     return (
       <div className="flex justify-center items-center bg-white rounded-lg min-h-[800px] shadow-sm">
@@ -231,7 +265,9 @@ const InfoUser = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/users" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/users`} />
+      </div>
       <InformationCard
         displayButton={false}
         logoSrc={oldImage}
@@ -271,9 +307,15 @@ const InfoUser = () => {
                     backgroundColor: 'transparent'
                   }}
                 >
-                  <TabsTrigger value="personalInfo">المعلومات الشخصية</TabsTrigger>
-                  <TabsTrigger value="workInfo">معلومات العمل</TabsTrigger>
-                  <TabsTrigger value="permissions">الصلاحيات</TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('personalInfo')} value="personalInfo">
+                    المعلومات الشخصية
+                  </TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('workInfo')} value="workInfo">
+                    معلومات العمل
+                  </TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('permissions')} value="permissions">
+                    الصلاحيات
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="personalInfo">
@@ -512,7 +554,17 @@ const InfoUser = () => {
                               إضافة دور
                             </DialogHeader>
                             <Combobox
-                              options={AllRoles?.data.roles || []}
+                              options={
+                                AllRoles?.data.roles.filter(
+                                  (role) =>
+                                    ![
+                                      'Roles',
+                                      'Delete Factory',
+                                      'Delete Product',
+                                      'Delete Order'
+                                    ].includes(role.name)
+                                ) || []
+                              }
                               valueKey="id"
                               displayKey="name"
                               localize={localizeRoles}
@@ -549,6 +601,7 @@ const InfoUser = () => {
                           <TableRow>
                             <TableHead className="text-right">الرقم</TableHead>
                             <TableHead className="text-right">اسم الدور</TableHead>
+                            <TableHead className="text-right">الملاحظة</TableHead>
                             <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
@@ -557,6 +610,7 @@ const InfoUser = () => {
                             <TableRow key={index}>
                               <TableCell>{(index + 1).toString().padStart(2, '0')}</TableCell>
                               <TableCell>{localizeRoles[ur.name]}</TableCell>
+                              <TableCell>{isImportant(ur.name)}</TableCell>
                               <TableCell className="flex justify-end ">
                                 <Button
                                   type="button"
@@ -577,27 +631,14 @@ const InfoUser = () => {
               </Tabs>
             </div>
             <div className="flex flex-row gap-2 justify-end">
-              {currentTab !== 'personalInfo' && (
-                <div className="hover:marker:" onClick={handleBack}>
-                  <div className="flex justify-end">
-                    <Button type="button" size="lg">
-                      السابق
-                    </Button>
-                  </div>
-                </div>
-              )}
-              {currentTab !== 'permissions' && (
-                <div className="hover:marker:" onClick={handleNext}>
-                  <div className="flex justify-end">
-                    <Button type="button" size="lg">
-                      التالي
-                    </Button>
-                  </div>
-                </div>
-              )}
-              {isEdit && currentTab === 'permissions' && (
+              {isEdit && (
                 <div className="flex justify-end">
-                  <Button type="submit" form="form-1" disabled={isPendingSubmit} size="lg">
+                  <Button
+                    type="submit"
+                    form="form-1"
+                    disabled={isPendingSubmit || !gotRole('Update User')}
+                    size="lg"
+                  >
                     {isPendingSubmit ? <Loader color={'#fff'} size={15} /> : 'حفظ'}
                   </Button>
                 </div>

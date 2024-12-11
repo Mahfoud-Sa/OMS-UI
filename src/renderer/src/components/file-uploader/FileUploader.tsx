@@ -1,9 +1,8 @@
 'use client'
 import React, { useState } from 'react'
 
-import { AlertCircle, Check, Upload, X } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { UseFormSetValue } from 'react-hook-form'
-import { Button } from '../ui/button'
 
 interface FileUploaderProps {
   inputId: string
@@ -11,24 +10,30 @@ interface FileUploaderProps {
   onChange?: (files: HTMLInputElement['files']) => void
   setValue: UseFormSetValue<any>
   fieldName?: string
+  accept?: string
+  moveFileText?: string
+  uploadFileText?: string
 }
+
 export default function FileUploader({
   inputId,
   isMultiple = false,
-  fieldName = inputId,
+  // fieldName = inputId,
   onChange,
-  setValue
+  // setValue,
+  accept = '',
+  moveFileText = 'اختر الملف أو اسحب الملف للرفع',
+  uploadFileText = 'رفع ملف'
 }: FileUploaderProps) {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
-  const [isError, setIsError] = useState(false)
-  // const fileInputRef = useRef<HTMLInputElement>(null);
+  // const [isError, setIsError] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let files: FileList | null = null
     if (event.target.files)
       if (event.target.files[0] != null) {
         files = event?.target?.files
-        setIsError(true)
+        // setIsError(true)
       }
     if (files) {
       if (isMultiple) {
@@ -36,21 +41,21 @@ export default function FileUploader({
           setUploadedFiles((prevUploadedFiles) => [...prevUploadedFiles, file.name])
         })
       } else {
-        // if (files && files[0] && files[0].name)
         setUploadedFiles([files[0].name])
       }
-      setIsError(false)
+      // setIsError(false)
     }
 
     onChange?.(files)
   }
-  const handleFileRemove = (fileName: string) => {
-    setUploadedFiles((prevUploadedFiles) => prevUploadedFiles.filter((file) => file !== fileName))
-    if (uploadedFiles.length === 1) {
-      setUploadedFiles([])
-    }
-    setValue(fieldName, undefined)
-  }
+
+  // const handleFileRemove = (fileName: string) => {
+  //   setUploadedFiles((prevUploadedFiles) => prevUploadedFiles.filter((file) => file !== fileName))
+  //   if (uploadedFiles.length === 1) {
+  //     setUploadedFiles([])
+  //   }
+  //   setValue(fieldName, undefined)
+  // }
 
   return (
     <div className="flex w-full justify-center space-y-4 rounded border-2 border-dashed px-5 py-3">
@@ -59,6 +64,7 @@ export default function FileUploader({
         type="file"
         name={inputId}
         id={inputId}
+        accept={accept}
         className="hidden"
         onChange={(e) => {
           handleFileChange(e)
@@ -67,27 +73,24 @@ export default function FileUploader({
       {uploadedFiles.length != 0 ? (
         <label
           htmlFor={inputId}
-          className="mt-0 flex w-full cursor-pointer items-center  justify-center gap-1.5
-         text-gray-700 decoration-2 hover:underline dark:text-primary"
+          className="mt-0 flex w-full cursor-pointer items-center justify-center gap-1.5 text-gray-700 decoration-2 hover:underline dark:text-primary"
         >
-          <span className="rounded bg-gray-200 p-2 text-blue-500">رفع ملف</span>
+          <span className="rounded bg-gray-200 p-2 text-blue-500">{uploadFileText}</span>
           <Upload size={24} />
-          اسحب الملف للرفع
+          {moveFileText}
         </label>
       ) : (
         <label
           htmlFor={inputId}
-          className="flex max-w-xl cursor-pointer items-center justify-center gap-1.5
-         text-gray-700 decoration-2 hover:underline dark:text-white"
+          className="flex max-w-xl cursor-pointer items-center justify-center gap-1.5 text-gray-700 decoration-2 hover:underline dark:text-white"
         >
           <Upload size={24} />
           <span className="text-blue-500 underline decoration-2 hover:text-blue-600">
-            اختر الملف
-          </span>{' '}
-          أو اسحب الملف للرفع
+            {moveFileText}
+          </span>
         </label>
       )}
-      {uploadedFiles && (
+      {/* {uploadedFiles && (
         <div>
           {uploadedFiles.map((file, i) => {
             return (
@@ -111,7 +114,7 @@ export default function FileUploader({
             )
           })}
         </div>
-      )}
+      )} */}
     </div>
   )
 }

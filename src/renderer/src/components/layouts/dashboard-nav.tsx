@@ -67,7 +67,7 @@ export default function DashboardNav({ items, expanded = false }: DashboardNavPr
                               ? 'bg-[#e6dcee] text-[#8150AB] border-l-4 border-primary'
                               : 'transparent',
                             !expanded && 'justify-center',
-                            nav.disabled && 'cursor-not-allowed opacity-80'
+                            nav.disabled && 'hidden'
                           )}
                           onClick={(e) => {
                             if (nav.disabled) e.preventDefault()
@@ -92,7 +92,7 @@ export default function DashboardNav({ items, expanded = false }: DashboardNavPr
                               ? 'bg-[#e6dcee] text-[#8150AB] border-l-4 border-primary'
                               : 'transparent',
                             !expanded && 'justify-center',
-                            nav.disabled && 'cursor-not-allowed opacity-80'
+                            nav.disabled && 'hidden'
                           )}
                           onClick={(e) => {
                             if (nav.disabled) e.preventDefault()
@@ -126,7 +126,7 @@ export default function DashboardNav({ items, expanded = false }: DashboardNavPr
                         className={cn(
                           ' mb-1 flex items-center gap-1 ps-8 py-3 text-sm font-medium hover:bg-[#e6dcee] hover:text-[#8150AB]',
                           'transparent',
-                          subLink.disabled && 'cursor-not-allowed opacity-80',
+                          subLink.disabled && 'hidden',
                           !expanded && 'justify-center'
                         )}
                       >
@@ -136,7 +136,7 @@ export default function DashboardNav({ items, expanded = false }: DashboardNavPr
                             isSelected(subLink.href) ? 'bg-primary' : 'bg-gray-600/75'
                           )}
                         ></div>{' '}
-                        {subLink.label}
+                        {expanded ? subLink.label : ''}
                       </Link>
                     ))}
                   </div>

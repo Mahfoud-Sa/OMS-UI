@@ -1,7 +1,6 @@
 'use client'
 
 import { getApi } from '@renderer/lib/http'
-import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -28,10 +27,10 @@ const OrdersSearch = () => {
   const pathname = location.pathname
   const selectedVal = searchParams.get('query')
 
-  const { data: orders } = useQuery({
-    queryKey: ['orders'],
-    queryFn: () => getApi<Orders>('/Orders')
-  })
+  // const { data: orders } = useQuery({
+  //   queryKey: ['orders'],
+  //   queryFn: () => getApi<Orders>('/Orders')
+  // })
 
   const loadOptions = async (value: string) => {
     if (!value) return []
@@ -98,7 +97,7 @@ const OrdersSearch = () => {
         cacheOptions
         instanceId="products-search"
         value={selectedVal?.length ? ({ billNo: selectedVal } as Order) : undefined}
-        defaultOptions={orders?.data.orders}
+        // defaultOptions={orders?.data.orders}
         loadOptions={loadOptions}
         onChange={onChange}
         getOptionLabel={({ billNo }) => billNo}
