@@ -70,7 +70,10 @@ const Timeline = () => {
   })
   const { mutate: deliverOrderMutate, isPending: deliverOrderIsPending } = useMutation({
     mutationFn: async () => {
-      await patchApi(`/Orders/${id}`, { orderState: 3, deliveryAt: new Date().toISOString() })
+      await patchApi(`/Orders/${id}`, {
+        orderState: 3,
+        deliveryAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString()
+      })
     },
     onSuccess: () => {
       toast({

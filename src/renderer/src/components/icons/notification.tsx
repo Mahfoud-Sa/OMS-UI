@@ -1,7 +1,12 @@
 type propTypes = {
   size?: number
   color?: string
-  status?: 'default' | 'update-available' | 'update-downloading' | 'update-downloaded'
+  status?:
+    | 'default'
+    | 'update-available'
+    | 'update-downloading'
+    | 'update-downloaded'
+    | 'update-not-available'
 }
 
 const NotificationIcon = ({ size = 24, color = '#8150ab', status = 'default' }: propTypes) => {
@@ -16,6 +21,9 @@ const NotificationIcon = ({ size = 24, color = '#8150ab', status = 'default' }: 
       break
     case 'update-downloaded':
       fillColor = 'green'
+      break
+    case 'update-not-available':
+      fillColor = 'black'
       break
     default:
       fillColor = color
