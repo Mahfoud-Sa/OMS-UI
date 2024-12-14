@@ -28,17 +28,17 @@ type Props = {
   setAsc: (value: boolean) => void
 }
 
-const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
+const isDeliveryDateLessThanFiveDays = (deliveryDate?: string) => {
   if (!deliveryDate) return false
   const deliveryDateObj = new Date(deliveryDate)
   const currentDate = new Date()
   const timeDifference = deliveryDateObj.getTime() - currentDate.getTime()
   const daysDifference = timeDifference / (1000 * 3600 * 24)
-  return daysDifference < 2
+  return daysDifference < 5
 }
 
 const rowClassName = (order: Order) => {
-  return isDeliveryDateLessThanTwoDays(order.readyAt) && ![3, 4].includes(order.orderState)
+  return isDeliveryDateLessThanFiveDays(order.readyAt) && ![3, 4].includes(order.orderState)
     ? 'bg-red-400'
     : ''
 }
