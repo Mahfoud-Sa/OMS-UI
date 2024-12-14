@@ -263,7 +263,6 @@ const LoginForm = () => {
           description: 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة',
           variant: 'success'
         })
-        alert('تم تغيير كلمة المرور بنجاح')
         setIsPasswordChangeRequired(false)
         // log the user in with the new password
         form.setValue('password', newPassword)
