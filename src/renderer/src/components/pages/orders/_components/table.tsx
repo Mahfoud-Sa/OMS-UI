@@ -38,7 +38,7 @@ const isDeliveryDateLessThanTwoDays = (deliveryDate?: string) => {
 }
 
 const rowClassName = (order: Order) => {
-  return isDeliveryDateLessThanTwoDays(order.deliveryAt) && ![3, 4].includes(order.orderState)
+  return isDeliveryDateLessThanTwoDays(order.readyAt) && ![3, 4].includes(order.orderState)
     ? 'bg-red-400'
     : ''
 }
@@ -76,7 +76,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           )
         },
         cell: ({ row }) => {
-          return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
+          return <div>{new Date(row.original.createAt).toISOString().split('T')[0]}</div>
         }
       },
       {

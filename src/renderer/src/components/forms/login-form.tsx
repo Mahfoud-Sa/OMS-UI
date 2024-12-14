@@ -265,7 +265,6 @@ const LoginForm = () => {
         })
         alert('تم تغيير كلمة المرور بنجاح')
         setIsPasswordChangeRequired(false)
-        form.setValue('password', '')
       } else {
         toast({
           title: 'حصل خطأ',
