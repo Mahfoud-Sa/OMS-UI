@@ -265,8 +265,9 @@ const LoginForm = () => {
         })
         alert('تم تغيير كلمة المرور بنجاح')
         setIsPasswordChangeRequired(false)
-        // refresh the page
-        window.location.reload()
+        // log the user in with the new password
+        form.setValue('password', newPassword)
+        form.handleSubmit(onSubmit)()
       } else {
         toast({
           title: 'حصل خطأ',
