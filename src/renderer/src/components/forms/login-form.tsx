@@ -260,7 +260,7 @@ const LoginForm = () => {
       if (res?.status === 200) {
         toast({
           title: 'تم تغيير كلمة المرور',
-          description: 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة',
+          description: 'تم تغيير كلمة المرور بنجاح.',
           variant: 'success'
         })
         setIsPasswordChangeRequired(false)
