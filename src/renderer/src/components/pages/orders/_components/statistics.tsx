@@ -35,11 +35,14 @@ export default function Statistics({
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Orders${userType === 'بائع' ? '/User' : ''}`, {
-        params: {
-          size: 1
+      }>(
+        `/Orders${userType === 'بائع' ? '/User' : userType === 'منسق طلبات' ? '/OrderManager' : ''}`,
+        {
+          params: {
+            size: 1
+          }
         }
-      })
+      )
   })
   const { data: deliveredOrdersTotal } = useQuery({
     queryKey: ['orders', 'deliveredOrders'],
@@ -53,12 +56,15 @@ export default function Statistics({
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Orders${userType === 'بائع' ? '/User' : ''}`, {
-        params: {
-          size: 1,
-          orderState: 3
+      }>(
+        `/Orders${userType === 'بائع' ? '/User' : userType === 'منسق طلبات' ? '/OrderManager' : ''}`,
+        {
+          params: {
+            size: 1,
+            orderState: 3
+          }
         }
-      })
+      )
   })
   const { data: inProgressOrdersTotal } = useQuery({
     queryKey: ['orders', 'inProgressOrders'],
@@ -72,12 +78,15 @@ export default function Statistics({
         pageNumber: number
         pageSize: number
         pages: number
-      }>(`/Orders${userType === 'بائع' ? '/User' : ''}`, {
-        params: {
-          size: 1,
-          orderState: 1
+      }>(
+        `/Orders${userType === 'بائع' ? '/User' : userType === 'منسق طلبات' ? '/OrderManager' : ''}`,
+        {
+          params: {
+            size: 1,
+            orderState: 1
+          }
         }
-      })
+      )
   })
 
   // const searchParams = useSearchParams();
