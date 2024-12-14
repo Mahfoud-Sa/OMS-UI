@@ -1,4 +1,4 @@
-import { User2, Users2 } from 'lucide-react'
+import { Users2 } from 'lucide-react'
 import StatisticCard from '../../../layouts/statistic-card'
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // import { useState } from "react";
@@ -10,12 +10,7 @@ type StatisticsProps = {
   retailersCount?: number
 }
 
-export default function Statistics({
-  filterData,
-  totalUsers,
-  managersCount,
-  retailersCount
-}: StatisticsProps) {
+export default function Statistics({ totalUsers }: StatisticsProps) {
   // const searchParams = useSearchParams();
 
   // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
@@ -53,27 +48,27 @@ export default function Statistics({
       value: totalUsers || 0,
       iconClassName: 'text-[#041016]',
       iconBgWrapperColor: 'bg-blue-100'
-    },
-    {
-      title: 'مدراء المصانع',
-      icon: User2,
-      value: managersCount || 0,
-      iconClassName: 'text-green-900',
-      iconBgWrapperColor: 'bg-green-100',
-      role: 'manager'
-    },
-    {
-      title: 'اصحاب المعارض',
-      icon: User2,
-      value: retailersCount || 0,
-      iconClassName: 'text-red-900',
-      iconBgWrapperColor: 'bg-red-100',
-      role: 'retailer'
     }
+    // {
+    //   title: 'مدراء المصانع',
+    //   icon: User2,
+    //   value: managersCount || 0,
+    //   iconClassName: 'text-green-900',
+    //   iconBgWrapperColor: 'bg-green-100',
+    //   role: 'manager'
+    // },
+    // {
+    //   title: 'اصحاب المعارض',
+    //   icon: User2,
+    //   value: retailersCount || 0,
+    //   iconClassName: 'text-red-900',
+    //   iconBgWrapperColor: 'bg-red-100',
+    //   role: 'retailer'
+    // }
   ]
 
   return (
-    <div className="grid gap-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1">
       {data.map((item, i) => (
         <StatisticCard
           key={i}
@@ -84,13 +79,13 @@ export default function Statistics({
           icon={item.icon}
           iconWrapperClassName={`${item.iconBgWrapperColor}`}
           iconClassName={item.iconClassName}
-          handleClick={() => {
-            if (filterData) {
-              if (i == 0) filterData(undefined)
-              filterData(item?.role)
-            }
-            // setSelectedCard({ id: i == 0 ? null : i, title: item.title })
-          }}
+          // handleClick={() => {
+          //   if (filterData) {
+          //     if (i == 0) filterData(undefined)
+          //     filterData(item?.role)
+          //   }
+          //   // setSelectedCard({ id: i == 0 ? null : i, title: item.title })
+          // }}
         />
       ))}
     </div>

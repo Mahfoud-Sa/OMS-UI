@@ -41,7 +41,13 @@ const NewProduct = () => {
   })
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await postApi('/Products', data)
+      const formData = new FormData()
+      formData.append('name', data.name)
+      // loop through the designs and append them to the form data
+      data.designs.forEach((design) => {
+        formData.append('designs', design)
+      })
+      await postApi('/Products', formData)
     },
     onSuccess: () => {
       toast({
@@ -98,7 +104,9 @@ const NewProduct = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/products" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href={`/products`} />
+      </div>
       <div className="mt-10">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>

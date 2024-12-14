@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import BarCharter from '@renderer/components/charts/BarChart'
 import LineCharter from '@renderer/components/charts/LineChart'
-import TrushSquare from '@renderer/components/icons/trush-square'
 import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
@@ -18,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import {
   LineChartResponse,
   MixedBarCharterProps,
@@ -58,6 +58,7 @@ const InfoProduct = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [hasManyValues, setHasManyValues] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
+  const [originalName, setOriginalName] = useState<string | null>(null)
   const [designs, setDesigns] = useState<
     {
       isDelete: boolean
@@ -65,6 +66,7 @@ const InfoProduct = () => {
       id?: number
     }[]
   >([])
+  const [designId, setId] = useState<number | undefined>(0)
   const [design, setDesign] = useState<string | null>(null)
 
   const {
@@ -78,7 +80,15 @@ const InfoProduct = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Schema) => {
-      await putApi(`/Products/${id}`, data)
+      const payload = {
+        designs: data.designs?.map((design) => ({
+          name: design.name,
+          isDelete: design.isDelete,
+          designId: design.id
+        })),
+        ...(data.name !== originalName ? { name: data.name } : { name: null })
+      }
+      await putApi(`/Products/${id}`, payload)
     },
     onSuccess: () => {
       toast({
@@ -126,6 +136,7 @@ const InfoProduct = () => {
         designs: newData
       })
       setDesigns([...newData!])
+      setOriginalName(data.data.name)
     }
   }, [data?.data])
 
@@ -142,28 +153,6 @@ const InfoProduct = () => {
     }
   }
 
-  const handleRemoveDesign = (indx: number) => {
-    const filterDesign = designs
-      .map((el, index) => {
-        if (index == indx) {
-          if (el.id != null) {
-            el.isDelete = true
-            return el
-          }
-
-          return null
-        }
-        return el
-      })
-      .filter((el) => el != null)
-
-    form.setValue('designs', filterDesign)
-
-    setDesigns(filterDesign)
-
-    console.log(form.getValues('designs'))
-  }
-
   const designsWatcher = form.watch('designs')
 
   useEffect(() => {
@@ -176,25 +165,13 @@ const InfoProduct = () => {
   useEffect(() => {
     form.setValue('designs', designs)
     setDesign(null)
+    setId(undefined)
     console.log(form.getValues('designs'))
   }, [designs])
 
   const handleManyValues = (hasMany: boolean) => {
     console.log(hasMany)
     setHasManyValues(hasMany)
-  }
-
-  const handleNext = () => {
-    if (currentTab === 'reports') {
-      return
-    } else if (currentTab === 'general') setCurrentTab('productStats')
-    else if (currentTab === 'productStats') setCurrentTab('reports')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'general') return
-    else if (currentTab === 'productStats') setCurrentTab('general')
-    else if (currentTab === 'reports') setCurrentTab('productStats')
   }
 
   const onSubmit = (data: Schema) => mutate(data)
@@ -208,7 +185,9 @@ const InfoProduct = () => {
 
   return (
     <section className="p-5">
-      <BackBtn href="/products" />
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href="/products" />
+      </div>
       <div className="mt-2">
         <Form {...form}>
           <form className="flex gap-4 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
@@ -230,23 +209,21 @@ const InfoProduct = () => {
                 >
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('general')
                     }}
                     value="general"
                   >
                     المعلومات العامة
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('productStats')
                     }}
                     value="productStats"
                   >
-                    احصائيات الصنف
-                  </TabsTrigger>
-                  <TabsTrigger
+                    احصائيات المنتج
+                  </TabsTrigger> */}
+                  {/* <TabsTrigger
                     onClick={() => {
                       if (isEdit) return
                       setCurrentTab('reports')
@@ -254,7 +231,7 @@ const InfoProduct = () => {
                     value="reports"
                   >
                     تقارير المنتج
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="general">
                   <div className="mt-4 grid grid-cols-2 gap-3">
@@ -335,7 +312,9 @@ const InfoProduct = () => {
                                         <Button
                                           type="button"
                                           onClick={() => {
+                                            console.log(d)
                                             setDesign(d.name)
+                                            setId(d.id)
                                             setShowDialog(true)
                                           }}
                                           variant="ghost"
@@ -355,12 +334,11 @@ const InfoProduct = () => {
                                           label="اسم التصميم"
                                           value={design || ''}
                                         />
-
                                         <DialogFooter>
                                           <Button
                                             type="button"
                                             onClick={() => {
-                                              handleEditDesign(d.id || 0)
+                                              handleEditDesign(designId!)
                                               setShowDialog(false)
                                             }}
                                           >
@@ -369,14 +347,6 @@ const InfoProduct = () => {
                                         </DialogFooter>
                                       </DialogContent>
                                     </Dialog>
-                                    <Button
-                                      type="button"
-                                      onClick={() => handleRemoveDesign(index)}
-                                      variant="ghost"
-                                      disabled={!isEdit}
-                                    >
-                                      <TrushSquare />
-                                    </Button>
                                   </TableCell>
                                 </TableRow>
                               )
@@ -406,7 +376,7 @@ const InfoProduct = () => {
                         year={selectedYear}
                         id={id || ''}
                         productName={form.getValues('name')}
-                        label="مبيعات الصنف"
+                        label="مبيعات المنتج"
                         queryFunction={(id: string, year: number) => {
                           return getApi<NoneMixedBarCharterProps[]>(
                             `Products/${id}/Chars/Bar?year=${year}`
@@ -446,45 +416,24 @@ const InfoProduct = () => {
                     </div>
                   </div>
                 </TabsContent>
-                <TabsContent value="reports">
+                {/* <TabsContent value="reports">
                   <div className="">
                     <h1 className="text-2xl font-bold">تقارير المنتج</h1>
-                    {/* Add your reports form fields here */}
                   </div>
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">
-                  {currentTab !== 'general' && (
-                    <div className="hover:marker:" onClick={handleBack}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          السابق
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab !== 'reports' && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          التالي
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab === 'reports' && isEdit && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button
-                          disabled={isPending}
-                          className="bg-green-500 hover:bg-green-700"
-                          type="submit"
-                          size="lg"
-                        >
-                          {isPending ? <Loader color="black" /> : 'حفظ'}
-                        </Button>
-                      </div>
+                  {isEdit && (
+                    <div className="flex justify-end">
+                      <Button
+                        disabled={isPending || !gotRole('Update Product')}
+                        className="bg-green-500 hover:bg-green-700"
+                        type="submit"
+                        size="lg"
+                      >
+                        {isPending ? <Loader color="black" /> : 'حفظ'}
+                      </Button>
                     </div>
                   )}
                 </div>

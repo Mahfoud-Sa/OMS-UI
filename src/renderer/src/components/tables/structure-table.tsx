@@ -15,13 +15,14 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   title?: string
   className?: string
+  rowClassName?: (row: TData) => string
 }
 
 export function StructureTable<TData, TValue>({
   columns,
   data,
-  // title,
-  className
+  className,
+  rowClassName
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -59,7 +60,10 @@ export function StructureTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows.map((row) => (
             <TableRow
-              className="text-nowrap bg-SurfContainerLow text-base font-medium"
+              className={cn(
+                'text-nowrap bg-SurfContainerLow text-base font-medium',
+                rowClassName && rowClassName(row.original)
+              )}
               key={row.id}
             >
               {row.getVisibleCells().map((cell) => (

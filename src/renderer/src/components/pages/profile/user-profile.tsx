@@ -46,9 +46,9 @@ const schema = z.object({
   Password: z.string({ message: 'مطلوب' }).optional(),
   PhoneNumber: z
     .string()
-    .regex(/^5\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
+    .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح')
     .optional(),
-  UserType: z.string().optional(),
+  userType: z.string().optional(),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
 
@@ -96,7 +96,8 @@ const UserProfile = () => {
         Username: data.data.userName,
         WorkPlace: data.data.workPlace,
         EmployDate: data.data.employDate,
-        PhoneNumber: data.data.phoneNumber
+        PhoneNumber: data.data.phoneNumber,
+        userType: data.data.userType
       })
       setUserRoles(data.data.roles)
       console.log(data.data.roles)
@@ -113,7 +114,7 @@ const UserProfile = () => {
       data.EmployDate && formData.set('employDate', data.EmployDate)
       data.PhoneNumber && formData.set('phoneNumber', data.PhoneNumber)
       formData.set('workPlace', data.WorkPlace)
-      data.UserType && formData.set('userType', data.UserType)
+      data.userType && formData.set('userType', data.userType)
       if (data.ImageFile) {
         formData.set('imageFile', data.ImageFile)
       }
@@ -184,7 +185,7 @@ const UserProfile = () => {
             iconSrc: 'user'
           },
           {
-            text: form.getValues('UserType') || 'المسمى الوظيفي',
+            text: form.getValues('userType') || 'المسمى الوظيفي',
             iconSrc: 'briefcaseBusiness'
           }
         ]}
@@ -205,35 +206,37 @@ const UserProfile = () => {
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="col-span-3 mb-1">
-                <FormField
-                  control={form.control}
-                  name="ImageFile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div>
-                          <ProfileUploader
-                            className="h-[180px] w-[180px]"
-                            inputId="ImageFile"
-                            setValue={form.setValue}
-                            onChange={async (files) => {
-                              try {
-                                if (!files?.[0]) return
-                                field.onChange(files[0])
-                              } catch (error) {
-                                JSON.stringify(error)
-                              }
-                            }}
-                            defaultImage={imageProfile}
-                          />
-                          <FormMessage />
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {isEdit && (
+                <div className="col-span-3 mb-1">
+                  <FormField
+                    control={form.control}
+                    name="ImageFile"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div>
+                            <ProfileUploader
+                              className="h-[180px] w-[180px]"
+                              inputId="ImageFile"
+                              setValue={form.setValue}
+                              onChange={async (files) => {
+                                try {
+                                  if (!files?.[0]) return
+                                  field.onChange(files[0])
+                                } catch (error) {
+                                  JSON.stringify(error)
+                                }
+                              }}
+                              defaultImage={imageProfile}
+                            />
+                            <FormMessage />
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <FormField
                 control={form.control}
@@ -367,7 +370,7 @@ const UserProfile = () => {
               />
             </div>
           </div>
-          {userRoles.includes('Admin') && (
+          {userRoles.includes('Change Password') && (
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <h1 className="text-2xl font-bold mb-3">تغير كلمة السر</h1>
               <div className="flex gap-3">
@@ -381,7 +384,6 @@ const UserProfile = () => {
                           <div className="relative">
                             <Input
                               {...field}
-                              disabled={!isEdit}
                               placeholder="كلمة السر"
                               martial
                               type={showPassword ? 'text' : 'password'}
@@ -408,7 +410,7 @@ const UserProfile = () => {
 
                 <Button
                   type="button"
-                  disabled={!isEdit || isPendingChangPassWord}
+                  disabled={isPendingChangPassWord}
                   onClick={() => mutateChangPassWord(form.getValues('Password')!)}
                   className="w-[100px] h-[56px]"
                 >
@@ -423,7 +425,7 @@ const UserProfile = () => {
 
             <div className="mt-4 grid grid-cols-1 gap-3">
               <FormField
-                name="UserType"
+                name="userType"
                 control={form.control}
                 render={({ field: { onChange } }) => (
                   <FormItem>
