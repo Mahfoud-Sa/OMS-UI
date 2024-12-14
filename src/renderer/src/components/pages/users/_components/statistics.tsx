@@ -10,12 +10,7 @@ type StatisticsProps = {
   retailersCount?: number
 }
 
-export default function Statistics({
-  filterData,
-  totalUsers,
-  managersCount,
-  retailersCount
-}: StatisticsProps) {
+export default function Statistics({ totalUsers }: StatisticsProps) {
   // const searchParams = useSearchParams();
 
   // const { data: statisticInfo } = useQuery<StatisticalUserCards>({
