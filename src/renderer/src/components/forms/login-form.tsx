@@ -139,8 +139,12 @@ const PasswordChangeDialog = ({
 }
 
 const Schema = z.object({
-  username: z.string().min(1, { message: 'يرجى أدخال أسم المستخدم' }),
-  password: z.string().min(1, { message: 'يرجى أدخال كلمة المرور' })
+  username: z
+    .string({ message: 'يرجى أدخال أسم المستخدم' })
+    .min(1, { message: 'يرجى أدخال أسم المستخدم' }),
+  password: z
+    .string({ message: 'يرجى أدخال كلمة المرور' })
+    .min(1, { message: 'يرجى أدخال كلمة المرور' })
 })
 
 type UserFormValue = z.infer<typeof Schema>
