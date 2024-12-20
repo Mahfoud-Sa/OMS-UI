@@ -9,17 +9,30 @@ import {
 import { getApi, postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
 import { LogInResponse, User } from '@renderer/types/api'
+import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useSignIn } from 'react-auth-kit'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import Loader from '../layouts/loader'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { useToast } from '../ui/use-toast_1'
+
+const passwordSchema = z
+  .object({
+    newPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' }),
+    confirmNewPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' })
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'كلمات المرور غير متطابقة',
+    path: ['confirmNewPassword']
+  })
+
+type PasswordFormValues = z.infer<typeof passwordSchema>
 
 const PasswordChangeDialog = ({
   isOpen,
@@ -30,21 +43,18 @@ const PasswordChangeDialog = ({
   onClose: () => void
   onSubmit: (newPassword: string, confirmPassword: string) => Promise<void>
 }) => {
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = async () => {
-    if (newPassword === confirmNewPassword) {
-      setIsSubmitting(true)
-      await onSubmit(newPassword, confirmNewPassword)
-      setIsSubmitting(false)
-    }
+  const form = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema)
+  })
+
+  const handleSubmit = async (data: PasswordFormValues) => {
+    setIsSubmitting(true)
+    await onSubmit(data.newPassword, data.confirmNewPassword)
+    setIsSubmitting(false)
   }
-  console.log('newPassword', newPassword)
-  console.log('confirmNewPassword', confirmNewPassword)
-  console.log(newPassword === confirmNewPassword)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -54,68 +64,87 @@ const PasswordChangeDialog = ({
         </DialogHeader>
 
         <label className="text-center">عيين كلمة المرور الخاصة بك</label>
-        <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            label={'كلمة المرور الجديدة'}
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
-          >
-            {showPassword ? (
-              <EyeOff size={23} color="#434749" />
-            ) : (
-              <Eye size={23} color="#434749" />
-            )}
-          </button>
-        </div>
-        <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Confirm New Password"
-            label={'تاكيد كلمة المرور الجديدة'}
-            value={confirmNewPassword}
-            onChange={(e) => setConfirmNewPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
-          >
-            {showPassword ? (
-              <EyeOff size={23} color="#434749" />
-            ) : (
-              <Eye size={23} color="#434749" />
-            )}
-          </button>
-        </div>
-        <DialogFooter>
-          <Button
-            className="w-full"
-            onClick={handleSubmit}
-            disabled={
-              newPassword === '' ||
-              confirmNewPassword === '' ||
-              newPassword !== confirmNewPassword ||
-              isSubmitting
-            }
-          >
-            {isSubmitting ? <Loader color="#fff" size={20} /> : 'حفظ'}
-          </Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <div className="relative my-4">
+              <FormField
+                control={form.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        label={'كلمة المرور الجديدة'}
+                        placeholder="New Password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
+              >
+                {showPassword ? (
+                  <EyeOff size={23} color="#434749" />
+                ) : (
+                  <Eye size={23} color="#434749" />
+                )}
+              </button>
+            </div>
+            <div className="relative my-4">
+              <FormField
+                control={form.control}
+                name="confirmNewPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Confirm New Password"
+                        label={'تاكيد كلمة المرور الجديدة'}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 transform cursor-pointer p-2 text-lg"
+              >
+                {showPassword ? (
+                  <EyeOff size={23} color="#434749" />
+                ) : (
+                  <Eye size={23} color="#434749" />
+                )}
+              </button>
+            </div>
+            <DialogFooter>
+              <Button className="w-full" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <Loader color="#fff" size={20} /> : 'حفظ'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )
 }
 
 const Schema = z.object({
-  username: z.string().min(1, { message: 'يرجى أدخال أسم المستخدم' }),
-  password: z.string().min(1, { message: 'يرجى أدخال كلمة المرور' })
+  username: z
+    .string({ message: 'يرجى أدخال أسم المستخدم' })
+    .min(1, { message: 'يرجى أدخال أسم المستخدم' }),
+  password: z
+    .string({ message: 'يرجى أدخال كلمة المرور' })
+    .min(1, { message: 'يرجى أدخال كلمة المرور' })
 })
 
 type UserFormValue = z.infer<typeof Schema>
@@ -132,13 +161,28 @@ const LoginForm = () => {
   })
   const [delayedSubmitting, setDelayedSubmitting] = useState(form.formState.isSubmitting)
 
+  const { mutateAsync } = useMutation({
+    mutationFn: async (id: string) => {
+      return await getApi<User>(`/users/${id}`)
+    },
+    retry: 3 // Retries the mutation 3 times before failing
+  })
+
   // login
   const onSubmit = async (data: UserFormValue) => {
     try {
       setDelayedSubmitting(true)
-      const res = await postApi<LogInResponse>('/Account/Login', {
-        ...data
-      })
+      const res = await postApi<LogInResponse>(
+        '/Account/Login',
+        {
+          ...data
+        },
+        {
+          headers: {
+            Authorization: ''
+          }
+        }
+      )
 
       if (res?.status === 200 && res.data.message === 'Password change required') {
         setIsPasswordChangeRequired(true)
@@ -146,17 +190,21 @@ const LoginForm = () => {
       }
 
       if ([200, 201].includes(res?.status as number)) {
-        const userData = await getApi<User>(`/users/${res.data.id}`)
+        signIn({
+          token: res.data.token,
+          expiresIn: 8640,
+          tokenType: 'Bearer'
+        })
+        const userData = await mutateAsync(res?.data.id || '0')
 
         const signInResult = signIn({
           token: res.data.token,
-          expiresIn: res.data.expireIn,
+          expiresIn: 8640,
           tokenType: 'Bearer',
           authState: {
             ...userData.data
           }
         })
-        // debugger
 
         console.log(signInResult)
         if (signInResult) {
@@ -165,7 +213,7 @@ const LoginForm = () => {
             description: 'تم تسجيل الدخول بنجاح',
             variant: 'success'
           })
-          navigate('/')
+          navigate('/orders')
         } else {
           toast({
             title: 'حصل خطأ ما',
@@ -176,7 +224,7 @@ const LoginForm = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error)
-      if (error.status === 400) {
+      if (error.status === 400 || error.status === 401) {
         toast({
           title: 'حصل خطأ',
           description: 'أسم المستخدم أو كلمة المرور غير صحيحة',
@@ -205,6 +253,7 @@ const LoginForm = () => {
       setDelayedSubmitting(false)
     }
   }
+
   const handlePasswordChangeSubmit = async (newPassword: string, confirmPassword: string) => {
     try {
       const res = await postApi(`/Account/ChangePassword/${form.getValues('username')}`, {
@@ -215,12 +264,13 @@ const LoginForm = () => {
       if (res?.status === 200) {
         toast({
           title: 'تم تغيير كلمة المرور',
-          description: 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة',
+          description: 'تم تغيير كلمة المرور بنجاح.',
           variant: 'success'
         })
-        alert('تم تغيير كلمة المرور بنجاح')
         setIsPasswordChangeRequired(false)
-        form.setValue('password', '')
+        // log the user in with the new password
+        form.setValue('password', newPassword)
+        form.handleSubmit(onSubmit)()
       } else {
         toast({
           title: 'حصل خطأ',
@@ -307,9 +357,6 @@ const LoginForm = () => {
               />
             </div>
 
-            <Link to="/" className="text-sm font-medium text-primary">
-              نسيت كلمة المرور ؟
-            </Link>
             <Button
               className="!mt-4 !h-12 w-full hover:bg-[#ca8d2a]"
               type="submit"

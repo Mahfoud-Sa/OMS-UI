@@ -1,5 +1,7 @@
 import { cn } from '@renderer/lib/utils'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/images/logo.svg'
 import useNavItems from '../../hooks/useNavItems'
 import useScreenSize from '../../hooks/useScreenSize'
 import SidebarToggleIcon from '../icons/sidebar-toggler-icon'
@@ -10,6 +12,7 @@ export default function Sidebar() {
   const [expanded, setExpanded] = useState(true)
   const navItems = useNavItems()
   const screenSize = useScreenSize()
+  const navigate = useNavigate()
   const width = screenSize.width
 
   useEffect(() => {
@@ -30,23 +33,19 @@ export default function Sidebar() {
       <SidebarToggleIcon expanded={expanded} setExpanded={setExpanded} />
 
       <div className={cn('flex w-full flex-col items-center justify-center p-4 gap-2', {})}>
-        {expanded ? (
-          <img
-            src="https://lh3.googleusercontent.com/d/1B6Gb0VLYkqJM1OW6w4QKjfOoSEhtRKTR=s220?authuser=0"
-            alt="logo"
-            className="w-[9.688rem] h-[9.688rem]"
-          />
-        ) : (
-          <img
-            src="https://lh3.googleusercontent.com/d/1B6Gb0VLYkqJM1OW6w4QKjfOoSEhtRKTR=s220?authuser=0"
-            alt="logo"
-            className="w-[62px] h-[62px]"
-          />
-        )}
-
+        <button
+          onClick={() => {
+            navigate('/orders')
+          }}
+        >
+          {expanded ? (
+            <img src={logo} alt="logo" className="w-[155px] h-[79px]" />
+          ) : (
+            <img src={logo} alt="logo" className="w-[155px] h-[79px]" />
+          )}
+        </button>
         <Separator className="mt-6 " />
       </div>
-
       <div className="flex-grow overflow-y-auto py-4 hide-scrollbar">
         <DashboardNav items={navItems} expanded={expanded} />
       </div>
