@@ -66,17 +66,19 @@ export function UserNav() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           {gotRole('Get Profile') && (
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Link to="/profile" className=" block w-full">
-                  الملف الشخصي
-                </Link>
-              </DropdownMenuItem>
-              {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
-            </DropdownMenuGroup>
-          )}
+            <>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link to="/profile" className=" block w-full">
+                    الملف الشخصي
+                  </Link>
+                </DropdownMenuItem>
+                {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
+              </DropdownMenuGroup>
 
-          <DropdownMenuSeparator />
+              <DropdownMenuSeparator />
+            </>
+          )}
 
           <DropdownMenuItem onClick={handleSignOut}>تسجيل الخروج</DropdownMenuItem>
         </DropdownMenuContent>

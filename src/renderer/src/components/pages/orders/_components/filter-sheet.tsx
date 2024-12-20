@@ -74,26 +74,28 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
           <SheetTitle>تصفية النتائج</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
+          {['مشرف'].includes(userType) && (
+            <div>
+              <Label>المصنع</Label>
+              <Combobox
+                selectedValue={
+                  factories?.data.factories.find(
+                    (factory) => factory.id === Number(filterOptions.factoryId)
+                  ) || null
+                }
+                options={factories?.data.factories || []}
+                valueKey="id"
+                displayKey="name"
+                placeholder="أختر مصنع"
+                emptyMessage="لم يتم العثور علئ مصنع"
+                onSelect={(factory) => {
+                  setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
+                }}
+              />
+            </div>
+          )}
           {['مشرف', 'منسق طلبات'].includes(userType) && (
             <>
-              <div>
-                <Label>المصنع</Label>
-                <Combobox
-                  selectedValue={
-                    factories?.data.factories.find(
-                      (factory) => factory.id === Number(filterOptions.factoryId)
-                    ) || null
-                  }
-                  options={factories?.data.factories || []}
-                  valueKey="id"
-                  displayKey="name"
-                  placeholder="أختر مصنع"
-                  emptyMessage="لم يتم العثور علئ مصنع"
-                  onSelect={(factory) => {
-                    setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
-                  }}
-                />
-              </div>
               <div>
                 <Input
                   type="number"
