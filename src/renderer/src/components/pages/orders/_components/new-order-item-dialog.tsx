@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import FileUploader from '@renderer/components/file-uploader/FileUploader'
 import { Button } from '@renderer/components/ui/button'
-import { Dialog, DialogContent, DialogHeader } from '@renderer/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@renderer/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
@@ -52,7 +52,15 @@ const schema = z.object({
     )
     .max(3, { message: 'يجب أن تكون الصور أقل من 3' })
     .optional(),
-  file: z.instanceof(File).optional(),
+  file: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: 'حجم الملف يجب أن يكون أقل من 5 ميجابايت'
+    })
+    .refine((file) => file.type === 'application/pdf', {
+      message: 'يجب أن يكون الملف من نوع PDF'
+    })
+    .optional(),
   productId: z.number({ message: 'اسم المنتج مطلوب' }),
   productDesignId: z.number({ message: 'التصميم مطلوب' }),
   fabric: z.string({ message: 'القماش مطلوب' }).optional(),
@@ -105,12 +113,16 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
       form.reset({
         ...productToEdit,
         // Preserve existing images if they exist
-        images: productToEdit.images || []
+        images: productToEdit.images || [],
+        file: productToEdit.file || undefined
       })
       form.setValue('id', productToEdit.id)
     }
     form.resetField('images', {
       defaultValue: []
+    })
+    form.resetField('file', {
+      defaultValue: undefined
     })
     console.log(form.getValues('images'))
   }, [productToEdit, form])
@@ -158,13 +170,14 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
     form.reset(defaultValues)
     clearProductToEdit()
     form.resetField('images')
+    form.resetField('file')
     onClose()
   }
-  const handleReset = () => {
+  const handleClose = () => {
     form.reset(defaultValues)
     form.resetField('images')
+    form.resetField('file')
     clearProductToEdit()
-    // clear the factory, production line, and product
     onClose()
   }
 
@@ -172,13 +185,14 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
     <Dialog
       open={isOpen}
       onOpenChange={() => {
-        onClose && onClose()
+        handleClose()
       }}
     >
       <DialogContent
         className="min-w-80 overflow-y-scroll"
         style={{ minWidth: '80%', height: '90%' }}
       >
+        <DialogTitle hidden />
         <DialogHeader>{productToEdit ? 'تعديل المنتج' : 'اضافة منتج جديد'}</DialogHeader>
 
         <Form {...form}>
@@ -199,7 +213,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                                   <img
                                     src={file instanceof File ? URL.createObjectURL(file) : file}
                                     alt={`Preview ${index + 1}`}
-                                    className="h-20 w-20 object-cover rounded-md"
+                                    className="h-20 w-20 object-fill rounded-md"
                                   />
                                   <button
                                     type="button"
@@ -248,6 +262,7 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
                       <FormControl>
                         <Input
                           type="file"
+                          id="file"
                           label={'ملف الطلب (اختياري)'}
                           accept=".pdf"
                           onChange={(e) => {
@@ -514,9 +529,6 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" type="button" onClick={handleReset}>
-                اعادة تعيين
-              </Button>
               <Button onClick={form.handleSubmit(handleSave)} className="ml-2">
                 {productToEdit ? 'تعديل' : 'حفظ'}
               </Button>
