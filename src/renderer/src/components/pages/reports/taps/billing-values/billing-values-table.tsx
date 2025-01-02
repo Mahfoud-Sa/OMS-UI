@@ -1,6 +1,5 @@
 import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
-import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,
@@ -52,10 +51,6 @@ const BillingValuesTable = ({ data }: Props) => {
         header: 'اسم الفرقة'
       },
       {
-        accessorKey: 'billNo',
-        header: 'اسم الفرقة'
-      },
-      {
         accessorKey: 'sellingPrice',
         header: 'تكلفة المصنع'
       },
@@ -91,7 +86,7 @@ const BillingValuesTable = ({ data }: Props) => {
   return (
     <div>
       <StructureTable columns={columns} data={data.orders} />
-      <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
+      {/* <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} /> */}
     </div>
   )
 }

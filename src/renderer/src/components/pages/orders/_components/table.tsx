@@ -1,4 +1,3 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Badge } from '@renderer/components/ui/badge'
@@ -9,11 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
-import { cn } from '@renderer/lib/utils'
-import { Order } from '@renderer/types/api'
+import { cn, gotRole } from '@renderer/lib/utils'
+import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import React from 'react'
+import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -24,15 +24,35 @@ type Props = {
     pages: number
     total: number
   }
+  isAsc: boolean
+  setAsc: (value: boolean) => void
 }
 
-const OrdersTable = ({ data }: Props) => {
+const isDeliveryDateLessThanFiveDays = (deliveryDate?: string) => {
+  if (!deliveryDate) return false
+  const deliveryDateObj = new Date(deliveryDate)
+  const currentDate = new Date()
+  const timeDifference = deliveryDateObj.getTime() - currentDate.getTime()
+  const daysDifference = timeDifference / (1000 * 3600 * 24)
+  return daysDifference < 5
+}
+
+const rowClassName = (order: Order) => {
+  return isDeliveryDateLessThanFiveDays(order.readyAt) && ![3, 4].includes(order.orderState)
+    ? 'bg-red-400'
+    : ''
+}
+
+const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
+  const authUser = useAuthUser()
+  const userType = authUser()?.userType as string
+
   const columns = React.useMemo<ColumnDef<Order>[]>(
     () => [
       {
         accessorKey: 'id',
         header: 'الرقم',
-        cell: ({ row }) => (row.index + 1).toString().padStart(2, '0')
+        cell: ({ row }) => row.original.id.toString().padStart(2, '0')
       },
       {
         accessorKey: 'customerName',
@@ -40,11 +60,15 @@ const OrdersTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'createAt',
-        header: ({ column }) => {
+        header: () => {
           return (
             <Button
               variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              onClick={() => {
+                console.log('clicked')
+                console.log(isAsc)
+                setAsc(!isAsc)
+              }}
             >
               تاريخ الأنشاء
               <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -52,7 +76,7 @@ const OrdersTable = ({ data }: Props) => {
           )
         },
         cell: ({ row }) => {
-          return <div>{new Date(row.original.createAt).toLocaleDateString()}</div>
+          return <div>{new Date(row.original.createAt).toISOString().split('T')[0]}</div>
         }
       },
       {
@@ -73,8 +97,8 @@ const OrdersTable = ({ data }: Props) => {
                 'bg-red-200 text-red-600': row.original.orderState == 4
               })}
             >
-              {row.original.orderState == 0 && 'جاري العمل'}
-              {row.original.orderState == 1 && 'قيد التنفيذ'}
+              {row.original.orderState == 0 && 'جديد'}
+              {row.original.orderState == 1 && 'قيد العمل'}
               {row.original.orderState == 2 && 'مكتمل'}
               {row.original.orderState == 3 && 'تم التسليم'}
               {row.original.orderState == 4 && 'ملغى'}
@@ -82,7 +106,9 @@ const OrdersTable = ({ data }: Props) => {
           )
         }
       },
-      {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      ['مشرف', 'بائع'].includes(userType) && {
         accessorKey: 'sellingPrice',
         header: 'السعر البيع'
       },
@@ -91,30 +117,37 @@ const OrdersTable = ({ data }: Props) => {
         id: 'actions',
         cell: ({ row }) => (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/orders/${row.original?.id}`}>
-                <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
-              </Link>
-
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <DeleteDialog url={`/Orders/${row.original?.id}`} keys={['orders']} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            {gotRole(Roles.GetOrder) && (
+              <>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0"
+                >
+                  <Link to={`/orders/${row.original?.id}`}>
+                    <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
+                  </Link>
+                </DropdownMenuContent>
+              </>
+            )}
           </DropdownMenu>
         )
       }
     ],
-    []
+    [isAsc, setAsc]
   )
 
   return (
     <div>
-      <StructureTable columns={columns} data={data.orders} />
+      <StructureTable
+        columns={columns.filter(Boolean)}
+        data={data.orders}
+        rowClassName={rowClassName}
+      />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
   )

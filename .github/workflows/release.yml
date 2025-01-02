@@ -44,16 +44,16 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
           draft: false
-          prerelease: false
+          prerelease: true
 
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: "dist/*"
+          files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: ${{ env.VERSION }}

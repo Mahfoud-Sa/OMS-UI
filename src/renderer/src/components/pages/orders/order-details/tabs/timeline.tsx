@@ -2,18 +2,19 @@ import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
-import { Item, Order } from '@renderer/types/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { Check, LucideHand, PackageCheck, Printer, X } from 'lucide-react'
+import { gotRole } from '@renderer/lib/utils'
+import { Item, Order, Roles } from '@renderer/types/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, LucideHand, PackageCheck, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import AddTimeLineDialog from '../_components/AddTimeLineDialog'
 import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   moment.locale('ar-ma')
 
@@ -36,7 +37,8 @@ const Timeline = () => {
         variant: 'default',
         title: `تم الغاء الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -55,7 +57,8 @@ const Timeline = () => {
         variant: 'default',
         title: `تم اكمال الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -67,14 +70,18 @@ const Timeline = () => {
   })
   const { mutate: deliverOrderMutate, isPending: deliverOrderIsPending } = useMutation({
     mutationFn: async () => {
-      await patchApi(`/Orders/${id}`, { orderState: 3 })
+      await patchApi(`/Orders/${id}`, {
+        orderState: 3,
+        deliveryAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString()
+      })
     },
     onSuccess: () => {
       toast({
         variant: 'default',
         title: `تم تسليم الطلب بنجاح`
       })
-      navigate('/orders')
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
     onError: () => {
       toast({
@@ -104,7 +111,7 @@ const Timeline = () => {
             completeOrderIsPending ||
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
-            order?.data.orderState == 3
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => cancelOrderMutate()}
         >
@@ -125,7 +132,8 @@ const Timeline = () => {
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
-            order?.data.orderState == 2
+            order?.data.orderState == 2 ||
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => completeOrderMutate()}
         >
@@ -145,7 +153,8 @@ const Timeline = () => {
             cancelOrderIsPending ||
             deliverOrderIsPending ||
             order?.data.orderState == 4 ||
-            order?.data.orderState == 3
+            order?.data.orderState == 3 ||
+            !gotRole(Roles.UpdateOrder)
           }
           onClick={() => deliverOrderMutate()}
         >
@@ -158,10 +167,10 @@ const Timeline = () => {
             </>
           )}
         </Button>
-        <Button className="flex gap-2">
+        {/* <Button className="flex gap-2">
           طباعة
           <Printer />
-        </Button>
+        </Button> */}
       </div>
 
       {data.data.map((item, index) => (
@@ -172,7 +181,8 @@ const Timeline = () => {
               disabled={
                 order?.data.orderState == 4 ||
                 order?.data.orderState == 3 ||
-                order?.data.orderState === 2
+                order?.data.orderState === 2 ||
+                !gotRole(Roles.UpdateOrder)
               }
               id={item.id.toString()}
             />
@@ -207,8 +217,8 @@ const Timeline = () => {
                         <h3 className="text-base font-medium">{timeline.productionLineName}</h3>
                         <p className="text-[#ABB7C2] text-sm">
                           {`${'انتهت خلال'}
-                          ${moment(new Date(timeline.receivedAt)).from(
-                            moment(new Date(timeline.deliveredAt)),
+                          ${moment(new Date(timeline.deliveredAt)).from(
+                            moment(new Date(timeline.receivedAt)),
                             true
                           )}`}
                         </p>
@@ -239,22 +249,32 @@ const Timeline = () => {
               <div className="m-3 font-bold">لا يوجد خطوط إنتاج</div>
             )}
           </div>
-          <div className="flex justify-end gap-2">
-            {item.timelines.length > 0 && (
-              <EditTimeLineDialog
-                disable={
-                  order?.data.orderState == 4 ||
-                  order?.data.orderState == 3 ||
-                  order?.data.orderState === 2
-                }
-                itemId={item.id.toString()}
-                timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
-              />
-            )}
-            <Button className="flex gap-2 w-fit">
-              طباعة
-              <Printer size={15} />
-            </Button>
+          <div className="flex justify-end gap-3">
+            <>
+              {item.file && (
+                <a
+                  href={item.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-lg text-primary flex items-center gap-1"
+                >
+                  <span>عرض الملف</span>
+                </a>
+              )}
+
+              {item.timelines.length > 0 && (
+                <EditTimeLineDialog
+                  disable={
+                    order?.data.orderState == 4 ||
+                    order?.data.orderState == 3 ||
+                    order?.data.orderState === 2 ||
+                    !gotRole(Roles.UpdateOrder)
+                  }
+                  itemId={item.id.toString()}
+                  timeLineId={item.timelines[item.timelines.length - 1].id.toString()}
+                />
+              )}
+            </>
           </div>
         </div>
       ))}

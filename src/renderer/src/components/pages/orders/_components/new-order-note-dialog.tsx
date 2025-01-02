@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@renderer/components/ui/button'
-import { Dialog, DialogContent, DialogHeader } from '@renderer/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@renderer/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@renderer/components/ui/form'
 import { Label } from '@renderer/components/ui/label'
 import { Textarea } from '@renderer/components/ui/textarea'
@@ -57,6 +57,7 @@ const NewOrderNoteDialog: React.FC<NewOrderNoteDialogProps> = ({
       }}
     >
       <DialogContent>
+        <DialogTitle hidden />
         <DialogHeader>{'اضافة ملاحظات تسليم الطلب'}</DialogHeader>
 
         <Form {...form}>
@@ -85,9 +86,6 @@ const NewOrderNoteDialog: React.FC<NewOrderNoteDialogProps> = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" onClick={onClose}>
-                الغاء
-              </Button>
               <Button onClick={form.handleSubmit(handleSave)} className="ml-2">
                 {'حفظ'}
               </Button>

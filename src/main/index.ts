@@ -6,12 +6,13 @@ import icon from '../../resources/icon.png?asset'
 
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
+// autoUpdater.forceDevUpdateConfig = true
+
+let mainWindow: BrowserWindow
 
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    //  width: 900,
-    //  height: 670,
+  mainWindow = new BrowserWindow({
     show: true,
     autoHideMenuBar: true,
     // fullscreen: true,
@@ -27,6 +28,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.webContents.send('AppVersion', app.getVersion())
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -50,8 +52,9 @@ app.whenReady().then(() => {
   // Auto update
   autoUpdater.checkForUpdatesAndNotify({
     title: 'تحديث جديد متوفر',
-    body: 'تم تنزيل التحديث وجاهز للتثبيت'
+    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
   })
+  // autoUpdater.checkForUpdates()
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -86,3 +89,22 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update-available')
+})
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update-downloaded')
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  mainWindow.webContents.send('download-progress', progressObj.percent)
+})
+autoUpdater.on('error', (error) => {
+  console.log(error)
+})
+
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall()
+})

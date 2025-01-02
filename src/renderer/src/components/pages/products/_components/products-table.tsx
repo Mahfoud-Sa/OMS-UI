@@ -1,4 +1,3 @@
-import DeleteDialog from '@renderer/components/layouts/delete-dialog'
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import TablePagination from '@renderer/components/tables/table-pagination'
 import { Button } from '@renderer/components/ui/button'
@@ -8,9 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
+import { gotRole } from '@renderer/lib/utils'
 import { Product } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -38,30 +38,14 @@ const ProductsTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'quantity',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              الكمية
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
+        header: () => {
+          return <>عدد التصاميم</>
         }
       },
       {
         accessorKey: 'creatAt',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              تاريخ التسجيل
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
+        header: () => {
+          return <>تاريخ التسجيل</>
         }
         // cell: ({ row }) => new Date(row.original.creatAt)
       },
@@ -70,20 +54,27 @@ const ProductsTable = ({ data }: Props) => {
         id: 'actions',
         cell: ({ row }) => (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0">
-              <Link to={`/products/${row.original?.id}`}>
-                <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
-              </Link>
+            {gotRole('Get Product') && (
+              <>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="h-17 -mt-[70px] ml-7 min-w-[84.51px] p-0"
+                >
+                  <Link to={`/products/${row.original?.id}`}>
+                    <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
+                  </Link>
 
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <DeleteDialog url={`/products/${row.original?.id}`} keys={['products']} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+              </DropdownMenuItem> */}
+                </DropdownMenuContent>
+              </>
+            )}
           </DropdownMenu>
         )
       }
