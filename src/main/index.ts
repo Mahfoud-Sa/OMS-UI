@@ -99,7 +99,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 autoUpdater.on('download-progress', (progressObj) => {
-  mainWindow.webContents.send('download-progress', progressObj)
+  mainWindow.webContents.send('download-progress', progressObj.percent)
 })
 autoUpdater.on('error', (error) => {
   console.log(error)
