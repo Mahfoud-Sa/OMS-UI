@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
+// autoUpdater.forceDevUpdateConfig = true
 
 let mainWindow: BrowserWindow
 
@@ -27,6 +28,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.webContents.send('AppVersion', app.getVersion())
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -52,6 +54,7 @@ app.whenReady().then(() => {
     title: 'تحديث جديد متوفر',
     body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
   })
+  // autoUpdater.checkForUpdates()
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -97,6 +100,9 @@ autoUpdater.on('update-downloaded', () => {
 
 autoUpdater.on('download-progress', (progressObj) => {
   mainWindow.webContents.send('download-progress', progressObj)
+})
+autoUpdater.on('error', (error) => {
+  console.log(error)
 })
 
 ipcMain.on('restart-app', () => {
