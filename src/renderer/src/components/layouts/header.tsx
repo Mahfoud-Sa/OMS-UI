@@ -6,7 +6,7 @@ import {
   TooltipTrigger
 } from '@renderer/components/ui/tooltip'
 import useCurrentNav from '@renderer/hooks/useCurrentNav'
-import { BadgeAlert, BadgeCheck, BadgeInfo, CircleCheck, MenuIcon, X } from 'lucide-react'
+import { BadgeAlert, BadgeCheck, BadgeInfo, MenuIcon, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { CircularProgress } from '../ui/circular-progress'
 import { UserNav } from './user-nav'
@@ -38,7 +38,7 @@ export default function Header() {
       setUpdateStatus('update-downloaded')
     })
 
-    window.electron.ipcRenderer.on('download-progress', (_event, percent) => {
+    window.electron.ipcRenderer.on('download-progress', (_event, percent: number) => {
       setUpdateStatus('update-downloading')
       setDownloadProgress(percent)
     })
@@ -65,20 +65,20 @@ export default function Header() {
 
     switch (updateStatus) {
       case 'update-available':
-        icon = <BadgeAlert className="text-gray-400" />
+        icon = <BadgeAlert className="text-yellow-400" />
         tooltipContent = 'هناك تحديث متاح'
         break
       case 'update-downloaded':
-        icon = <BadgeCheck className="text-yellow-500" />
+        icon = <BadgeCheck className="text-green-500" />
         tooltipContent = 'تم تحميل التحديث'
         break
       case 'update-not-available':
-        icon = <CircleCheck className="text-green-500" />
+        icon = <BadgeAlert className="text-green-500" />
         tooltipContent = `لا يوجد تحديث متاح. ${appVersion} هو آخر إصدار`
         break
       case 'update-downloading':
         icon = <CircularProgress strokeWidth={5} size={24} value={downloadProgress} />
-        tooltipContent = `تم تحميل: ${downloadProgress}%`
+        tooltipContent = `تم تحميل: ${downloadProgress.toFixed(1)}%`
         break
       default:
         icon = <BadgeInfo className="text-gray-400" />
