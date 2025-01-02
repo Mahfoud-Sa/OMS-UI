@@ -18,7 +18,8 @@ import { Input } from '@renderer/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { deleteApi, getApi, postApi, putApi } from '@renderer/lib/http'
+import { getApi, postApi, putApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
 import {
   LineChartResponse,
   MixedBarCharterProps,
@@ -32,42 +33,51 @@ import { Edit } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
-import { z } from 'zod'
+import { number, z } from 'zod'
 import ProductionLineDialog from '../_components/production-lines-dialog'
 import UpdateProductionTeamDialog from '../_components/production-team-dialog'
 import { StructureTable } from '../_components/structure-table'
 
 const schema = z.object({
-  name: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
-  location: z.string().min(3, 'يجب أن يكون أكبر من 3 أحرف').max(100, 'يجب أن يكون أقل من 100 حرف'),
+  name: z
+    .string({ message: 'يجب ادخال اسم المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
+  location: z
+    .string({ message: 'يرجى ادخال موقع المصنع' })
+    .min(3, 'يجب أن يكون أكبر من 3 أحرف')
+    .max(100, 'يجب أن يكون أقل من 100 حرف'),
   createdAt: z.string().min(10, 'يجب أن يكون تاريخ صالح'),
   notes: z.string().optional(),
-  productionLines: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      phone: z.string().optional(),
-      teamsCount: z.number(),
-      teams: z.array(
-        z.object({
-          id: z.string().optional(),
-          name: z.string(),
-          phone: z.string(),
-          employsCount: z.number()
-        })
-      )
-    })
-  ),
+  productionLines: z
+    .array(
+      z.object({
+        id: z.string().or(number()).optional(),
+        name: z.string(),
+        phone: z.string().optional(),
+        teamsCount: z.number().optional(),
+        teams: z
+          .array(
+            z.object({
+              id: z.string().or(number()).optional(),
+              name: z.string().optional(),
+              phone: z.string().optional(),
+              employsCount: z.number().optional()
+            })
+          )
+          .optional()
+      })
+    )
+    .optional(),
   productionLineTeamsToBeDeleted: z
     .array(
       z.object({
-        productionLineId: z.string(),
+        productionLineId: z.string().optional(),
         teams: z.array(z.string())
       })
     )
     .optional(),
-  productionLinesToBeDeleted: z.array(z.string()).optional(),
-  image: z.string().url('يجب ان تكون الصورة صحيحة').optional()
+  productionLinesToBeDeleted: z.array(z.string()).optional()
 })
 
 type Schema = z.infer<typeof schema>
@@ -161,26 +171,6 @@ const FactoryDetails: React.FunctionComponent = () => {
       })
     }
   })
-  const { mutate: deleteProductionLineMutate } = useMutation({
-    mutationFn: async (id: string) => {
-      await deleteApi(`/ProductionLines/${id}`)
-    },
-    onSuccess: () => {
-      toast({
-        title: 'تم الحذف',
-        description: `تم حذف خط الانتاج بنجاح`,
-        variant: 'success'
-      })
-      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
-    },
-    onError: () => {
-      toast({
-        title: 'فشلت عملية الحذف',
-        description: `حصل خطأ ما`,
-        variant: 'destructive'
-      })
-    }
-  })
   const { mutate: editProductionLineMutate } = useMutation({
     mutationFn: async ({
       id,
@@ -215,26 +205,6 @@ const FactoryDetails: React.FunctionComponent = () => {
       })
     }
   })
-  const { mutate: deleteProductionTeamMutate } = useMutation({
-    mutationFn: async (id: string) => {
-      await deleteApi(`/ProductionTeams/${id}`)
-    },
-    onSuccess: () => {
-      toast({
-        title: 'تم الحذف',
-        description: `تم حذف فريق الانتاج بنجاح`,
-        variant: 'success'
-      })
-      queryClient.invalidateQueries({ queryKey: ['factory', factoryId] })
-    },
-    onError: () => {
-      toast({
-        title: 'فشلت عملية الحذف',
-        description: `حصل خطأ ما`,
-        variant: 'destructive'
-      })
-    }
-  })
   const { mutate: editProductionTeamMutate } = useMutation({
     mutationFn: async ({
       id,
@@ -264,12 +234,6 @@ const FactoryDetails: React.FunctionComponent = () => {
 
   // table structure
 
-  const deleteProductionLine = async (id: string) => {
-    deleteProductionLineMutate(id)
-  }
-  const deleteProductionTeam = async (productionLineTeamId: string) => {
-    deleteProductionTeamMutate(productionLineTeamId)
-  }
   const editProductionTeam = async (
     id: string,
     name: string,
@@ -338,14 +302,14 @@ const FactoryDetails: React.FunctionComponent = () => {
                   >
                     <DropdownMenuItem>تعديل</DropdownMenuItem>
                   </a>
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() => {
                       deleteProductionLine(original.id || '')
                     }}
                     className="bg-orange-500 text-white"
                   >
                     حذف
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -382,21 +346,10 @@ const FactoryDetails: React.FunctionComponent = () => {
         description: 'يرجى التحقق من الحقول المدخلة',
         variant: 'destructive'
       })
+      console.error(errors)
     }
   }, [errors])
 
-  const handleNext = () => {
-    if (currentTab === 'reports') {
-      return
-    } else if (currentTab === 'account') setCurrentTab('productionLines')
-    else if (currentTab === 'productionLines') setCurrentTab('reports')
-  }
-
-  const handleBack = () => {
-    if (currentTab === 'account') return
-    else if (currentTab === 'productionLines') setCurrentTab('account')
-    else if (currentTab === 'reports') setCurrentTab('productionLines')
-  }
   const queryClient = useQueryClient()
   // update method
   const { mutate, isPending } = useMutation({
@@ -457,7 +410,7 @@ const FactoryDetails: React.FunctionComponent = () => {
         {factoryId && (
           <InformationCard
             id={factoryId}
-            logoSrc={factory?.image || 'https://via.placeholder.com/100'}
+            logoSrc={'https://via.placeholder.com/100'}
             actionType="method"
             buttonAction={() => setIsEdit((prev) => !prev)}
             buttonText={!isEdit ? 'تعديل' : 'الغاء التعديل'}
@@ -493,7 +446,6 @@ const FactoryDetails: React.FunctionComponent = () => {
                 >
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('account')
                     }}
                     value="account"
@@ -502,22 +454,22 @@ const FactoryDetails: React.FunctionComponent = () => {
                   </TabsTrigger>
                   <TabsTrigger
                     onClick={() => {
-                      if (isEdit) return
                       setCurrentTab('productionLines')
                     }}
                     value="productionLines"
                   >
                     خطوط الانتاج
                   </TabsTrigger>
-                  <TabsTrigger
-                    onClick={() => {
-                      if (isEdit) return
-                      setCurrentTab('reports')
-                    }}
-                    value="reports"
-                  >
-                    التقارير
-                  </TabsTrigger>
+                  {/* {gotRole('Factory charts') && (
+                    <TabsTrigger
+                      onClick={() => {
+                        setCurrentTab('reports')
+                      }}
+                      value="reports"
+                    >
+                      التقارير
+                    </TabsTrigger>
+                  )} */}
                 </TabsList>
                 <TabsContent value="account">
                   <section className="flex flex-col w-full max-md:max-w-full">
@@ -608,11 +560,25 @@ const FactoryDetails: React.FunctionComponent = () => {
                   )}
                   <StructureTable<ProductionLineProps, unknown>
                     columns={columns}
-                    data={factory?.productionLines ? factory?.productionLines : []}
+                    data={
+                      factory?.productionLines
+                        ? factory?.productionLines.map((line) => ({
+                            ...line,
+                            id: line.id?.toString(),
+                            teamsCount: line.teamsCount ?? 0,
+                            teams: line.teams?.map((team) => ({
+                              ...team,
+                              id: team.id?.toString(),
+                              name: team.name ?? '',
+                              phone: team.phone ?? ''
+                            }))
+                          }))
+                        : []
+                    }
                     title="Factories"
-                    onDeleteProductionLineTeam={(teamId) => {
-                      deleteProductionTeam(teamId)
-                    }}
+                    // onDeleteProductionLineTeam={(teamId) => {
+                    //   deleteProductionTeam(teamId)
+                    // }}
                     onEditProductionLineTeam={handleEditTeam}
                     displayActions={isEdit}
                   />
@@ -677,36 +643,16 @@ const FactoryDetails: React.FunctionComponent = () => {
               </Tabs>
               {isEdit && (
                 <div className="flex mt-2 flex-row gap-2 justify-end">
-                  {currentTab !== 'account' && (
-                    <div className="hover:marker:" onClick={handleBack}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          السابق
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab !== 'reports' && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button type="button" size="lg">
-                          التالي
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {currentTab === 'reports' && isEdit && (
-                    <div className="hover:marker:" onClick={handleNext}>
-                      <div className="flex justify-end">
-                        <Button
-                          disabled={isPending}
-                          className="bg-green-500 hover:bg-green-700"
-                          type="submit"
-                          size="lg"
-                        >
-                          {isPending ? <Loader color="black" /> : 'حفظ'}
-                        </Button>
-                      </div>
+                  {currentTab === 'productionLines' && isEdit && (
+                    <div className="flex justify-end">
+                      <Button
+                        disabled={isPending || !gotRole('Update Factory')}
+                        className="bg-green-500 hover:bg-green-700"
+                        type="submit"
+                        size="lg"
+                      >
+                        {isPending ? <Loader color="black" /> : 'حفظ'}
+                      </Button>
                     </div>
                   )}
                 </div>

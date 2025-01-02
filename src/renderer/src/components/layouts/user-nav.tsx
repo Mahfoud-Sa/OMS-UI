@@ -1,4 +1,7 @@
 // import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { postApi } from '@renderer/lib/http'
+import { gotRole } from '@renderer/lib/utils'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { useAuthUser, useIsAuthenticated, useSignOut } from 'react-auth-kit'
 import { Link, useNavigate } from 'react-router-dom'
@@ -25,9 +28,13 @@ export function UserNav() {
   const navigate = useNavigate()
   const issAuthenticated = useIsAuthenticated()
   const signOut = useSignOut()
+  const qc = useQueryClient()
   const handleSignOut = () => {
-    signOut()
-    navigate('login')
+    postApi('/Account/Logout', {}).then(() => {
+      signOut()
+      qc.clear()
+      navigate('login')
+    })
   }
   const auth = useAuthUser()
 
@@ -41,6 +48,9 @@ export function UserNav() {
               className="w-[35px] h-[35px]"
               src={auth()?.imagePath || userIcon}
               alt={'Unknown User'}
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/50'
+              }}
             />
             {/* {!session.user?.image && <span>{session.user?.employeeName}</span>}  */}
             <div className="flex flex-col space-y-1">
@@ -55,15 +65,21 @@ export function UserNav() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Link to="/profile" className=" block w-full">
-                الملف الشخصي
-              </Link>
-            </DropdownMenuItem>
-            {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          {gotRole('Get Profile') && (
+            <>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link to="/profile" className=" block w-full">
+                    الملف الشخصي
+                  </Link>
+                </DropdownMenuItem>
+                {/* <DropdownMenuItem disabled>الإعدادات</DropdownMenuItem> */}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+            </>
+          )}
+
           <DropdownMenuItem onClick={handleSignOut}>تسجيل الخروج</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
