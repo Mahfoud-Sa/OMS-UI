@@ -86,6 +86,8 @@ const schema = z
 
 export type Schema = z.infer<typeof schema>
 
+const DEFAULT_ROLE = { id: 'e0c84e39-1695-4c6d-8fb1-aac754880590', name: 'Get User' }
+
 const NewUser = ({ initValues }: { initValues?: Schema }) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -120,8 +122,11 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
 
   useEffect(() => {
     if (userTypeRole) {
-      setUserRoles(userTypeRole.data)
-      form.setValue('UserRole', userTypeRole.data)
+      const rolesWithDefault = [...userTypeRole.data, DEFAULT_ROLE].filter(
+        (role, index, self) => index === self.findIndex((r) => r.id === role.id)
+      )
+      setUserRoles(rolesWithDefault)
+      form.setValue('UserRole', rolesWithDefault)
     }
   }, [userTypeRole])
 
@@ -163,7 +168,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       userRoles.forEach((el) => {
         formData.append('roles', el.name)
       })
-      formData.append('userType', data.UserType)
+      formData.append('roles', DEFAULT_ROLE.name) // Add default role
       if (data.ImageFile) {
         formData.append('imageFile', data.ImageFile)
       }
@@ -191,7 +196,16 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
     }
   })
 
-  const onSubmit = (data: Schema) => mutate(data)
+  const onSubmit = (data: Schema) => {
+    const updatedRoles = [...data.UserRole, DEFAULT_ROLE].filter(
+      (role, index, self) => index === self.findIndex((r) => r.id === role.id)
+    )
+    const updatedData = {
+      ...data,
+      UserRole: updatedRoles
+    }
+    mutate(updatedData)
+  }
   const isImportant = (role: string) => {
     /* if role is in [
 0
