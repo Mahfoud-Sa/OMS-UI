@@ -1,7 +1,7 @@
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { Box, Boxes } from 'lucide-react'
+import { Boxes, CheckCircle, DollarSignIcon, HammerIcon } from 'lucide-react'
 import { useAuthUser } from 'react-auth-kit'
 import StatisticCard from '../../../layouts/statistic-card'
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -113,15 +113,15 @@ export default function Statistics({ filterData }: StatisticsProps) {
     },
     {
       title: 'أجمالي الطلبات قيد العمل',
-      icon: Box,
+      icon: HammerIcon,
       value: inDeliveryOrdersTotal?.data.total || 0,
       iconClassName: 'text-orange-900',
       iconBgWrapperColor: 'bg-orange-100',
       role: 'manager'
     },
     {
-      title: 'أجمالي الطلبات الجاهزه',
-      icon: Box,
+      title: 'أجمالي الطلبات المكتملة',
+      icon: CheckCircle,
       value: readyOrdersTotal?.data.total || 0,
       iconClassName: 'text-green-900',
       iconBgWrapperColor: 'bg-green-100',
@@ -129,10 +129,10 @@ export default function Statistics({ filterData }: StatisticsProps) {
     },
     {
       title: 'اجمالي الطلبات تم تسليمها',
-      icon: Box,
+      icon: DollarSignIcon,
       value: deliveredOrdersTotal?.data.total || 0,
-      iconClassName: 'text-red-900',
-      iconBgWrapperColor: 'bg-red-100',
+      iconClassName: 'text-purple-900',
+      iconBgWrapperColor: 'bg-purple-100',
       role: 'retailer'
     }
   ]

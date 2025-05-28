@@ -22,7 +22,7 @@ const Orders = () => {
     {
       content: <ReadyOrders />,
       value: 'ReadyOrders',
-      label: 'الطلبات الجاهزة'
+      label: 'الطلبات المكتملة'
     },
     {
       content: <InDeliveryOrders />,
