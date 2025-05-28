@@ -53,6 +53,7 @@ export type User = {
   workPlace: string
   imagePath: string
   createdAt?: string
+  factory?: string
 }
 export interface ProductionTeam {
   id?: string
