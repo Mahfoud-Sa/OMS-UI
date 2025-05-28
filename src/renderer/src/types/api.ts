@@ -132,6 +132,7 @@ export type Order = {
   timelines: Timeline[]
   orderId?: string
   storeName?: string
+  isPaid?: boolean
 }
 
 export type Item = {

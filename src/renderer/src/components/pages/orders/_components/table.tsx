@@ -12,7 +12,7 @@ import { getUserType } from '@renderer/lib/user-auth-type'
 import { cn, gotRole } from '@renderer/lib/utils'
 import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, DollarSignIcon, MoreHorizontal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -41,6 +41,14 @@ const rowClassName = (order: Order) => {
   return isDeliveryDateLessThanFiveDays(order.readyAt) && ![3, 4].includes(order.orderState)
     ? 'bg-red-400'
     : ''
+}
+const displayIsPaidIcon = (order: Order) => {
+  return (
+    order.isPaid &&
+    [6, 4, 2].includes(order.orderState) && (
+      <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600" />
+    )
+  )
 }
 
 const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
@@ -100,21 +108,28 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
         header: 'حالة الطلب',
         cell: ({ row }) => {
           return (
-            <Badge
-              className={cn('', {
-                'bg-blue-200 text-blue-600': row.original.orderState == 0,
-                'bg-orange-200 text-orange-600': row.original.orderState == 1,
-                'bg-green-200 text-green-600': row.original.orderState == 2,
-                'bg-violet-200 text-violet-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4
-              })}
-            >
-              {row.original.orderState == 0 && 'جديد'}
-              {row.original.orderState == 1 && 'قيد العمل'}
-              {row.original.orderState == 2 && 'مكتمل'}
-              {row.original.orderState == 3 && 'تم التسليم'}
-              {row.original.orderState == 4 && 'ملغى'}
-            </Badge>
+            <div className="flex items-center gap-1">
+              <Badge
+                className={cn('', {
+                  'bg-blue-200 text-blue-600': row.original.orderState == 0,
+                  'bg-orange-200 text-orange-600': row.original.orderState == 1,
+                  'bg-green-200 text-green-600': row.original.orderState == 2,
+                  'bg-violet-200 text-violet-600': row.original.orderState == 3,
+                  'bg-red-200 text-red-600': row.original.orderState == 4
+                })}
+              >
+                {row.original.orderState == 0 && 'جديد'}
+                {row.original.orderState == 1 && 'قيد العمل'}
+                {row.original.orderState == 2 && 'مكتمل'}
+                {row.original.orderState == 3 && 'تم التسليم'}
+                {row.original.orderState == 4 && 'ملغى'}
+              </Badge>
+              {displayIsPaidIcon(row.original) && (
+                <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600">
+                  مدفوع
+                </DollarSignIcon>
+              )}
+            </div>
           )
         }
       },
