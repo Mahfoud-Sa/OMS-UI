@@ -44,8 +44,7 @@ const rowClassName = (order: Order) => {
 }
 const displayIsPaidIcon = (order: Order) => {
   return (
-    order.isPaid &&
-    [6, 4, 2].includes(order.orderState) && (
+    order.isPaid && (
       <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600" />
     )
   )
