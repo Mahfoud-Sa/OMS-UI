@@ -59,7 +59,6 @@ const schema = z.object({
   UserType: z.string({ message: 'مطلوب' }),
   EmployDate: z.string().optional(),
   WorkPlace: z.string({ message: 'مطلوب' }),
-  FactoryId: z.string().optional(),
   UserRole: z
     .array(z.object({ id: z.string(), name: z.string() }))
     .min(1, 'يجب أن يكون لديك دور واحد على الأقل'),
@@ -96,15 +95,6 @@ const InfoUser = () => {
     queryFn: () => getApi<{ roles: Role[] }>('/Roles')
   })
 
-  const { data: factories, isSuccess: isFactoriesFetched } = useQuery({
-    queryKey: ['factories'],
-    queryFn: () =>
-      getApi<{ factories: { id: string; name: string }[] }>('/factories', {
-        params: {
-          size: 100000
-        }
-      })
-  })
   const { data: userTypeRole, refetch } = useQuery({
     queryKey: ['UserTypeRoles', userType],
     queryFn: () => getApi<Role[]>(`/${userType}`),
@@ -128,33 +118,6 @@ const InfoUser = () => {
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
   })
-
-  useEffect(() => {
-    const getFactoryId = (factoryName: string | undefined) => {
-      if (!factoryName) return ''
-
-      // Log for debugging
-      console.log('Looking for factory:', factoryName)
-      console.log('Available factories:', factories?.data.factories)
-
-      // Try exact match first
-      const factory = factories?.data.factories.find((factory) => factory.name === factoryName)
-
-      if (factory) {
-        console.log('Found factory:', factory.name, 'with ID:', factory.id)
-        return factory.id.toString()
-      } else {
-        console.log('No matching factory found for:', factoryName)
-        return ''
-      }
-    }
-
-    if (isFactoriesFetched && data?.data.factory) {
-      const factoryId = getFactoryId(data.data.factory)
-      console.log('Setting factory ID to:', factoryId)
-      form.setValue('FactoryId', factoryId)
-    }
-  }, [factories, data?.data.factory, isFactoriesFetched, form])
 
   useEffect(() => {
     if (isSuccess) {
@@ -195,9 +158,6 @@ const InfoUser = () => {
       data.UserType && formData.set('userType', data.UserType)
       if (data.ImageFile) {
         formData.set('imageFile', data.ImageFile)
-      }
-      if (data.FactoryId && data.UserType === 'منسق طلبات') {
-        formData.set('factoryId', data.FactoryId)
       }
 
       await putApi(`/users/${id}`, formData)
@@ -574,37 +534,6 @@ const InfoUser = () => {
                         </FormItem>
                       )}
                     />
-
-                    {/* if the selected type is منسق الطلبات then display a factories for the factoryId field */}
-                    {form.watch('UserType') == 'منسق طلبات' && (
-                      <FormField
-                        control={form.control}
-                        name="FactoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Dropdown
-                                disabled={!isEdit}
-                                label="المصنع"
-                                getLabel={(option: { id: string; name: string }) =>
-                                  option.name || ''
-                                }
-                                getValue={(option: { id: string; name: string }) => option.id || ''}
-                                onChange={(value) => field.onChange(value)}
-                                groups={[
-                                  {
-                                    label: 'المصانع',
-                                    options: factories?.data.factories || []
-                                  }
-                                ]}
-                                value={field.value}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
                   </div>
                   <div>
                     <div className="flex justify-between items-center mt-3">
