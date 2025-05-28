@@ -60,6 +60,7 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
           params: {
             query,
             page,
+            size: 15,
             orderState: status,
             ascending: isAsc,
             ...filterOptions
