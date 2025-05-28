@@ -2,17 +2,17 @@ import BackBtn from '@renderer/components/layouts/back-btn'
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableFooter,
-    TableHeader,
-    TableRow
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHeader,
+  TableRow
 } from '@renderer/components/ui/table'
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { Mail, MapPin, Phone, Printer } from 'lucide-react'
+import { Printer } from 'lucide-react'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useReactToPrint } from 'react-to-print'
@@ -128,6 +128,8 @@ const PrintOrderBill = () => {
 
               <h4 className="font-semibold mt-3">ملاحظة الطلب:</h4>
               <p>{data.data.note}.</p>
+              <h4 className="font-semibold mt-3">توقيع العميل:</h4>
+              <div className="mt-2 h-[100px] w-[300px] bg-gray-100 rounded-lg"></div>
             </div>
             <div className="flex justify-end">
               <p className="p-2 rounded w-[200px]">
@@ -147,27 +149,6 @@ const PrintOrderBill = () => {
               </p>
             </div>
           </section>
-
-          <footer className="footer flex w-full justify-between items-center mt-4 border-t pt-4 print-footer">
-            <div className="flex items-center gap-2">
-              <img src={print_logo} className=" size-[40px]" />
-              <p>نظام إدارة الطلبات (OMS)</p>
-            </div>
-            <div className="flex items-center gap-5">
-              <div className="text-[#434749] flex items-center gap-1">
-                <MapPin size={17} />
-                <span className="text-sm font-medium">الرياض - شارع الملك عبدالله</span>
-              </div>
-              <div className="text-[#434749] flex items-center gap-1">
-                <Phone size={17} />
-                <span>0532839958</span>
-              </div>
-              <div className="text-[#434749] flex items-center gap-1">
-                <Mail size={17} />
-                <span>test@example.com</span>
-              </div>
-            </div>
-          </footer>
         </div>
       </div>
     </div>
