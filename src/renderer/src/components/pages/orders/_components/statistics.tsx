@@ -9,17 +9,9 @@ import StatisticCard from '../../../layouts/statistic-card'
 
 type StatisticsProps = {
   filterData: (role: string | undefined) => void
-  // totalOrders: number
-  // totalOrdersInProgress: number
-  // totalOrdersDelivered: number
 }
 
-export default function Statistics({
-  filterData
-  // totalOrders,
-  // totalOrdersDelivered,
-  // totalOrdersInProgress
-}: StatisticsProps) {
+export default function Statistics({ filterData }: StatisticsProps) {
   // fetch orders statistics using useQuery
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
@@ -66,8 +58,8 @@ export default function Statistics({
         }
       )
   })
-  const { data: inProgressOrdersTotal } = useQuery({
-    queryKey: ['orders', 'inProgressOrders'],
+  const { data: inDeliveryOrdersTotal } = useQuery({
+    queryKey: ['orders', 'inDeliveryOrders'],
     // 5 seconds cache
     gcTime: 5000,
     staleTime: 5000,
@@ -122,7 +114,7 @@ export default function Statistics({
     {
       title: 'أجمالي الطلبات قيد العمل',
       icon: Box,
-      value: inProgressOrdersTotal?.data.total || 0,
+      value: inDeliveryOrdersTotal?.data.total || 0,
       iconClassName: 'text-orange-900',
       iconBgWrapperColor: 'bg-orange-100',
       role: 'manager'

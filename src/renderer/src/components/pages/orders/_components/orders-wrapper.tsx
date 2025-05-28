@@ -10,7 +10,7 @@ import FilterSheet from './filter-sheet'
 import OrdersTable from './table'
 
 type Props = {
-  status: null | 0 | 1 | 2 | 3 | 4
+  status: null | 0 | 1 | 2 | 3 | 4 | 6
   openSheet?: boolean
   setOpenSheet?: (value: boolean) => void
 }

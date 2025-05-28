@@ -68,7 +68,7 @@ const Timeline = () => {
       })
     }
   })
-  const { mutate: inProgressOrderMutate, isPending: inProgressOrderIsPending } = useMutation({
+  const { mutate: inDeliveryOrderMutate, isPending: inDeliveryOrderIsPending } = useMutation({
     mutationFn: async () => {
       await patchApi(`/Orders/${id}`, { orderState: 6 })
     },
@@ -172,12 +172,12 @@ const Timeline = () => {
             completeOrderIsPending ||
             cancelOrderIsPending ||
             deliverOrderIsPending ||
-            inProgressOrderIsPending ||
+            inDeliveryOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
             !gotRole(Roles.UpdateOrder)
           }
-          onClick={() => inProgressOrderMutate()}
+          onClick={() => inDeliveryOrderMutate()}
         >
           {completeOrderIsPending ? (
             <Loader color={'#fff'} size={15} />

@@ -3,6 +3,7 @@ import Statistics from './_components/statistics'
 import AllOrders from './tabs/all-orders'
 import CanceledOrders from './tabs/canceled-orders'
 import DeliveredOrders from './tabs/delivered-orders'
+import InDeliveryOrders from './tabs/in-delivery-orders'
 import ProgressOrders from './tabs/progress-orders'
 import ReadyOrders from './tabs/ready-orders'
 
@@ -24,6 +25,11 @@ const Orders = () => {
       label: 'الطلبات الجاهزة'
     },
     {
+      content: <InDeliveryOrders />,
+      value: 'InDeliveryOrders',
+      label: 'الطلبات قيد التوصيل'
+    },
+    {
       content: <DeliveredOrders />,
       value: 'DeliveredOrders',
       label: 'طلبات تم التسليم'
@@ -41,9 +47,6 @@ const Orders = () => {
         filterData={function (): void {
           throw new Error('Function not implemented.')
         }}
-        // totalOrders={ordersTotal}
-        // totalOrdersInProgress={ordersTotalInProgress}
-        // totalOrdersDelivered={ordersTotalDelivered}
       />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={'AllOrders'}>
