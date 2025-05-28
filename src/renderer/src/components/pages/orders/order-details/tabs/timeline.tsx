@@ -2,10 +2,19 @@ import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi } from '@renderer/lib/http'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { gotRole } from '@renderer/lib/utils'
 import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, LucideHand, PackageCheck, TruckIcon, X } from 'lucide-react'
+import {
+  Check,
+  CheckIcon,
+  DollarSignIcon,
+  LucideHand,
+  PackageCheck,
+  TruckIcon,
+  X
+} from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useParams } from 'react-router-dom'
@@ -15,6 +24,7 @@ import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 const Timeline = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
+  const { userType } = getUserType()
 
   moment.locale('ar-ma')
 
@@ -28,6 +38,25 @@ const Timeline = () => {
     queryFn: () => getApi<Item[]>(`/Orders/${id}/OrderItems`)
   })
 
+  const { mutate: mutateIsPaid, isPending: isPaidPending } = useMutation({
+    mutationFn: async () => {
+      await patchApi(`/Orders/${id}`, { isPaid: !order?.data.isPaid })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+      toast({
+        variant: 'success',
+        title: `تم تحديث حالة الدفع بنجاح`
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'حدث خطأ أثناء تحديث حالة الدفع'
+      })
+    }
+  })
   const { mutate: cancelOrderMutate, isPending: cancelOrderIsPending } = useMutation({
     mutationFn: async () => {
       await patchApi(`/Orders/${id}`, { orderState: 4 })
@@ -185,6 +214,34 @@ const Timeline = () => {
             <>
               قيد التوصيل
               <TruckIcon />
+            </>
+          )}
+        </Button>
+        <Button
+          variant={order?.data.isPaid ? 'outline' : 'default'}
+          className={
+            order?.data.isPaid
+              ? 'border-green-500 text-green-500 gap-2'
+              : 'bg-green-500 hover:bg-green-600 gap-2'
+          }
+          onClick={() => mutateIsPaid()}
+          disabled={
+            isPaidPending ||
+            (order?.data.isPaid && userType !== 'مشرف') ||
+            !gotRole(Roles.UpdateOrder)
+          }
+        >
+          {isPaidPending ? (
+            <Loader color={order?.data.isPaid ? '#22c55e' : '#fff'} size={15} />
+          ) : order?.data.isPaid ? (
+            <>
+              تم الدفع
+              <CheckIcon />
+            </>
+          ) : (
+            <>
+              تحديد كمدفوع
+              <DollarSignIcon className="text-white" />
             </>
           )}
         </Button>
