@@ -5,7 +5,7 @@ import { getApi, patchApi } from '@renderer/lib/http'
 import { gotRole } from '@renderer/lib/utils'
 import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, LucideHand, PackageCheck, X } from 'lucide-react'
+import { Check, LucideHand, PackageCheck, TruckIcon, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useParams } from 'react-router-dom'
@@ -56,6 +56,26 @@ const Timeline = () => {
       toast({
         variant: 'default',
         title: `تم اكمال الطلب بنجاح`
+      })
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+  const { mutate: inProgressOrderMutate, isPending: inProgressOrderIsPending } = useMutation({
+    mutationFn: async () => {
+      await patchApi(`/Orders/${id}`, { orderState: 6 })
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'default',
+        title: `تم نقل الطبدية إلى قيد التوصيل بنجاح`
       })
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
       queryClient.invalidateQueries({ queryKey: ['order', id] })
@@ -143,6 +163,28 @@ const Timeline = () => {
             <>
               إنتهاء التصنيع
               <LucideHand />
+            </>
+          )}
+        </Button>
+        <Button
+          className="flex  gap-2 bg-orange-400 hover:bg-orange-500 "
+          disabled={
+            completeOrderIsPending ||
+            cancelOrderIsPending ||
+            deliverOrderIsPending ||
+            inProgressOrderIsPending ||
+            order?.data.orderState == 4 ||
+            order?.data.orderState == 3 ||
+            !gotRole(Roles.UpdateOrder)
+          }
+          onClick={() => inProgressOrderMutate()}
+        >
+          {completeOrderIsPending ? (
+            <Loader color={'#fff'} size={15} />
+          ) : (
+            <>
+              قيد التوصيل
+              <TruckIcon />
             </>
           )}
         </Button>
