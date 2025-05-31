@@ -1,5 +1,5 @@
+import Issues from '@renderer/pages/issues'
 import IssueDetails from '@renderer/pages/issues/[id]'
-import Issues from '@renderer/pages/issues/issues'
 import { createHashRouter } from 'react-router-dom'
 import RootLayout from '../layouts/layout'
 import LoginRootLayout from '../layouts/login-layout'

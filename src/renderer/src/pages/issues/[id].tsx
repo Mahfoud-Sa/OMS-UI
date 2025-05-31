@@ -1,15 +1,22 @@
+import BackBtn from '@renderer/components/layouts/back-btn'
 import { Button } from '@renderer/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@renderer/components/ui/card'
 import { useToast } from '@renderer/components/ui/use-toast'
-import { Issue, getIssueById } from '@renderer/services/issues.service'
-import { useQuery } from '@tanstack/react-query'
-import { ArrowRight } from 'lucide-react'
+import {
+  Issue,
+  IssueStatuses,
+  getIssueById,
+  updateIssueStatus
+} from '@renderer/services/issues.service'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ArrowRight, CheckCircle } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const { data: issue, isLoading } = useQuery<Issue | undefined>({
     queryKey: ['issue', id],
@@ -29,6 +36,32 @@ export default function IssueDetailsPage() {
     },
     enabled: !!id
   })
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) return
+      return await updateIssueStatus(parseInt(id), IssueStatuses.RESOLVED)
+    },
+    onSuccess: () => {
+      toast({
+        title: 'تم بنجاح',
+        description: 'تم تحديث حالة المشكلة بنجاح',
+        variant: 'default'
+      })
+      queryClient.invalidateQueries({ queryKey: ['issue', id] })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'خطأ',
+        description: 'حدث خطأ أثناء تحديث حالة المشكلة'
+      })
+    }
+  })
+
+  const handleStatusUpdate = () => {
+    updateStatusMutation.mutate()
+  }
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-full">جاري التحميل...</div>
@@ -55,6 +88,10 @@ export default function IssueDetailsPage() {
 
   return (
     <div className="container mx-auto py-4">
+      <div className="mb-3 flex items-start justify-between">
+        <BackBtn href="/issues" />
+      </div>
+
       <Card>
         <CardHeader className="bg-primary-foreground">
           <CardTitle className="text-xl">تفاصيل المشكلة - {issue.id}</CardTitle>
@@ -81,18 +118,12 @@ export default function IssueDetailsPage() {
                   <span className="col-span-2">
                     <div
                       className={`px-2 py-1 rounded-full text-center text-xs w-24 ${
-                        issue.status === 'open'
+                        issue.status === IssueStatuses.OPEN
                           ? 'bg-red-100 text-red-800'
-                          : issue.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
+                          : 'bg-green-100 text-green-800'
                       }`}
                     >
-                      {issue.status === 'open'
-                        ? 'مفتوح'
-                        : issue.status === 'pending'
-                          ? 'قيد المعالجة'
-                          : 'مغلق'}
+                      {issue.status === IssueStatuses.OPEN ? 'مفتوح' : 'تمت المعالجة'}
                     </div>
                   </span>
                 </div>
@@ -124,10 +155,21 @@ export default function IssueDetailsPage() {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <Button variant="outline" onClick={() => navigate('/issues')} className="ml-2">
+            {issue.status === IssueStatuses.OPEN && (
+              <Button
+                variant="default"
+                onClick={handleStatusUpdate}
+                disabled={updateStatusMutation.isPending}
+                className="ml-2"
+              >
+                <CheckCircle className="ml-2 h-4 w-4" />
+                {updateStatusMutation.isPending ? 'جاري المعالجة...' : 'تأكيد المعالجة'}
+              </Button>
+            )}
+            {/* <Button variant="outline" onClick={() => navigate('/issues')} className="ml-2">
               <ArrowRight className="ml-2 h-4 w-4" />
               العودة
-            </Button>
+            </Button> */}
           </div>
         </CardContent>
       </Card>

@@ -1,28 +1,25 @@
 import { StructureTable } from '@renderer/components/tables/structure-table'
 import { Button } from '@renderer/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@renderer/components/ui/card'
+import { Card, CardContent } from '@renderer/components/ui/card'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import { useToast } from '@renderer/components/ui/use-toast'
 import { Issue, getIssues } from '@renderer/services/issues.service'
 import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { Eye, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function IssuesPage() {
   const { toast } = useToast()
   const navigate = useNavigate()
-  const [pageSize] = useState(10)
-  const [pageIndex, setPageIndex] = useState(0)
 
   const { data: issues, isLoading } = useQuery({
-    queryKey: ['issues', pageIndex, pageSize],
+    queryKey: ['issues'],
     queryFn: async () => {
       try {
         return await getIssues()
@@ -66,16 +63,10 @@ export default function IssuesPage() {
             className={`px-2 py-1 rounded-full text-center text-xs w-24 ${
               row.original.status === 'open'
                 ? 'bg-red-100 text-red-800'
-                : row.original.status === 'pending'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-green-100 text-green-800'
+                : 'bg-green-100 text-green-800'
             }`}
           >
-            {row.original.status === 'open'
-              ? 'مفتوح'
-              : row.original.status === 'pending'
-                ? 'قيد المعالجة'
-                : 'مغلق'}
+            {row.original.status === 'open' ? 'مفتوح' : 'تمت المعالجة'}
           </div>
         </div>
       )
@@ -111,9 +102,6 @@ export default function IssuesPage() {
   return (
     <div className="container mx-auto py-4">
       <Card>
-        <CardHeader className="bg-primary-foreground">
-          <CardTitle className="text-xl">المشكلات</CardTitle>
-        </CardHeader>
         <CardContent className="p-6">
           {issues && issues.length > 0 ? (
             <StructureTable columns={columns} data={issues || []} tableHeight="400px" />
@@ -122,25 +110,6 @@ export default function IssuesPage() {
               <p>لا توجد مشكلات</p>
             </div>
           )}
-
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
-              disabled={pageIndex === 0}
-            >
-              السابق
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPageIndex((p) => p + 1)}
-              disabled={!issues || issues.length < pageSize}
-            >
-              التالي
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

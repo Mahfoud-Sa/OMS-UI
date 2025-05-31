@@ -270,7 +270,9 @@ export enum Roles {
   AddProduct = 'Add Product',
   FactoryCharts = 'Factory charts',
   UpdateFactory = 'Update Factory',
-  GetProduct = 'Get Product'
+  GetProduct = 'Get Product',
+  GetIssues = 'Get Issues',
+  GetIssue = 'Get Issue'
 }
 export interface Issue {
   id?: number

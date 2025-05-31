@@ -1,11 +1,16 @@
-import { getApi } from '@renderer/lib/http'
+import { getApi, patchApi } from '@renderer/lib/http'
+
+export enum IssueStatuses {
+  OPEN = 'open',
+  RESOLVED = 'resolved'
+}
 
 export interface Issue {
   id: number
   title: string
   billNo: string
   description: string
-  status: 'open' | 'closed' | 'pending'
+  status: IssueStatuses
   createdAt: string
   updatedAt: string
 }
@@ -17,7 +22,7 @@ const dummyIssues: Issue[] = [
     title: 'مشكلة في الفاتورة',
     billNo: 'BILL-001',
     description: 'هناك خطأ في مبلغ الفاتورة المدرج في النظام',
-    status: 'open',
+    status: IssueStatuses.OPEN,
     createdAt: '2023-09-15T10:30:00Z',
     updatedAt: '2023-09-15T10:30:00Z'
   },
@@ -26,7 +31,7 @@ const dummyIssues: Issue[] = [
     title: 'تأخير في التسليم',
     billNo: 'BILL-002',
     description: 'لم يتم تسليم الطلب في الوقت المحدد',
-    status: 'pending',
+    status: IssueStatuses.OPEN,
     createdAt: '2023-09-10T08:15:00Z',
     updatedAt: '2023-09-12T14:20:00Z'
   },
@@ -35,7 +40,7 @@ const dummyIssues: Issue[] = [
     title: 'منتج غير متوفر',
     billNo: 'BILL-003',
     description: 'المنتج المطلوب غير متوفر في المخزون',
-    status: 'closed',
+    status: IssueStatuses.RESOLVED,
     createdAt: '2023-09-05T11:45:00Z',
     updatedAt: '2023-09-07T09:30:00Z'
   },
@@ -44,7 +49,7 @@ const dummyIssues: Issue[] = [
     title: 'خطأ في العنوان',
     billNo: 'BILL-004',
     description: 'تم تسجيل عنوان التسليم بشكل غير صحيح',
-    status: 'open',
+    status: IssueStatuses.OPEN,
     createdAt: '2023-09-14T13:20:00Z',
     updatedAt: '2023-09-14T13:20:00Z'
   },
@@ -53,7 +58,7 @@ const dummyIssues: Issue[] = [
     title: 'مشكلة في جودة المنتج',
     billNo: 'BILL-005',
     description: 'المنتج المستلم به عيوب في التصنيع',
-    status: 'pending',
+    status: IssueStatuses.OPEN,
     createdAt: '2023-09-08T15:10:00Z',
     updatedAt: '2023-09-09T10:05:00Z'
   }
@@ -78,5 +83,17 @@ export const getIssueById = async (id: number): Promise<Issue | undefined> => {
   } catch (error) {
     console.error(`Error fetching issue with id ${id}:`, error)
     return dummyIssues.find((issue) => issue.id === id)
+  }
+}
+
+export async function updateIssueStatus(id: number, status: IssueStatuses): Promise<Issue> {
+  try {
+    const response = await patchApi<Issue>(`/issues/${id}`, {
+      status
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error updating issue status:', error)
+    throw error
   }
 }
