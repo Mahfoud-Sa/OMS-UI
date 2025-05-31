@@ -1,7 +1,7 @@
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { Boxes, CheckCircle, DollarSignIcon, HammerIcon } from 'lucide-react'
+import { Boxes, CheckCircle, HammerIcon, SaudiRiyal } from 'lucide-react'
 import { useAuthUser } from 'react-auth-kit'
 import StatisticCard from '../../../layouts/statistic-card'
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -129,7 +129,7 @@ export default function Statistics({ filterData }: StatisticsProps) {
     },
     {
       title: 'اجمالي الطلبات تم تسليمها',
-      icon: DollarSignIcon,
+      icon: SaudiRiyal,
       value: deliveredOrdersTotal?.data.total || 0,
       iconClassName: 'text-purple-900',
       iconBgWrapperColor: 'bg-purple-100',

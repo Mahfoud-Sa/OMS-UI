@@ -2,6 +2,7 @@ import BackBtn from '@renderer/components/layouts/back-btn'
 import { Button } from '@renderer/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
 import { Printer, TriangleAlert } from 'lucide-react'
+import { useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Link, useParams } from 'react-router-dom'
 import ListItems from './tabs/list-items'
@@ -12,6 +13,23 @@ const OrderDetails = () => {
   const { id } = useParams()
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
+
+  // Add CSS for page breaks when printing multiple orders
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.innerHTML = `
+      @media print {
+        .page-break {
+          page-break-after: always;
+        }
+      }
+    `
+    document.head.appendChild(style)
+
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
 
   const tabs = [
     {

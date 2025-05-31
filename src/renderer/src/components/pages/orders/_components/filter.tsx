@@ -1,12 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/icons/icons'
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 // import { Class, Stage } from '@/types'
 import { Button } from '@renderer/components/ui/button'
