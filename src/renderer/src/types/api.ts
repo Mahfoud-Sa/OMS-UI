@@ -272,3 +272,12 @@ export enum Roles {
   UpdateFactory = 'Update Factory',
   GetProduct = 'Get Product'
 }
+export interface Issue {
+  id?: number
+  title: string
+  description: string
+  orderId: number
+  billNo: string
+  createdAt?: string
+  status?: number
+}

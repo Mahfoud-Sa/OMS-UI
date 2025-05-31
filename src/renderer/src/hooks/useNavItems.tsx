@@ -37,6 +37,12 @@ export default function useNavItems() {
           disabled: !gotRole(Roles.GetProducts) && userRoles.length > 0
         },
         {
+          href: '/issues',
+          icon: 'TriangleAlert',
+          label: 'المشكلات',
+          disabled: false
+        },
+        {
           href: '/reports',
           icon: 'clipboardList',
           label: 'التقارير',
