@@ -1,7 +1,7 @@
 import BackBtn from '@renderer/components/layouts/back-btn'
 import { Button } from '@renderer/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
-import { Printer } from 'lucide-react'
+import { Printer, TriangleAlert } from 'lucide-react'
 import { useAuthUser } from 'react-auth-kit'
 import { Link, useParams } from 'react-router-dom'
 import ListItems from './tabs/list-items'
@@ -38,6 +38,12 @@ const OrderDetails = () => {
           <BackBtn href="/orders" />
         </div>
         <div className="flex gap-2">
+          <Link to={`/orders/issues/${id}`}>
+            <Button className="flex gap-2 bg-red-600">
+              الابلاغ عن مشكلة
+              <TriangleAlert />
+            </Button>
+          </Link>
           <Link to={['مشرف'].includes(userType) ? `/orders/${id}/print` : ''}>
             <Button disabled={!['مشرف'].includes(userType)} className="flex gap-2">
               طباعة تقرير الطلب

@@ -62,8 +62,6 @@ const PrintOrderBill = () => {
               <div>
                 <p className="font-semibold">أسم العميل</p>
                 <p>{data.data.customerName}</p>
-                <p className="mt-2 font-semibold">رقم العميل</p>
-                <p style={{ direction: 'ltr' }}>{data.data.customerNo}</p>
               </div>
               <div className="flex flex-col gap-2">
                 <p>
