@@ -1,3 +1,5 @@
+import Issues from '@renderer/pages/issues'
+import IssueDetails from '@renderer/pages/issues/[id]'
 import { createHashRouter } from 'react-router-dom'
 import RootLayout from '../layouts/layout'
 import LoginRootLayout from '../layouts/login-layout'
@@ -11,6 +13,7 @@ import NewOrder from '../pages/orders/new-order'
 import PrintItemBill from '../pages/orders/order-details/_components/PrintItemsBill'
 import PrintOrderBill from '../pages/orders/order-details/_components/PrintOrderBill'
 import OrderDetails from '../pages/orders/order-details/order-details'
+import OrderIssues from '../pages/orders/order-issues/order-issues'
 import Orders from '../pages/orders/orders'
 import InfoProduct from '../pages/products/info-product'
 import NewProduct from '../pages/products/new-product'
@@ -90,6 +93,19 @@ export const router = createHashRouter([
         path: '/orders/:id/items/print',
         element: <ProtectedRoute element={<PrintItemBill />} />
         // element: <PrintItemBill />
+      },
+      {
+        path: '/orders/issues/:id',
+        element: <ProtectedRoute element={<OrderIssues />} />
+        // element: <PrintItemBill />
+      },
+      {
+        path: '/issues',
+        element: <ProtectedRoute element={<Issues />} />
+      },
+      {
+        path: '/issues/:id',
+        element: <ProtectedRoute element={<IssueDetails />} />
       },
       {
         path: '/factories',

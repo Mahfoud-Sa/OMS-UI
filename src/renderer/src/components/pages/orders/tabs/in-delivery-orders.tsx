@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import OrdersWrapper from '../_components/orders-wrapper'
 
-const PendingOrders = () => {
+const InDeliveryOrders = () => {
   const [openSheet, setOpenSheet] = useState(false)
-
   return (
     <section>
-      <OrdersWrapper openSheet={openSheet} setOpenSheet={setOpenSheet} status={0} />
+      <OrdersWrapper openSheet={openSheet} setOpenSheet={setOpenSheet} status={6} />
     </section>
   )
 }
 
-export default PendingOrders
+export default InDeliveryOrders

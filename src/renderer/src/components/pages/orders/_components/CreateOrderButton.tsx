@@ -11,7 +11,8 @@ const CreateOrderButton = () => {
       disable={!gotRole(Roles.AddOrder) && userRoles.length > 0}
       title={'إضافة طلب'}
       href={'new'}
-      className="w-[200px]"
+      className="w-[200px] text-sm
+"
     />
   )
 }

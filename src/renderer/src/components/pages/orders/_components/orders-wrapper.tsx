@@ -6,11 +6,13 @@ import moment from 'moment'
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useSearchParams } from 'react-router-dom'
+import BatchPrintOrdersModal from './BatchPrintOrdersModal'
 import FilterSheet from './filter-sheet'
+import OrdersHeader from './OrdersHeader'
 import OrdersTable from './table'
 
 type Props = {
-  status: null | 0 | 1 | 2 | 3 | 4
+  status: null | 0 | 1 | 2 | 3 | 4 | 5 | 6
   openSheet?: boolean
   setOpenSheet?: (value: boolean) => void
 }
@@ -38,6 +40,7 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
     maxSellingPrice: '',
     factoryId: ''
   })
+  const [showBatchPrintModal, setShowBatchPrintModal] = useState(false)
 
   const query = searchParams.get('query')
   const page = searchParams.get('page')
@@ -97,6 +100,10 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
   return (
     <>
       <section>
+        <OrdersHeader
+          onFilterClick={() => setOpenSheet && setOpenSheet(true)}
+          onPrintClick={() => setShowBatchPrintModal(true)}
+        />
         <OrdersTable
           setAsc={(value) => {
             console.log(value)
@@ -112,6 +119,10 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
         open={openSheet || false}
         onClose={() => setOpenSheet && setOpenSheet(false)}
         onApply={handleApplyFilters}
+      />
+      <BatchPrintOrdersModal
+        open={showBatchPrintModal}
+        onClose={() => setShowBatchPrintModal(false)}
       />
     </>
   )

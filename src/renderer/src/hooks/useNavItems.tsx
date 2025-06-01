@@ -72,6 +72,14 @@ export default function useNavItems() {
           icon: 'databaseBackup',
           label: 'النسخ الاحتياطي',
           disabled: true
+        },
+        {
+          href: '/issues',
+          icon: 'TriangleAlert',
+          label: 'المشكلات',
+          disabled:
+            // !gotRole(Roles.GetIssues) && userRoles.length > 0
+            false // TODO: enable this when issues are implemented
         }
       ]
     }

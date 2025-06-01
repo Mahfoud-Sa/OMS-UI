@@ -8,12 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { cn, gotRole } from '@renderer/lib/utils'
 import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, DollarSignIcon, MoreHorizontal } from 'lucide-react'
 import React from 'react'
-import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -42,13 +42,20 @@ const rowClassName = (order: Order) => {
     ? 'bg-red-400'
     : ''
 }
+const displayIsPaidIcon = (order: Order) => {
+  return (
+    order.isPaid && (
+      <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600" />
+    )
+  )
+}
 
 const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
-  const authUser = useAuthUser()
-  const userType = authUser()?.userType as string
+  const { isDistributor, userType } = getUserType()
 
-  const columns = React.useMemo<ColumnDef<Order>[]>(
-    () => [
+  const columns = React.useMemo<ColumnDef<Order>[]>(() => {
+    // Create base columns
+    const baseColumns: ColumnDef<Order>[] = [
       {
         accessorKey: 'id',
         header: 'الرقم',
@@ -57,7 +64,19 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
       {
         accessorKey: 'customerName',
         header: 'اسم العميل'
-      },
+      }
+    ]
+
+    // Conditionally add storeName column
+    if (isDistributor) {
+      baseColumns.push({
+        accessorKey: 'storeName',
+        header: 'اسم المتجر'
+      })
+    }
+
+    // Add remaining columns
+    baseColumns.push(
       {
         accessorKey: 'createAt',
         header: () => {
@@ -88,21 +107,28 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
         header: 'حالة الطلب',
         cell: ({ row }) => {
           return (
-            <Badge
-              className={cn('', {
-                'bg-blue-200 text-blue-600': row.original.orderState == 0,
-                'bg-orange-200 text-orange-600': row.original.orderState == 1,
-                'bg-green-200 text-green-600': row.original.orderState == 2,
-                'bg-violet-200 text-violet-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4
-              })}
-            >
-              {row.original.orderState == 0 && 'جديد'}
-              {row.original.orderState == 1 && 'قيد العمل'}
-              {row.original.orderState == 2 && 'مكتمل'}
-              {row.original.orderState == 3 && 'تم التسليم'}
-              {row.original.orderState == 4 && 'ملغى'}
-            </Badge>
+            <div className="flex items-center gap-1">
+              <Badge
+                className={cn('', {
+                  'bg-blue-200 text-blue-600': row.original.orderState == 0,
+                  'bg-orange-200 text-orange-600': row.original.orderState == 1,
+                  'bg-green-200 text-green-600': row.original.orderState == 2,
+                  'bg-violet-200 text-violet-600': row.original.orderState == 3,
+                  'bg-red-200 text-red-600': row.original.orderState == 4
+                })}
+              >
+                {row.original.orderState == 0 && 'جديد'}
+                {row.original.orderState == 1 && 'قيد العمل'}
+                {row.original.orderState == 2 && 'مكتمل'}
+                {row.original.orderState == 3 && 'تم التسليم'}
+                {row.original.orderState == 4 && 'ملغى'}
+              </Badge>
+              {displayIsPaidIcon(row.original) && (
+                <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600">
+                  مدفوع
+                </DollarSignIcon>
+              )}
+            </div>
           )
         }
       },
@@ -137,9 +163,10 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           </DropdownMenu>
         )
       }
-    ],
-    [isAsc, setAsc]
-  )
+    )
+
+    return baseColumns
+  }, [isAsc, setAsc, isDistributor, userType])
 
   return (
     <div>
@@ -147,6 +174,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
         columns={columns.filter(Boolean)}
         data={data.orders}
         rowClassName={rowClassName}
+        tableHeight="400px"
       />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />
     </div>
