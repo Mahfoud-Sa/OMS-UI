@@ -7,7 +7,7 @@ export const getUserType = () => {
   return {
     isAdmin: userType === 'مشرف',
     isReseller: userType === 'بائع',
-    isDistributor: userType === 'منسق',
+    isDistributor: userType === 'منسق طلبات',
     userType: userType || 'unknown'
   }
 }
