@@ -35,7 +35,11 @@ interface NewOrderItemDialogProps {
   productToEdit?: localNewProduct
   clearProductToEdit: () => void
 }
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 5MB in bytes
+const parseMaxFileSize = () => {
+  const sizeInMB = MAX_FILE_SIZE / (1024 * 1024)
+  return sizeInMB.toFixed(0) // Return size in MB with two decimal places
+}
 
 const schema = z.object({
   id: z.number().optional(),
@@ -44,7 +48,7 @@ const schema = z.object({
       z
         .instanceof(File)
         .refine((file) => file.size <= MAX_FILE_SIZE, {
-          message: 'حجم الصور يجب أن يكون أقل من 5 ميجابايت'
+          message: `حجم الصور يجب أن يكون أقل من ${parseMaxFileSize()} ميجابايت`
         })
         .refine((file) => file.type.startsWith('image/'), {
           message: 'يجب أن تكون الصورة من نوع صورة (JPEG, PNG, GIF, إلخ)'
@@ -55,7 +59,7 @@ const schema = z.object({
   file: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: 'حجم الملف يجب أن يكون أقل من 5 ميجابايت'
+      message: `حجم الملف يجب أن يكون أقل من ${parseMaxFileSize()} ميجابايت`
     })
     .refine((file) => file.type === 'application/pdf', {
       message: 'يجب أن يكون الملف من نوع PDF'
