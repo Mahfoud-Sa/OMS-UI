@@ -104,7 +104,7 @@ const Timeline = () => {
     onSuccess: () => {
       toast({
         variant: 'default',
-        title: `تم نقل الطبدية إلى قيد التوصيل بنجاح`
+        title: `تم نقل الطلبية إلى قيد التوصيل بنجاح`
       })
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
       queryClient.invalidateQueries({ queryKey: ['order', id] })
