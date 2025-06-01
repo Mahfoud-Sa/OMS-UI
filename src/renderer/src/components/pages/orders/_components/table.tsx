@@ -12,7 +12,7 @@ import { getUserType } from '@renderer/lib/user-auth-type'
 import { cn, gotRole } from '@renderer/lib/utils'
 import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, DollarSignIcon, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, DollarSignIcon, MoreHorizontal, SaudiRiyal } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -43,6 +43,7 @@ const rowClassName = (order: Order) => {
     : ''
 }
 const displayIsPaidIcon = (order: Order) => {
+  return true
   return (
     order.isPaid && (
       <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600" />
@@ -124,9 +125,10 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
                 {row.original.orderState == 4 && 'ملغى'}
               </Badge>
               {displayIsPaidIcon(row.original) && (
-                <DollarSignIcon size={'16'} className="bg-green-200 rounded-sm text-green-600">
+                <Badge className="bg-green-200 rounded-sm text-green-600 flex items-center gap-1">
                   مدفوع
-                </DollarSignIcon>
+                  <SaudiRiyal size={'16px'} />
+                </Badge>
               )}
             </div>
           )

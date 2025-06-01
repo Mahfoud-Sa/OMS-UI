@@ -58,8 +58,8 @@ export default function Statistics({ filterData }: StatisticsProps) {
         }
       )
   })
-  const { data: inDeliveryOrdersTotal } = useQuery({
-    queryKey: ['orders', 'inDeliveryOrders'],
+  const { data: inProgressOrdersTotal } = useQuery({
+    queryKey: ['orders', 'inProgressOrders'],
     // 5 seconds cache
     gcTime: 5000,
     staleTime: 5000,
@@ -114,7 +114,7 @@ export default function Statistics({ filterData }: StatisticsProps) {
     {
       title: 'أجمالي الطلبات قيد العمل',
       icon: HammerIcon,
-      value: inDeliveryOrdersTotal?.data.total || 0,
+      value: inProgressOrdersTotal?.data.total || 0,
       iconClassName: 'text-orange-900',
       iconBgWrapperColor: 'bg-orange-100',
       role: 'manager'
