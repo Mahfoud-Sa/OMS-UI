@@ -9,9 +9,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Check,
   CheckIcon,
-  DollarSignIcon,
   LucideHand,
   PackageCheck,
+  SaudiRiyal,
   TruckIcon,
   X
 } from 'lucide-react'
@@ -241,7 +241,7 @@ const Timeline = () => {
           ) : (
             <>
               تحديد كمدفوع
-              <DollarSignIcon className="text-white" />
+              <SaudiRiyal className="text-white" />
             </>
           )}
         </Button>
