@@ -24,6 +24,7 @@ import ResetPassword from '../pages/reset-password/reset-password'
 import InfoUser from '../pages/users/info-user'
 import NewUser from '../pages/users/new-user'
 import Users from '../pages/users/users'
+// import { Roles } from '@renderer/types/api'
 
 export const router = createHashRouter([
   {
@@ -101,11 +102,21 @@ export const router = createHashRouter([
       },
       {
         path: '/issues',
-        element: <ProtectedRoute element={<Issues />} />
+        element: (
+          <ProtectedRoute
+            // requiredRoles={[Roles.GetIssues]}
+            element={<Issues />}
+          />
+        )
       },
       {
         path: '/issues/:id',
-        element: <ProtectedRoute element={<IssueDetails />} />
+        element: (
+          <ProtectedRoute
+            // requiredRoles={[Roles.GetIssue]}
+            element={<IssueDetails />}
+          />
+        )
       },
       {
         path: '/factories',
