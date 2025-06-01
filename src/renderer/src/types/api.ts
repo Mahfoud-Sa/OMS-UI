@@ -131,6 +131,8 @@ export type Order = {
   history: History[]
   timelines: Timeline[]
   orderId?: string
+  storeName?: string
+  isPaid?: boolean
 }
 
 export type Item = {
@@ -268,5 +270,16 @@ export enum Roles {
   AddProduct = 'Add Product',
   FactoryCharts = 'Factory charts',
   UpdateFactory = 'Update Factory',
-  GetProduct = 'Get Product'
+  GetProduct = 'Get Product',
+  GetIssues = 'Get Issues',
+  GetIssue = 'Get Issue'
+}
+export interface Issue {
+  id?: number
+  title: string
+  description: string
+  orderId: number
+  billNo: string
+  createdAt?: string
+  status?: number
 }

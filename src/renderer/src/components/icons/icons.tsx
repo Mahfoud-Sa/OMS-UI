@@ -56,6 +56,7 @@ import {
   SquareUserRound,
   SunMedium,
   Trash,
+  TriangleAlert,
   Twitter,
   User,
   User2Icon,
@@ -126,7 +127,8 @@ export const Icons = {
   databaseBackup: DatabaseBackup,
   phone: Phone,
   mapPin: MapPin,
-  briefcaseBusiness:BriefcaseBusiness,
+  briefcaseBusiness: BriefcaseBusiness,
+  TriangleAlert: TriangleAlert,
 
   gitHub: ({ ...props }: LucideProps) => (
     <svg

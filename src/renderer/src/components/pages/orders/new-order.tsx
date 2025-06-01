@@ -43,7 +43,9 @@ const schema = z.object({
     .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
   readyAt: z.string({ message: 'يجب أدخال تاريخ التسليم' }),
   billNo: z.string({ message: 'يجب أدخال رقم الفاتورة' }),
-  sellingPrice: z.number({ message: 'يجب أدخال سعر التكلفة' }),
+  sellingPrice: z
+    .number({ message: 'يجب أدخال سعر التكلفة' })
+    .positive({ message: 'يجب أن يكون سعر التكلفة أكبر من 0' }),
   notes: z.string().optional(),
   deliveryNote: z.string().optional(),
   products: z

@@ -11,7 +11,7 @@ import {
 import { getApi } from '@renderer/lib/http'
 import { Order } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { Mail, MapPin, Phone, Printer } from 'lucide-react'
+import { Printer } from 'lucide-react'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useReactToPrint } from 'react-to-print'
@@ -136,27 +136,6 @@ const PrintItemBill = () => {
               </Table>
             </div>
           </section>
-
-          <footer className="footer flex w-full justify-between items-center mt-8 border-t pt-4 print-footer print:fixed print:bottom-0 print:left-0 print:right-0 print:bg-white">
-            <div className="flex items-center gap-2">
-              <img src={print_logo} className="size-[40px]" />
-              <p>نظام إدارة الطلبات (OMS)</p>
-            </div>
-            <div className="flex items-center gap-5">
-              <div className="text-[#434749] flex items-center gap-1">
-                <MapPin size={17} />
-                <span className="text-sm font-medium">الرياض - شارع الملك عبدالله</span>
-              </div>
-              <div className="text-[#434749] flex items-center gap-1">
-                <Phone size={17} />
-                <span>0532839958</span>
-              </div>
-              <div className="text-[#434749] flex items-center gap-1">
-                <Mail size={17} />
-                <span>test@example.com</span>
-              </div>
-            </div>
-          </footer>
         </div>
       </div>
     </div>
