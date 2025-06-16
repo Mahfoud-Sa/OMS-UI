@@ -133,7 +133,17 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       console.log(response)
       createOrderItems(response?.data.id)
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      if (error.response?.data?.error === 'DuplicateOrder') {
+        const billNo = error.response?.data?.message?.match(/\d+/)?.[0] || ''
+        toast({
+          title: 'فشلت عملية الحفظ',
+          description: `رقم الفاتورة ${billNo} مكرر`,
+          variant: 'destructive'
+        })
+        return
+      }
+      // handle other errors
       toast({
         title: 'فشلت عملية الحفظ',
         description: `حصل خطأ ما`,
