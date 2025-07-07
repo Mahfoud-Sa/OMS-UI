@@ -10,8 +10,7 @@ autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
 Sentry.init({
   dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
-  release: app.getVersion(),
-  environment: is.dev ? 'development' : 'production'
+  release: app.getVersion()
 })
 
 let mainWindow: BrowserWindow
