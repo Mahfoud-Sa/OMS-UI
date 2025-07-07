@@ -1,4 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import * as Sentry from '@sentry/electron/main'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
@@ -7,6 +8,11 @@ import icon from '../../resources/icon.png?asset'
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
+Sentry.init({
+  dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
+  release: app.getVersion(),
+  environment: is.dev ? 'development' : 'production'
+})
 
 let mainWindow: BrowserWindow
 
@@ -68,6 +74,9 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('get-app-version', (event) => {
+    event.returnValue = app.getVersion()
+  })
 
   createWindow()
 
