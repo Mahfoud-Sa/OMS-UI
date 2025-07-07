@@ -96,6 +96,7 @@ autoUpdater.on('update-available', () => {
 
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update-downloaded')
+  autoUpdater.quitAndInstall(false, true)
 })
 
 autoUpdater.on('download-progress', (progressObj) => {
@@ -103,8 +104,4 @@ autoUpdater.on('download-progress', (progressObj) => {
 })
 autoUpdater.on('error', (error) => {
   console.log(error)
-})
-
-ipcMain.on('restart-app', () => {
-  autoUpdater.quitAndInstall()
 })

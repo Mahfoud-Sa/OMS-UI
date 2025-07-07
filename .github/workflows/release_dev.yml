@@ -46,8 +46,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+          tag_name: DEV_${{ env.VERSION }}
+          release_name: DEV_${{ env.VERSION }}
           draft: false
           prerelease: true
 
@@ -56,4 +56,4 @@ jobs:
         with:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ env.VERSION }}
+          release-tag: DEV_${{ env.VERSION }}
