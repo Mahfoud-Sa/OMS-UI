@@ -73,10 +73,11 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  // With this:
   ipcMain.on('get-app-version', (event) => {
+    // IMPORTANT: For sendSync, you MUST set event.returnValue
     event.returnValue = app.getVersion()
   })
-
   createWindow()
 
   app.on('activate', function () {
