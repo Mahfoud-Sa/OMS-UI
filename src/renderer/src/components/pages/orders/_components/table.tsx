@@ -79,6 +79,17 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           return <div>{new Date(row.original.createAt).toISOString().split('T')[0]}</div>
         }
       },
+      ...(userType !== 'بائع'
+        ? [
+            {
+              accessorKey: 'workPlace',
+              header: 'اسم الفرع',
+              cell: ({ row }) => {
+                return row.original.workPlace ? row.original.workPlace : row.original.fullName
+              }
+            }
+          ]
+        : []),
       {
         accessorKey: 'billNo',
         header: 'رقم الفاتورة'
@@ -106,12 +117,14 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           )
         }
       },
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      ['مشرف', 'بائع'].includes(userType) && {
-        accessorKey: 'sellingPrice',
-        header: 'السعر البيع'
-      },
+      ...(['مشرف', 'بائع'].includes(userType)
+        ? [
+            {
+              accessorKey: 'sellingPrice',
+              header: 'السعر البيع'
+            }
+          ]
+        : []),
 
       {
         id: 'actions',

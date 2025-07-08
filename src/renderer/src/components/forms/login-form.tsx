@@ -241,14 +241,14 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-        // if (process.env.RENDERER_VITE_REACT_APP_ENV === 'production') {
-        //   signIn({
-        //     token: 'default-token',
-        //     expiresIn: 360000,
-        //     tokenType: 'Bearer'
-        //   })
-        //   navigate('/')
-        // }
+      // if (process.env.VITE_REACT_APP_ENV === 'production') {
+      //   signIn({
+      //     token: 'default-token',
+      //     expiresIn: 360000,
+      //     tokenType: 'Bearer'
+      //   })
+      //   navigate('/')
+      // }
     } finally {
       setDelayedSubmitting(false)
     }

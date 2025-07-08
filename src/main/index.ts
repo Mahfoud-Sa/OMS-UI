@@ -8,9 +8,11 @@ import icon from '../../resources/icon.png?asset'
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
+const env = import.meta.env.VITE_REACT_APP_ENV
 Sentry.init({
   dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
-  release: app.getVersion()
+  release: app.getVersion(),
+  environment: env
 })
 
 let mainWindow: BrowserWindow
@@ -54,11 +56,17 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Auto update
-  autoUpdater.checkForUpdatesAndNotify({
-    title: 'تحديث جديد متوفر',
-    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
-  })
+  // Auto update - only run in production environment
+  const isProd = env === 'production'
+  if (isProd) {
+    autoUpdater.checkForUpdatesAndNotify({
+      title: 'تحديث جديد متوفر',
+      body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
+    })
+    console.log('Checking for updates in production environment')
+  } else {
+    console.log('Auto updates disabled in non-production environment:', env)
+  }
   // autoUpdater.checkForUpdates()
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows

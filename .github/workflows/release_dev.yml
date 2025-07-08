@@ -27,7 +27,7 @@ jobs:
         run: |
           echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
           echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_STAGING_URL }}" >> .env
-          echo "RENDERER_VITE_REACT_APP_ENV=development" >> .env
+          echo "VITE_REACT_APP_ENV=development" >> .env
           echo "SENTRY_AUTH_TOKEN=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" >> .env
           type .env
 
@@ -47,8 +47,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          tag_name: DEV_${{ env.VERSION }}
-          release_name: DEV_${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
           draft: false
           prerelease: true
 
@@ -57,4 +57,4 @@ jobs:
         with:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: DEV_${{ env.VERSION }}
+          release-tag: ${{ env.VERSION }}
