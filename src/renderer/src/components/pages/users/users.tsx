@@ -44,7 +44,8 @@ const Users = () => {
       })
   })
   const authUser = useAuthUser()
-
+  const userRole = authUser()?.userType as string
+  console.log('userRole', userRole)
   useEffect(() => {
     if (fetchedData?.data.users) {
       // extract the current user from the fetched data if it exists
@@ -100,7 +101,7 @@ const Users = () => {
         <div className="flex gap-3 flex-row h-[50px]">
           <UsersSearch />
           <CreateBtn
-            disable={!gotRole('Add User')}
+            disable={!gotRole('Add User') && userRole === 'بائع'}
             title={'إضافة مستخدم'}
             href={'new'}
             className="w-[200px]"

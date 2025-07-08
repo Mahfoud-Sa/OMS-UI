@@ -20,7 +20,8 @@
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
     "build:all": "electron-vite build && electron-builder -mw",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org herfa --project electron ./out && sentry-cli sourcemaps upload --org herfa --project electron ./out"
+    "sentry:sourcemaps": "node scripts/upload-sourcemaps.js"
+
   },
   "repository": "https://github.com/Mahfoud-Sa/OMS-UI",
   "publish": {
@@ -59,7 +60,7 @@
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/react-tooltip": "^1.1.2",
-    "@sentry/cli": "^2.46.0",
+    "@sentry/cli": "^2.47.0",
     "@sentry/electron": "^4.24.0",
     "@tanstack/react-query": "^5.51.23",
     "@tanstack/react-query-devtools": "^5.51.23",
