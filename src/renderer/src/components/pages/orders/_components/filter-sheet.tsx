@@ -30,6 +30,7 @@ interface FilterOptions {
   minSellingPrice: string
   maxSellingPrice: string
   factoryId: string
+  workPlace: string
 }
 
 const FilterSheet: React.FC<FilterSheetProps> = ({
@@ -55,6 +56,11 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       })
   })
 
+  const { data: workPlaces } = useQuery({
+    queryKey: ['workPlaces'],
+    queryFn: () => getApi<string[]>('/Users/workPlaces')
+  })
+
   const handleReset = () => {
     setFilterOptions({
       minCostPrice: '',
@@ -63,7 +69,8 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       createdAfter: '',
       minSellingPrice: '',
       maxSellingPrice: '',
-      factoryId: ''
+      factoryId: '',
+      workPlace: ''
     })
   }
 
@@ -90,6 +97,26 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
                 emptyMessage="لم يتم العثور علئ مصنع"
                 onSelect={(factory) => {
                   setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
+                }}
+              />
+            </div>
+          )}
+          {workPlaces?.data && workPlaces.data.length > 0 && userType !== 'بائع' && (
+            <div>
+              <Label>مكان العمل</Label>
+              <Combobox
+                selectedValue={
+                  filterOptions.workPlace
+                    ? { id: filterOptions.workPlace, name: filterOptions.workPlace }
+                    : null
+                }
+                options={workPlaces.data.map((place) => ({ id: place, name: place }))}
+                valueKey="id"
+                displayKey="name"
+                placeholder="أختر مكان العمل"
+                emptyMessage="لم يتم العثور على مكان عمل"
+                onSelect={(workplace) => {
+                  setFilterOptions({ ...filterOptions, workPlace: workplace?.id || '' })
                 }}
               />
             </div>
