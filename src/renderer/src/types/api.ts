@@ -133,6 +133,7 @@ export type Order = {
   orderId?: string
   workPlace?: string
   fullName?: string
+  payed: boolean
 }
 
 export type Item = {

@@ -11,7 +11,7 @@ import {
 import { cn, gotRole } from '@renderer/lib/utils'
 import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, CheckIcon, MoreHorizontal, X } from 'lucide-react'
 import React from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
@@ -114,6 +114,28 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
               {row.original.orderState == 3 && 'تم التسليم'}
               {row.original.orderState == 4 && 'ملغى'}
             </Badge>
+          )
+        }
+      },
+      {
+        accessorKey: 'id',
+        header: 'حالة السداد',
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center justify-center">
+              {row.original.payed ? (
+                <div
+                  className="p-1 bg-green-200 text-green-600 rounded-2xl
+"
+                >
+                  <CheckIcon className="h-6 w-6 " />
+                </div>
+              ) : (
+                <div className="text-red-600 p-1 bg-white rounded-2xl">
+                  <X className="h-5 w-5" />
+                </div>
+              )}
+            </div>
           )
         }
       },
