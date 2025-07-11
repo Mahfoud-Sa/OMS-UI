@@ -101,11 +101,12 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           return (
             <Badge
               className={cn('', {
-                'bg-blue-200 text-blue-600': row.original.orderState == 0,
-                'bg-orange-200 text-orange-600': row.original.orderState == 1,
-                'bg-green-200 text-green-600': row.original.orderState == 2,
-                'bg-violet-200 text-violet-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4
+                'bg-indigo-200 text-indigo-600': row.original.orderState == 0,
+                'bg-amber-200 text-amber-600': row.original.orderState == 1,
+                'bg-emerald-200 text-emerald-600': row.original.orderState == 2,
+                'bg-green-200 text-green-600': row.original.orderState == 3,
+                'bg-red-200 text-red-600': row.original.orderState == 4,
+                'bg-blue-200 text-blue-600': row.original.orderState === 5
               })}
             >
               {row.original.orderState == 0 && 'جديد'}
@@ -113,6 +114,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
               {row.original.orderState == 2 && 'مكتمل'}
               {row.original.orderState == 3 && 'تم التسليم'}
               {row.original.orderState == 4 && 'ملغى'}
+              {row.original.orderState == 5 && 'قيد التوصيل'}
             </Badge>
           )
         }
@@ -180,7 +182,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
     <div>
       <StructureTable
         columns={columns.filter(Boolean)}
-        data={data.orders}
+        data={data.orders || []}
         rowClassName={rowClassName}
       />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />

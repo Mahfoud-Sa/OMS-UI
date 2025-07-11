@@ -1,35 +1,36 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
+import OrdersWrapper from './_components/orders-wrapper'
 import Statistics from './_components/statistics'
-import AllOrders from './tabs/all-orders'
-import CanceledOrders from './tabs/canceled-orders'
-import DeliveredOrders from './tabs/delivered-orders'
-import ProgressOrders from './tabs/progress-orders'
-import ReadyOrders from './tabs/ready-orders'
 
 const Orders = () => {
   const tabs = [
     {
-      content: <AllOrders />,
+      content: null,
       value: 'AllOrders',
       label: 'كل الطلبات'
     },
     {
-      content: <ProgressOrders />,
+      content: 1,
       value: 'ProgressOrders',
       label: 'طلبات قيد العمل'
     },
     {
-      content: <ReadyOrders />,
+      content: 2,
       value: 'ReadyOrders',
-      label: 'الطلبات الجاهزة'
+      label: 'الطلبات المكتملة'
     },
     {
-      content: <DeliveredOrders />,
+      content: 5,
+      value: 'OnDeliveryOrders',
+      label: 'الطلبات قيد التوصيل'
+    },
+    {
+      content: 3,
       value: 'DeliveredOrders',
       label: 'طلبات تم التسليم'
     },
     {
-      content: <CanceledOrders />,
+      content: 4,
       value: 'CanceledOrders',
       label: 'طلبات تم الغائها'
     }
@@ -58,7 +59,9 @@ const Orders = () => {
           </TabsList>
           {tabs.map((tab) => (
             <TabsContent value={tab.value} key={tab.value}>
-              {tab.content}
+              <section>
+                <OrdersWrapper status={tab.content} />
+              </section>{' '}
             </TabsContent>
           ))}
         </Tabs>

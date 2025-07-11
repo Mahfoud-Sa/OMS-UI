@@ -10,6 +10,7 @@ import {
   SheetTitle
 } from '@renderer/components/ui/sheet'
 import { getApi } from '@renderer/lib/http'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { Factory } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthUser } from 'react-auth-kit'
@@ -41,7 +42,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   setFilterOptions
 }: FilterSheetProps) => {
   const authUser = useAuthUser()
-  const userType = authUser()?.userType as string
+  const { isReseller, isAdmin, userType } = getUserType()
   const handleApply = () => {
     onApply(filterOptions)
     onClose()
@@ -81,7 +82,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
           <SheetTitle>تصفية النتائج</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          {['مشرف'].includes(userType) && (
+          {isAdmin && (
             <div>
               <Label>المصنع</Label>
               <Combobox
@@ -101,7 +102,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
               />
             </div>
           )}
-          {workPlaces?.data && workPlaces.data.length > 0 && userType !== 'بائع' && (
+          {workPlaces?.data && workPlaces.data.length > 0 && !isReseller && (
             <div>
               <Label>مكان العمل</Label>
               <Combobox

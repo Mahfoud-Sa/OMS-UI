@@ -164,7 +164,7 @@ const NewUser = ({ initValues }: { initValues?: Schema }) => {
       data.EmployDate && formData.append('employDate', data.EmployDate)
       data.PhoneNumber && formData.append('phoneNumber', data.PhoneNumber)
       formData.append('workPlace', data.WorkPlace)
-      // console.log(data.UserRole)
+      formData.append('userType', data.UserType)
       userRoles.forEach((el) => {
         formData.append('roles', el.name)
       })

@@ -4,6 +4,7 @@ import TablePagination from '@renderer/components/tables/table-pagination'
 import { useToast } from '@renderer/components/ui/use-toast_1'
 import { UserCard } from '@renderer/components/ui/UserCard'
 import { deleteApi, getApi } from '@renderer/lib/http'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { gotRole } from '@renderer/lib/utils'
 import { DeliveryUserCardProps } from '@renderer/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -20,6 +21,7 @@ const Users = () => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query')
   const page = searchParams.get('page')
+  const { isReseller } = getUserType()
 
   // get users
   const {
@@ -101,7 +103,7 @@ const Users = () => {
         <div className="flex gap-3 flex-row h-[50px]">
           <UsersSearch />
           <CreateBtn
-            disable={!gotRole('Add User') && userRole === 'بائع'}
+            disable={!gotRole('Add User') && isReseller}
             title={'إضافة مستخدم'}
             href={'new'}
             className="w-[200px]"

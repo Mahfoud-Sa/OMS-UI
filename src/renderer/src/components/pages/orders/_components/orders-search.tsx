@@ -100,7 +100,9 @@ const OrdersSearch = () => {
         // defaultOptions={orders?.data.orders}
         loadOptions={loadOptions}
         onChange={onChange}
-        getOptionLabel={({ billNo }) => billNo}
+        getOptionLabel={(order) => {
+          return `${order.customerName} / ${order.billNo}`
+        }}
         getOptionValue={({ billNo }) => billNo}
         components={customComponents}
         isClearable
