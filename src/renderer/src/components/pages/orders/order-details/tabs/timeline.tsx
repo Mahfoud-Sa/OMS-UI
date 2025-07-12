@@ -2,6 +2,7 @@ import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
 import { getApi, patchApi, putApi } from '@renderer/lib/http'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { gotRole } from '@renderer/lib/utils'
 import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -15,6 +16,7 @@ import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 const Timeline = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
+  const { isReseller } = getUserType()
 
   moment.locale('ar-ma')
 
@@ -116,11 +118,6 @@ const Timeline = () => {
   })
   const { mutate: paidOrderMutate, isPending: paidOrderIsPending } = useMutation({
     mutationFn: async () => {
-      if (!order?.data.costPrice) {
-        throw new Error('لا يمكن سداد الطلبية قبل تحديد سعر التكلفة', {
-          cause: 'costPriceNotSet'
-        })
-      }
       await putApi(`/Orders/order/${id}/payed`, { orderState: 1 })
     },
     onSuccess: () => {
@@ -131,15 +128,7 @@ const Timeline = () => {
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
       queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
-    onError: (error) => {
-      if (error.cause === 'costPriceNotSet') {
-        toast({
-          variant: 'destructive',
-          title: 'خطأ',
-          description: error.message || 'لا يمكن سداد الطلبية قبل تحديد سعر التكلفة'
-        })
-        return
-      }
+    onError: () => {
       toast({
         variant: 'destructive',
         title: 'فشلت العملية',
@@ -210,13 +199,14 @@ const Timeline = () => {
         <Button
           className="flex  gap-2 bg-green-400 hover:bg-green-500 "
           disabled={
+            !isReseller ||
             completeOrderIsPending ||
             cancelOrderIsPending ||
             deliverOrderIsPending ||
             paidOrderIsPending ||
             onDeliveryOrderIsPending ||
-            order?.data.orderState == 4 ||
-            order?.data.orderState == 3 ||
+            order?.data.orderState === 3 ||
+            order?.data.orderState === 4 ||
             order?.data.payed
           }
           onClick={() => paidOrderMutate()}
