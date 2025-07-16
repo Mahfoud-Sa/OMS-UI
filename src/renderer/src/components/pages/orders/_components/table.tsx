@@ -101,12 +101,12 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           return (
             <Badge
               className={cn('', {
-                'bg-indigo-200 text-indigo-600': row.original.orderState == 0,
-                'bg-amber-200 text-amber-600': row.original.orderState == 1,
-                'bg-emerald-200 text-emerald-600': row.original.orderState == 2,
-                'bg-green-200 text-green-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4,
-                'bg-blue-200 text-blue-600': row.original.orderState === 5
+                'bg-indigo-100 text-indigo-900': row.original.orderState == 0,
+                'bg-amber-100 text-amber-900': row.original.orderState == 1,
+                'bg-emerald-100 text-emerald-900': row.original.orderState == 2,
+                'bg-green-100 text-green-900': row.original.orderState == 3,
+                'bg-red-100 text-red-900': row.original.orderState == 4,
+                'bg-blue-100 text-blue-900': row.original.orderState === 5
               })}
             >
               {row.original.orderState == 0 && 'جديد'}
@@ -127,14 +127,14 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
             <div className="flex items-center justify-center">
               {row.original.payed ? (
                 <div
-                  className="p-1 bg-green-200 text-green-600 rounded-2xl
+                  className="p-1 bg-green-100 text-green-900 rounded-2xl
 "
                 >
                   <CheckIcon className="h-6 w-6 " />
                 </div>
               ) : (
-                <div className="text-red-600 p-1 bg-white rounded-2xl">
-                  <X className="h-5 w-5" />
+                <div className="bg-red-100 text-red-900 rounded-2xl p-1">
+                  <X />
                 </div>
               )}
             </div>
