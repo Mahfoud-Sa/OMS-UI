@@ -1,11 +1,12 @@
 {
-  "name": "oms",
-  "version": "1.4.5",
+  "name": "Herfah",
+  "version": "1.6.5",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
   "scripts": {
+    "package": "electron-packager . my-electron-app --overwrite --asar --platform=win32 --arch=x64 --icon=resources/app_icon_256 --out=dist --prune=true --version-string.CompanyName=\"MyCompany\" --version-string.FileDescription=\"My Electron App\" --version-string.ProductName=\"My Electron App\"",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
@@ -93,6 +94,7 @@
     "clsx": "^2.1.1",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2",
     "electron-vite": "^2.3.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",

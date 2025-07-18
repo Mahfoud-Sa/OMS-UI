@@ -3,7 +3,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
-
+const path = require('path')
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
@@ -15,6 +15,7 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     show: true,
     autoHideMenuBar: true,
+
     // fullscreen: true,
     resizable: true,
     fullscreenable: true,
@@ -23,7 +24,8 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
-    }
+    },
+    icon: path.join(__dirname, 'resources/app_icon_256.ico')
   })
 
   mainWindow.on('ready-to-show', () => {
