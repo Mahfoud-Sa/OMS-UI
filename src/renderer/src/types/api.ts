@@ -131,6 +131,9 @@ export type Order = {
   history: History[]
   timelines: Timeline[]
   orderId?: string
+  workPlace?: string
+  fullName?: string
+  payed: boolean
 }
 
 export type Item = {
