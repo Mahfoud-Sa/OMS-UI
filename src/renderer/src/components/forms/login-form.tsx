@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from '@renderer/components/ui/dialog'
 import { getApi, postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
@@ -24,8 +24,12 @@ import { useToast } from '../ui/use-toast_1'
 
 const passwordSchema = z
   .object({
-    newPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' }),
-    confirmNewPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' })
+    newPassword: z
+      .string({ message: 'مطلوب' })
+      .min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' }),
+    confirmNewPassword: z
+      .string({ message: 'مطلوب' })
+      .min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' })
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'كلمات المرور غير متطابقة',

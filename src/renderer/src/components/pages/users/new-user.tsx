@@ -56,7 +56,9 @@ const schema = z
       .string({ message: 'مطلوب' })
       .min(6, 'يجب أن يكون أكبر من 6 أحرف')
       .max(10, 'يجب أن يكون أقل من 10 حرف'),
-    PhoneNumber: z.string().regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
+    PhoneNumber: z
+      .string({ message: 'مطلوب' })
+      .regex(/^\+9665\d{8}$/, 'يجب أدخال رقم الهاتف بشكل صحيح'),
     UserType: z.string({ message: 'مطلوب' }),
     EmployDate: z.string().optional(),
     WorkPlace: z.string({ message: 'مطلوب' }),
