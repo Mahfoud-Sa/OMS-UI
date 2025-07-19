@@ -1,11 +1,8 @@
-import { app, BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
 
-// Configure logging
-log.transports.file.level = 'info'
-autoUpdater.logger = log
-autoUpdater.autoDownload = true
+// autoUpdater.autoDownload = true
 // autoUpdater.forceDevUpdateConfig = true
 
 export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
@@ -29,27 +26,6 @@ export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
       mainWindow.webContents.send('update-available')
     }
     log.info('Update available')
-  })
-
-  autoUpdater.on('update-downloaded', (info) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('update-downloaded')
-    }
-
-    log.info('Update downloaded', info.version)
-
-    dialog
-      .showMessageBox({
-        type: 'info',
-        title: 'تحديث جديد متوفر',
-        message: `تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا`,
-        buttons: ['تثبيت الآن', 'لاحقاً']
-      })
-      .then((returnValue) => {
-        if (returnValue.response === 0) {
-          autoUpdater.quitAndInstall(false, true)
-        }
-      })
   })
 
   autoUpdater.on('download-progress', (progressObj) => {

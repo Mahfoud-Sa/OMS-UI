@@ -1,6 +1,8 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import * as Sentry from '@sentry/electron/main'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import log from 'electron-log'
+import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { setupAutoUpdater } from './updater'
@@ -11,6 +13,8 @@ Sentry.init({
   release: app.getVersion(),
   environment: env
 })
+log.transports.file.level = 'info'
+autoUpdater.logger = log
 
 let mainWindow: BrowserWindow
 
@@ -92,3 +96,23 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 // Initialize the auto-updater with the main window
+autoUpdater.on('update-downloaded', (info) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('update-downloaded')
+  }
+
+  log.info('Update downloaded', info.version)
+
+  dialog
+    .showMessageBox({
+      type: 'info',
+      title: 'تحديث جديد متوفر',
+      message: `تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا`,
+      buttons: ['تثبيت الآن', 'لاحقاً']
+    })
+    .then((returnValue) => {
+      if (returnValue.response === 0) {
+        autoUpdater.quitAndInstall(false, true)
+      }
+    })
+})
