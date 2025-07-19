@@ -1,13 +1,10 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import * as Sentry from '@sentry/electron/main'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
+import { setupAutoUpdater } from './updater'
 
-autoUpdater.autoDownload = true
-autoUpdater.autoInstallOnAppQuit = true
-// autoUpdater.forceDevUpdateConfig = true
 const env = import.meta.env.VITE_REACT_APP_ENV_VALUE
 Sentry.init({
   dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
@@ -35,7 +32,6 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
-    mainWindow.webContents.send('AppVersion', app.getVersion())
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -50,18 +46,13 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  setupAutoUpdater(mainWindow)
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify({
-    title: 'تحديث جديد متوفر',
-    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
-  })
-  // autoUpdater.checkForUpdates()
-  if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -100,21 +91,4 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('update-available')
-})
-
-autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update-downloaded')
-})
-
-autoUpdater.on('download-progress', (progressObj) => {
-  mainWindow.webContents.send('download-progress', progressObj.percent)
-})
-autoUpdater.on('error', (error) => {
-  console.log(error)
-})
-
-ipcMain.on('restart-app', () => {
-  autoUpdater.quitAndInstall()
-})
+// Initialize the auto-updater with the main window

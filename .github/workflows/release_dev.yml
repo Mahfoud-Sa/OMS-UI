@@ -33,3 +33,27 @@ jobs:
 
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: DEV_${{ env.VERSION }}
+          release_name: DEV_${{ env.VERSION }}
+          draft: false
+          prerelease: true
+
+      - name: Upload Release Assets
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: 'dist/*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: DEV_${{ env.VERSION }}
