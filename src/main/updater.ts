@@ -5,6 +5,8 @@ import { autoUpdater } from 'electron-updater'
 // Configure logging
 log.transports.file.level = 'info'
 autoUpdater.logger = log
+autoUpdater.autoDownload = true
+// autoUpdater.forceDevUpdateConfig = true
 
 export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
   // Check for updates when app is ready
