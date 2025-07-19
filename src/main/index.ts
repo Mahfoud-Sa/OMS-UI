@@ -5,7 +5,7 @@ import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { setupAutoUpdater } from './updater'
 
-const env = import.meta.env.VITE_REACT_APP_ENV
+const env = import.meta.env.VITE_REACT_APP_ENV_VALUE
 Sentry.init({
   dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
   release: app.getVersion(),
@@ -32,7 +32,6 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
-    mainWindow.webContents.send('AppVersion', app.getVersion())
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

@@ -8,7 +8,7 @@ autoUpdater.logger = log
 
 export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
   // Check for updates when app is ready
-  const env = import.meta.env.VITE_REACT_APP_ENV
+  const env = import.meta.env.VITE_REACT_APP_ENV_VALUE
   const isProd = env === 'production'
   console.log('Environment:', env, 'Is Production:', isProd)
 

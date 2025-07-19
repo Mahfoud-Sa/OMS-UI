@@ -46,10 +46,10 @@ export default function Header() {
     window.electron.ipcRenderer.on('update-not-available', () => {
       setUpdateStatus('update-not-available')
     })
-    window.electron.ipcRenderer.on('AppVersion', (_event, appVersion) => {
-      console.log(appVersion)
-      setAppVersion(appVersion)
-    })
+    const appVersionValue = window.electron.ipcRenderer.sendSync('get-app-version')
+    if (appVersionValue) {
+      setAppVersion(appVersionValue)
+    }
 
     return () => {
       window.electron.ipcRenderer.removeAllListeners('update-available')

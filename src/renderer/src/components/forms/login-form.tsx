@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
 } from '@renderer/components/ui/dialog'
 import { getApi, postApi } from '@renderer/lib/http'
 import { cn } from '@renderer/lib/utils'
@@ -241,7 +241,7 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-      // if (process.env.VITE_REACT_APP_ENV === 'production') {
+      // if (process.env.VITE_REACT_APP_ENV_VALUE === 'production') {
       //   signIn({
       //     token: 'default-token',
       //     expiresIn: 360000,
