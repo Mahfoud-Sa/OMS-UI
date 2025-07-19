@@ -13,6 +13,7 @@ let mainWindow: BrowserWindow
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    icon: path.join(__dirname, '../resources/app_icon_256.ico'), // Adjust path as needed
     show: true,
     autoHideMenuBar: true,
 
@@ -24,8 +25,7 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
-    },
-    icon: path.join(__dirname, 'resources/app_icon_256.ico')
+    }
   })
 
   mainWindow.on('ready-to-show', () => {

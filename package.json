@@ -6,7 +6,7 @@
   "author": "example.com",
   "homepage": "https://electron-vite.org",
   "scripts": {
-    "package": "electron-packager . my-electron-app --overwrite --asar --platform=win32 --arch=x64 --icon=resources/app_icon_256 --out=dist --prune=true --version-string.CompanyName=\"MyCompany\" --version-string.FileDescription=\"My Electron App\" --version-string.ProductName=\"My Electron App\"",
+    "package": "electron-packager . Herfah --overwrite --asar --platform=win32 --arch=x64 --icon=resources/app_icon_256 --out=dist --prune=true --version-string.CompanyName=\"GID tEAM\" --version-string.FileDescription=\"My Electron App\" --version-string.ProductName=\"My Electron App\"",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
@@ -29,9 +29,11 @@
   },
   "build": {
     "appId": "com.Herfh.app",
-    "productName": "Herfh_App",
+    "productName": "Herfh",
     "win": {
+      "icon": "resources/app_icon_256.ico",
       "target": "nsis",
+      "publisherName": "GID tEAM",
       "artifactName": "${productName}_Setup_${version}.${ext}"
     },
     "directories": {
