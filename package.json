@@ -37,7 +37,8 @@
     "win": {
       "target": "nsis",
       "artifactName": "${productName}_Setup_${version}.${ext}",
-      "publisherName": "Herfh"
+      "publisherName": "Herfh",
+      "verifyUpdateCodeSignature": false
     },
     "directories": {
       "output": "dist"
