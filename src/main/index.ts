@@ -1,6 +1,6 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import * as Sentry from '@sentry/electron/main'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, autoUpdater, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { setupAutoUpdater } from './updater'
@@ -88,7 +88,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
-
-// Initialize the auto-updater with the main window
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall()
+})

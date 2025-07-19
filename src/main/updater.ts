@@ -54,7 +54,7 @@ export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
       .showMessageBox({
         type: 'info',
         title: 'تحديث جديد متوفر',
-        message: `تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا`,
+        message: `تم تنزيل التحديث ${info.version} بنجاح باستطاعتك تثبيته الآن أو لاحقاً عند إغلاق البرنامج.`,
         buttons: ['تثبيت الآن', 'لاحقاً']
       })
       .then((returnValue) => {
