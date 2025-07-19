@@ -13,7 +13,6 @@ import { getApi } from '@renderer/lib/http'
 import { getUserType } from '@renderer/lib/user-auth-type'
 import { Factory } from '@renderer/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { useAuthUser } from 'react-auth-kit'
 
 interface FilterSheetProps {
   open: boolean
@@ -41,7 +40,6 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
   filterOptions,
   setFilterOptions
 }: FilterSheetProps) => {
-  const authUser = useAuthUser()
   const { isReseller, isAdmin, userType } = getUserType()
   const handleApply = () => {
     onApply(filterOptions)
