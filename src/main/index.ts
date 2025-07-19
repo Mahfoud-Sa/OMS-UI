@@ -3,7 +3,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
-
+const path = require('path')
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
@@ -13,8 +13,10 @@ let mainWindow: BrowserWindow
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    icon: path.join(__dirname, '../resources/app_icon_256.ico'), // Adjust path as needed
     show: true,
     autoHideMenuBar: true,
+
     // fullscreen: true,
     resizable: true,
     fullscreenable: true,
