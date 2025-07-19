@@ -56,17 +56,10 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Auto update - only run in production environment
-  const isProd = env === 'production'
-  if (isProd) {
-    autoUpdater.checkForUpdatesAndNotify({
-      title: 'تحديث جديد متوفر',
-      body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
-    })
-    console.log('Checking for updates in production environment')
-  } else {
-    console.log('Auto updates disabled in non-production environment:', env)
-  }
+  autoUpdater.checkForUpdatesAndNotify({
+    title: 'تحديث جديد متوفر',
+    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
+  })
   // autoUpdater.checkForUpdates()
   if (require('electron-squirrel-startup')) app.quit()
   // Set app user model id for windows
@@ -113,7 +106,6 @@ autoUpdater.on('update-available', () => {
 
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update-downloaded')
-  autoUpdater.quitAndInstall(false, true)
 })
 
 autoUpdater.on('download-progress', (progressObj) => {
@@ -121,4 +113,8 @@ autoUpdater.on('download-progress', (progressObj) => {
 })
 autoUpdater.on('error', (error) => {
   console.log(error)
+})
+
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall()
 })

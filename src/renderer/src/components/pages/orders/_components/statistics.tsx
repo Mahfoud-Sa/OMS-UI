@@ -4,22 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Boxes, CheckCircle, HammerIcon, SaudiRiyal, Truck } from 'lucide-react'
 import { useAuthUser } from 'react-auth-kit'
 import StatisticCard from '../../../layouts/statistic-card'
-// import { usePathname, useRouter, useSearchParams } from "next/navigation";
-// import { useState } from "react";
 
-type StatisticsProps = {
-  filterData: (role: string | undefined) => void
-  // totalOrders: number
-  // totalOrdersInProgress: number
-  // totalOrdersDelivered: number
-}
-
-export default function Statistics({
-  filterData
-  // totalOrders,
-  // totalOrdersDelivered,
-  // totalOrdersInProgress
-}: StatisticsProps) {
+export default function Statistics() {
   // fetch orders statistics using useQuery
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
@@ -187,11 +173,6 @@ export default function Statistics({
           icon={item.icon}
           iconWrapperClassName={`${item.iconBgWrapperColor}`}
           iconClassName={item.iconClassName}
-          handleClick={() => {
-            if (i == 0) filterData(undefined)
-            filterData(item?.role)
-            // setSelectedCard({ id: i == 0 ? null : i, title: item.title })
-          }}
         />
       ))}
     </div>

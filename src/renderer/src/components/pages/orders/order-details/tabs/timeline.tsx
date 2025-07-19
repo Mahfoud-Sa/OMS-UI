@@ -39,6 +39,7 @@ const Timeline = () => {
         variant: 'default',
         title: `تم الغاء الطلب بنجاح`
       })
+      // Invalidate both specific queries
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
       queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
@@ -279,7 +280,7 @@ const Timeline = () => {
               disabled={
                 order?.data.orderState == 4 ||
                 order?.data.orderState == 3 ||
-                order?.data.orderState === 2 ||
+                order?.data.orderState == 2 ||
                 !gotRole(Roles.UpdateOrder)
               }
               id={item.id.toString()}
