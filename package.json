@@ -1,5 +1,5 @@
 {
-  "name": "oms",
+  "name": "Herfah",
   "version": "1.5.1",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
@@ -34,7 +34,7 @@
   },
   "build": {
     "appId": "com.Herfh.app",
-    "productName": "Herfh",
+    "productName": "Herfh_App",
     "win": {
       "icon": "resources/app_icon_256.ico",
       "target": "nsis",
