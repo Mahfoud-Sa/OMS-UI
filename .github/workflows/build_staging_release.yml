@@ -15,6 +15,7 @@ on:
 
 jobs:
   build-and-release:
+    if: github.ref == 'refs/heads/stage'
     permissions: write-all
     runs-on: windows-latest
 
@@ -71,7 +72,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          draft: false
+          draft: true
           prerelease: ${{ inputs.is_prerelease }}
           body: |
             Release created from stage branch
@@ -84,3 +85,4 @@ jobs:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: v${{ env.VERSION }}
+
