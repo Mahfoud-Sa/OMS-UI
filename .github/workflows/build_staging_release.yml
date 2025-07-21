@@ -17,7 +17,7 @@ jobs:
       - name: Checkout stage branch
         uses: actions/checkout@v4
         with:
-          ref: stage
+          ref: staging
           fetch-depth: 0
 
       - name: Validate version input
@@ -52,7 +52,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git add package.json
           git commit -m "Bump version to ${{ env.VERSION }} [skip ci]"
-          git push origin stage
+          git push origin staging
         shell: bash
 
       - name: Build app
