@@ -49,29 +49,25 @@ function createWindow(): void {
 }
 
 autoUpdater.on('update-available', (info) => {
-  console.log('✅ An update is available. Details for debugging:')
-  console.log('Version:', info.version)
-  console.log('Release Date:', info.releaseDate) // Check if the version string ends with the letter 's'.
-  if (info.version.endsWith('s')) {
-    // If it does, this is a special version.
-    console.log('✅ OK: This is a special release version.')
+  const isDriftRelease =
+    (info.releaseName?.includes('drift') ?? false) ||
+    info.version.includes('drift') ||
+    (typeof info.releaseNotes === 'string'
+      ? info.releaseNotes.includes('drift')
+      : Array.isArray(info.releaseNotes)
+        ? info.releaseNotes.some((note: any) =>
+            typeof note === 'string' ? note.includes('drift') : note.note?.includes('drift')
+          )
+        : false)
 
-    // You can now proceed with the download for this special version.
-    // For example, you might decide to download it automatically.
-    console.log('Starting download for special version...')
+  if (isDriftRelease) {
+    console.log('Drift release available - downloading:', info.version)
     autoUpdater.downloadUpdate()
   } else {
-    // If it does not end with 's', it's a standard version.
-    console.log('ℹ️ NOTE: No Update Availabe.')
-
-    // For standard versions, you might decide to do nothing,
-    // or ask the user first. For now, we will just log it.
+    console.log('Non-drift release ignored:', info.version)
+    // Optionally notify renderer process
+    mainWindow?.webContents.send('non-drift-update', info.version)
   }
-
-  // --- END OF THE LOGIC ---
-
-  // For extra debugging, you can always log the full info object.
-  console.log('Full update info object:', info)
 })
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
