@@ -7,11 +7,6 @@ on:
         description: 'Release version (e.g., 1.4.0)'
         required: true
         type: string
-      is_prerelease:
-        description: 'Is this a pre-release?'
-        required: true
-        type: boolean
-        default: true
 
 jobs:
   build-and-release:
@@ -22,7 +17,7 @@ jobs:
       - name: Checkout stage branch
         uses: actions/checkout@v4
         with:
-          ref: stage
+          ref: staging
           fetch-depth: 0
 
       - name: Validate version input
@@ -57,11 +52,16 @@ jobs:
           git config --global user.email "actions@github.com"
           git add package.json
           git commit -m "Bump version to ${{ env.VERSION }} [skip ci]"
-          git push origin stage
+          git push origin staging
         shell: bash
 
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
+
+      - name: Get current date
+        id: get_current_date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Create GitHub Release
         id: create_release
@@ -71,8 +71,8 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          draft: false
-          prerelease: ${{ inputs.is_prerelease }}
+          draft: true
+          prerelease: false
           body: |
             Release created from stage branch
             Version: ${{ env.VERSION }}
@@ -84,3 +84,4 @@ jobs:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: v${{ env.VERSION }}
+
