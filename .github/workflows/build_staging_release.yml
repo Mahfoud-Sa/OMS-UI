@@ -18,8 +18,8 @@ jobs:
       - name: Checkout staging branch
         uses: actions/checkout@v4
         with:
-          ref: staging  # Explicitly checkout staging branch
-          fetch-depth: 0
+
+          ref: staging 
 
       - name: Validate version input
         run: |
@@ -62,6 +62,11 @@ jobs:
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
 
+      - name: Get current date
+        id: get_current_date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -70,8 +75,9 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          draft: false
-          prerelease: false  # Always production release
+          draft: true
+          prerelease: false
+
           body: |
             Production release created from staging branch
             Version: ${{ env.VERSION }}
@@ -83,3 +89,4 @@ jobs:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: v${{ env.VERSION }}
+
