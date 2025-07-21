@@ -1,86 +1,119 @@
-name: Release from Stage
+name: Electron Drift Release Workflow
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version (e.g., 1.4.0)'
+      release-type:
+        description: 'Type of release'
         required: true
-        type: string
-      is_prerelease:
-        description: 'Is this a pre-release?'
-        required: true
-        type: boolean
-        default: true
+        default: 'drift'
+        type: choice
+        options:
+        - drift
+        - stable
+      version-bump:
+        description: 'Version bump type (if stable)'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+        - major
+        - minor
+        - patch
 
 jobs:
-  build-and-release:
-    permissions: write-all
-    runs-on: windows-latest
-
+  drift-release:
+    if: github.ref == 'refs/heads/staging' && inputs.release-type == 'drift'
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout stage branch
-        uses: actions/checkout@v4
-        with:
-          ref: stage
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for full git history
 
-      - name: Validate version input
-        run: |
-          if ! [[ "${{ inputs.version }}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.]+)?$ ]]; then
-            echo "::error::Invalid version format. Please use semantic versioning (e.g., 1.4.0 or v1.4.0)"
-            exit 1
-          fi
-          # Store cleaned version (without 'v' prefix)
-          echo "VERSION=${${inputs.version}#v}" >> $GITHUB_ENV
-        shell: bash
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Run drift analysis
+      id: drift-analysis
+      run: |
+        npm run analyze-drift
+        echo "DRIFT_REPORT=$(cat drift-report.json | jq -c)" >> $GITHUB_OUTPUT
 
-      - name: Create .env file
-        run: |
-          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
-          echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_STAGING_URL }}" >> .env
-          echo "RENDERER_VITE_REACT_APP_ENV=development" >> .env
-          type .env
+    - name: Build Electron app
+      run: npm run build
 
-      - name: Update package.json version
-        run: |
-          npm version ${{ env.VERSION }} --no-git-tag-version
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add package.json
-          git commit -m "Bump version to ${{ env.VERSION }} [skip ci]"
-          git push origin stage
-        shell: bash
+    - name: Run tests
+      run: npm test
 
-      - name: Build app
-        run: env $(cat .env | xargs) npm run build:win
+    - name: Create drift release tag
+      id: tag-version
+      run: |
+        DRIFT_VERSION=$(npm version prerelease --preid=drift --no-git-tag-version)
+        echo "VERSION=${DRIFT_VERSION}" >> $GITHUB_OUTPUT
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add package.json package-lock.json
+        git commit -m "Bump version to ${DRIFT_VERSION} [skip ci]"
+        git tag -a ${DRIFT_VERSION} -m "Drift release ${DRIFT_VERSION}"
+        git push origin ${DRIFT_VERSION}
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          tag_name: v${{ env.VERSION }}
-          release_name: v${{ env.VERSION }}
-          draft: false
-          prerelease: ${{ inputs.is_prerelease }}
-          body: |
-            Release created from stage branch
-            Version: ${{ env.VERSION }}
-            Build Date: ${{ steps.get_current_date.outputs.date }}
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag-version.outputs.VERSION }}
+        name: "Drift Release ${{ steps.tag-version.outputs.VERSION }}"
+        body: |
+          ### Drift Changes
+          ${{ fromJSON(steps.drift-analysis.outputs.DRIFT_REPORT).commits.join('\n') }}
+          
+          ### Stats
+          ${{ fromJSON(steps.drift-analysis.outputs.DRIFT_REPORT).stats }}
+        prerelease: true
+        files: |
+          dist/*.dmg
+          dist/*.exe
+          dist/*.AppImage
+          drift-report.json
 
-      - name: Upload Release Assets
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          files: 'dist/*'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: v${{ env.VERSION }}
+  promote-to-stable:
+    if: github.ref == 'refs/heads/staging' && inputs.release-type == 'stable'
+    needs: drift-release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Merge to main
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git checkout main
+        git merge --no-ff staging -m "Merge staging to main for stable release"
+        npm version ${{ inputs.version-bump }}
+        git push origin main
+        git push --tags
+
+    - name: Create Stable Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: $(jq -r .version package.json)
+        name: "Stable Release $(jq -r .version package.json)"
+        body: "Promoted from drift release ${{ steps.tag-version.outputs.VERSION }}"
+        files: |
+          dist/*.dmg
+          dist/*.exe
+          dist/*.AppImage
