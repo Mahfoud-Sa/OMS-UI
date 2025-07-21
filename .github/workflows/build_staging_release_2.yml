@@ -1,0 +1,119 @@
+name: Electron Drift Release Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Type of release'
+        required: true
+        default: 'drift'
+        type: choice
+        options:
+        - drift
+        - stable
+      version-bump:
+        description: 'Version bump type (if stable)'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+        - major
+        - minor
+        - patch
+
+jobs:
+  drift-release:
+    if: github.ref == 'refs/heads/staging' && inputs.release-type == 'drift'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for full git history
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run drift analysis
+      id: drift-analysis
+      run: |
+        npm run analyze-drift
+        echo "DRIFT_REPORT=$(cat drift-report.json | jq -c)" >> $GITHUB_OUTPUT
+
+    - name: Build Electron app
+      run: npm run build
+
+    - name: Run tests
+      run: npm test
+
+    - name: Create drift release tag
+      id: tag-version
+      run: |
+        DRIFT_VERSION=$(npm version prerelease --preid=drift --no-git-tag-version)
+        echo "VERSION=${DRIFT_VERSION}" >> $GITHUB_OUTPUT
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add package.json package-lock.json
+        git commit -m "Bump version to ${DRIFT_VERSION} [skip ci]"
+        git tag -a ${DRIFT_VERSION} -m "Drift release ${DRIFT_VERSION}"
+        git push origin ${DRIFT_VERSION}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag-version.outputs.VERSION }}
+        name: "Drift Release ${{ steps.tag-version.outputs.VERSION }}"
+        body: |
+          ### Drift Changes
+          ${{ fromJSON(steps.drift-analysis.outputs.DRIFT_REPORT).commits.join('\n') }}
+          
+          ### Stats
+          ${{ fromJSON(steps.drift-analysis.outputs.DRIFT_REPORT).stats }}
+        prerelease: true
+        files: |
+          dist/*.dmg
+          dist/*.exe
+          dist/*.AppImage
+          drift-report.json
+
+  promote-to-stable:
+    if: github.ref == 'refs/heads/staging' && inputs.release-type == 'stable'
+    needs: drift-release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Merge to main
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git checkout main
+        git merge --no-ff staging -m "Merge staging to main for stable release"
+        npm version ${{ inputs.version-bump }}
+        git push origin main
+        git push --tags
+
+    - name: Create Stable Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: $(jq -r .version package.json)
+        name: "Stable Release $(jq -r .version package.json)"
+        body: "Promoted from drift release ${{ steps.tag-version.outputs.VERSION }}"
+        files: |
+          dist/*.dmg
+          dist/*.exe
+          dist/*.AppImage
