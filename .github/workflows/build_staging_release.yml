@@ -48,8 +48,8 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
-          draft: false
-          prerelease: true
+          draft: true
+          prerelease: false
 
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v3.0
