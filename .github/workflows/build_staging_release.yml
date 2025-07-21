@@ -7,11 +7,6 @@ on:
         description: 'Release version (e.g., 1.4.0)'
         required: true
         type: string
-      is_prerelease:
-        description: 'Is this a pre-release?'
-        required: true
-        type: boolean
-        default: true
 
 jobs:
   build-and-release:
@@ -63,6 +58,11 @@ jobs:
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
 
+      - name: Get current date
+        id: get_current_date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -71,8 +71,8 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          draft: false
-          prerelease: ${{ inputs.is_prerelease }}
+          draft: true
+          prerelease: false
           body: |
             Release created from stage branch
             Version: ${{ env.VERSION }}
@@ -84,3 +84,4 @@ jobs:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: v${{ env.VERSION }}
+
