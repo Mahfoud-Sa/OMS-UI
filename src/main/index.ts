@@ -4,9 +4,10 @@ import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 const path = require('path')
-autoUpdater.autoDownload = true
+autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
+autoUpdater.forceDevUpdateConfig = true
 
 let mainWindow: BrowserWindow
 
@@ -47,6 +48,27 @@ function createWindow(): void {
   }
 }
 
+autoUpdater.on('update-available', (info) => {
+  const isDriftRelease =
+    (info.releaseName?.includes('drift') ?? false) ||
+    info.version.includes('drift') ||
+    (typeof info.releaseNotes === 'string'
+      ? info.releaseNotes.includes('drift')
+      : Array.isArray(info.releaseNotes)
+        ? info.releaseNotes.some((note: any) =>
+            typeof note === 'string' ? note.includes('drift') : note.note?.includes('drift')
+          )
+        : false)
+
+  if (isDriftRelease) {
+    console.log('Drift release available - downloading:', info.version)
+    autoUpdater.downloadUpdate()
+  } else {
+    console.log('Non-drift release ignored:', info.version)
+    // Optionally notify renderer process
+    mainWindow?.webContents.send('non-drift-update', info.version)
+  }
+})
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
