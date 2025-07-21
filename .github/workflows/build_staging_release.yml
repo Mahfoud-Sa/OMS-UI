@@ -10,7 +10,9 @@ on:
 
 jobs:
   build-and-release:
+
     if: github.ref == 'refs/heads/staging'  # Only run if triggered from staging branch
+
     permissions: write-all
     runs-on: windows-latest
 
