@@ -1,18 +1,13 @@
 'use client'
 
 import { Icons } from '@/components/icons/icons'
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 // import { Class, Stage } from '@/types'
 import { Button } from '@renderer/components/ui/button'
 import { RefreshCcw, Search } from 'lucide-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 type filterPrams = {
   class: string
@@ -20,9 +15,9 @@ type filterPrams = {
 }
 
 const Filter = () => {
-  const searchParams = useSearchParams()
-  const { replace } = useRouter()
-  const pathname = usePathname()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   // const { data } = useQuery<Stage[]>({
   //   queryKey: ['stages'],
@@ -56,7 +51,7 @@ const Filter = () => {
   //     replace(pathname);
   // }, []);
 
-  const setSearchParams = (paramsData: filterPrams) => {
+  const setSearchParamsFunc = (paramsData: filterPrams) => {
     const params = new URLSearchParams(searchParams.toString())
 
     for (const [key, value] of Object.entries(paramsData)) {
@@ -67,11 +62,11 @@ const Filter = () => {
       }
     }
 
-    replace(`${pathname}?${decodeURIComponent(params.toString())}`)
+    navigate(`${location.pathname}?${decodeURIComponent(params.toString())}`)
   }
 
   const handelClickFilter = () => {
-    setSearchParams(filterData)
+    setSearchParamsFunc(filterData)
   }
 
   const handelClickReformat = () => {
@@ -82,7 +77,7 @@ const Filter = () => {
     params.delete('class')
     // params.delete("stage")
 
-    replace(`${pathname}?${decodeURIComponent(params.toString())}`)
+    navigate(`${location.pathname}?${decodeURIComponent(params.toString())}`)
   }
 
   return (
