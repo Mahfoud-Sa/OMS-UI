@@ -4,9 +4,10 @@ import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 const path = require('path')
-autoUpdater.autoDownload = true
+autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = true
 // autoUpdater.forceDevUpdateConfig = true
+autoUpdater.forceDevUpdateConfig = true
 
 let mainWindow: BrowserWindow
 
@@ -47,6 +48,31 @@ function createWindow(): void {
   }
 }
 
+autoUpdater.on('update-available', (info) => {
+  console.log('✅ An update is available. Details for debugging:')
+  console.log('Version:', info.version)
+  console.log('Release Date:', info.releaseDate) // Check if the version string ends with the letter 's'.
+  if (info.version.endsWith('s')) {
+    // If it does, this is a special version.
+    console.log('✅ OK: This is a special release version.')
+
+    // You can now proceed with the download for this special version.
+    // For example, you might decide to download it automatically.
+    console.log('Starting download for special version...')
+    autoUpdater.downloadUpdate()
+  } else {
+    // If it does not end with 's', it's a standard version.
+    console.log('ℹ️ NOTE: No Update Availabe.')
+
+    // For standard versions, you might decide to do nothing,
+    // or ask the user first. For now, we will just log it.
+  }
+
+  // --- END OF THE LOGIC ---
+
+  // For extra debugging, you can always log the full info object.
+  console.log('Full update info object:', info)
+})
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
