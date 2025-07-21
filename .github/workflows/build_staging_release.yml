@@ -1,40 +1,19 @@
-name: Release from Stage
+name: Release_Dev
 
 on:
+  # push:
+  #   branches:
+  #     - develop
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., 1.4.0 or v1.4.0)'
-        required: true
-        type: string
 
 jobs:
-  build-and-release:
-
-    if: github.ref == 'refs/heads/staging'  # Only run if triggered from staging branch
-
+  build:
     permissions: write-all
     runs-on: windows-latest
 
     steps:
-      - name: Checkout staging branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-
-          ref: staging 
-
-      - name: Validate version input
-        run: |
-          if ! [[ "${{ inputs.version }}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.]+)?$ ]]; then
-            echo "::error::Invalid version format. Please use semantic versioning (e.g., 1.4.0 or v1.4.0)"
-            exit 1
-          fi
-          # Store cleaned version (without 'v' prefix)
-          VERSION=${INPUT_VERSION//v/}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-        shell: bash
-        env:
-          INPUT_VERSION: ${{ inputs.version }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -51,23 +30,15 @@ jobs:
           echo "RENDERER_VITE_REACT_APP_ENV=development" >> .env
           type .env
 
-      - name: Update package.json version
-        run: |
-          npm version ${{ env.VERSION }} --no-git-tag-version
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add package.json
-          git commit -m "Bump version to ${{ env.VERSION }} [skip ci]"
-          git push origin staging
-        shell: bash
-
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
 
-      - name: Get current date
-        id: get_current_date
-        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-        shell: bash
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
 
       - name: Create GitHub Release
         id: create_release
@@ -75,20 +46,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: v${{ env.VERSION }}
-          draft: true
-          prerelease: false
-
-          body: |
-            Production release created from staging branch
-            Version: ${{ env.VERSION }}
-            Build Date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          draft: false
+          prerelease: true
 
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v3.0
         with:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: v${{ env.VERSION }}
-
+          release-tag: ${{ env.VERSION }}
