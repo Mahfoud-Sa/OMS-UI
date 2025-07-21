@@ -4,21 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., 1.4.0)'
+        description: 'Release version (e.g., 1.4.0 or v1.4.0)'
         required: true
         type: string
 
 jobs:
   build-and-release:
+    if: github.ref == 'refs/heads/staging'  # Only run if triggered from staging branch
     permissions: write-all
     runs-on: windows-latest
 
     steps:
-      - name: Checkout stage branch
+      - name: Checkout staging branch
         uses: actions/checkout@v4
         with:
-          ref: staging
-          fetch-depth: 0
+
+          ref: staging 
 
       - name: Validate version input
         run: |
@@ -27,8 +28,11 @@ jobs:
             exit 1
           fi
           # Store cleaned version (without 'v' prefix)
-          echo "VERSION=${${inputs.version}#v}" >> $GITHUB_ENV
+          VERSION=${INPUT_VERSION//v/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
         shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -73,10 +77,11 @@ jobs:
           release_name: v${{ env.VERSION }}
           draft: true
           prerelease: false
+
           body: |
-            Release created from stage branch
+            Production release created from staging branch
             Version: ${{ env.VERSION }}
-            Build Date: ${{ steps.get_current_date.outputs.date }}
+            Build Date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v3.0
