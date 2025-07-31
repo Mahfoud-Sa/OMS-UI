@@ -10,8 +10,8 @@ import { Check, LucideHand, PackageCheck, SaudiRiyal, Truck, X } from 'lucide-re
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useParams } from 'react-router-dom'
-import AddTimeLineDialog from '../_components/AddTimeLineDialog'
-import EditTimeLineDialog from '../_components/EditTimeLineDialog'
+import AddTimeLineDialog from '../components/pages/orders/order-details/_components/AddTimeLineDialog'
+import EditTimeLineDialog from '../components/pages/orders/order-details/_components/EditTimeLineDialog'
 
 const Timeline = () => {
   const { id } = useParams()

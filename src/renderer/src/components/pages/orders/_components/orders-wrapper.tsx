@@ -7,15 +7,15 @@ import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useSearchParams } from 'react-router-dom'
 import FilterSheet from './filter-sheet'
+import OrdersHeader from './orders-header'
 import OrdersTable from './table'
 
 type Props = {
-  status: null | 0 | 1 | 2 | 3 | 4
+  status: null | number
   openSheet?: boolean
-  setOpenSheet?: (value: boolean) => void
 }
 
-const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
+const OrdersWrapper = ({ status }: Props) => {
   const authUser = useAuthUser()
   const userType = authUser()?.userType as string
   const [searchParams] = useSearchParams()
@@ -27,7 +27,8 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
     createdAfter: '',
     minSellingPrice: '',
     maxSellingPrice: '',
-    factoryId: ''
+    factoryId: '',
+    workPlace: ''
   })
   const [editedFilterOptions, setEditedFilterOptions] = useState({
     minCostPrice: '',
@@ -36,11 +37,13 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
     createdAfter: '',
     minSellingPrice: '',
     maxSellingPrice: '',
-    factoryId: ''
+    factoryId: '',
+    workPlace: ''
   })
 
   const query = searchParams.get('query')
   const page = searchParams.get('page')
+  const [openSheet, setOpenSheet] = useState(false)
 
   const { data, isPending, isError, error } = useQuery({
     queryKey: ['orders', status, query, page, isAsc, filterOptions],
@@ -67,15 +70,26 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
         }
       )
   })
+  const orderTableContent = () => {
+    if (isPending)
+      return (
+        <div className="min-h-[300px] flex items-center justify-center">
+          <Loader size={40} color={'#DA972E'} />
+        </div>
+      )
 
-  if (isPending)
+    if (isError) return <div>{error.message}</div>
     return (
-      <div className="min-h-[300px] flex items-center justify-center">
-        <Loader size={40} color={'#DA972E'} />
-      </div>
+      <OrdersTable
+        setAsc={(value) => {
+          console.log(value)
+          setAsc(value)
+        }}
+        isAsc={isAsc}
+        data={data?.data || { orders: [], pageNumber: 0, pageSize: 0, pages: 0, total: 0 }}
+      />
     )
-
-  if (isError) return <div>{error.message}</div>
+  }
 
   const handleApplyFilters = (data) => {
     const newFilterOptions = {
@@ -97,14 +111,8 @@ const OrdersWrapper = ({ status, openSheet, setOpenSheet }: Props) => {
   return (
     <>
       <section>
-        <OrdersTable
-          setAsc={(value) => {
-            console.log(value)
-            setAsc(value)
-          }}
-          isAsc={isAsc}
-          data={data?.data || { orders: [], pageNumber: 0, pageSize: 0, pages: 0, total: 0 }}
-        />
+        <OrdersHeader onFilterClick={() => setOpenSheet && setOpenSheet(true)} />
+        {orderTableContent()}
       </section>
       <FilterSheet
         filterOptions={editedFilterOptions}

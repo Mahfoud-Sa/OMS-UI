@@ -26,13 +26,13 @@ jobs:
       - name: Create .env file
         run: |
           echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
-          echo "RENDERER_VITE_REACT_APP_API_URL=${{ secrets.RENDERER_VITE_REACT_APP_API_STAGING_URL }}" >> .env
-          echo "RENDERER_VITE_REACT_APP_ENV=development" >> .env
+          echo "RENDERER_VITE_REACT_APP_API_URL_DOMAIN=http://oms-api-staging.runasp.net/api/" >> .env
+          echo "VITE_REACT_APP_ENV_VALUE=development" >> .env
+          echo "SENTRY_AUTH_TOKEN=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" >> .env
           type .env
 
       - name: Build app
         run: env $(cat .env | xargs) npm run build:win
-
       - name: Get version from package.json
         id: get_version
         run: |

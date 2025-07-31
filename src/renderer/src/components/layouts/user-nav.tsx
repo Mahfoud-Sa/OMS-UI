@@ -55,7 +55,7 @@ export function UserNav() {
               src={auth()?.imagePath || userIcon}
               alt={'Unknown User'}
               onError={(e) => {
-                e.currentTarget.src = 'https://via.placeholder.com/50'
+                e.currentTarget.src = 'https://placehold.co/50'
               }}
             />
             <div className="flex flex-col space-y-1">

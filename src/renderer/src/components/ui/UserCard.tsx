@@ -4,20 +4,20 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Icons } from '../icons/icons'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
 } from '../ui/dropdown-menu'
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
 } from './dialog'
 
 interface DeliveryUserCardProps {
@@ -42,10 +42,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ name, role, imagePath }) => {
     <div className="flex gap-2 items-center w-full text-right">
       <img
         loading="lazy"
-        src={imagePath || 'https://via.placeholder.com/50'}
+        src={imagePath || 'https://placehold.co/50'}
         className="object-cover shrink-0 self-stretch my-auto rounded-lg aspect-square w-[50px]"
         onError={(e) => {
-          e.currentTarget.src = 'https://via.placeholder.com/50'
+          e.currentTarget.src = 'https://placehold.co/50'
         }}
         alt={`${name} - ${role}`}
       />

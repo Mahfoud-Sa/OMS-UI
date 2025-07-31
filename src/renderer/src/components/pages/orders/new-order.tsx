@@ -27,6 +27,7 @@ import {
   ProductionLineProps,
   ProductionTeam
 } from '@renderer/types/api'
+import { captureException } from '@sentry/electron'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PlusCircle } from 'lucide-react'
 import React, { useState } from 'react'
@@ -150,6 +151,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         variant: 'destructive'
       })
       console.error('Error creating order:', error)
+      captureException(error)
     }
   })
   const { mutate: createOrderItems, isPending: createOrderItemsPending } = useMutation({
@@ -198,6 +200,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         variant: 'destructive'
       })
       console.error('Error creating order items', error)
+      captureException(error)
       // delete the order
       deleteApi(`/Orders/${id}`)
     }
@@ -225,6 +228,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
         variant: 'destructive'
       })
       console.error('Error creating order items', error)
+      captureException(error)
     }
   })
   const onSubmit = async (data: Schema) => {
