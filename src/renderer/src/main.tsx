@@ -1,9 +1,9 @@
-import * as Sentry from '@sentry/electron/renderer';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './assets/index.css';
-(async () => {
+import * as Sentry from '@sentry/electron/renderer'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './assets/index.css'
+;(async () => {
   const appVersion = window.electron.ipcRenderer.sendSync('get-app-version')
   Sentry.init({
     dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
