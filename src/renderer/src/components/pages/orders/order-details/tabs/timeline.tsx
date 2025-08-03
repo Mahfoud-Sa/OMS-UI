@@ -234,7 +234,7 @@ const Timeline = () => {
           }
           onClick={() => onDeliveryOrderMutate()}
         >
-          {deliverOrderIsPending ? (
+          {onDeliveryOrderIsPending ? (
             <Loader color={'#fff'} size={15} />
           ) : (
             <>
