@@ -212,7 +212,7 @@ const Timeline = () => {
           }
           onClick={() => paidOrderMutate()}
         >
-          {completeOrderIsPending ? (
+          {paidOrderIsPending ? (
             <Loader color={'#fff'} size={15} />
           ) : (
             <>
