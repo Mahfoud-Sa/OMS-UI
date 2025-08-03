@@ -45,7 +45,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
     onApply(filterOptions)
     onClose()
   }
-  const { data: factories } = useQuery({
+  const { data: factories, isSuccess: hasFetchedFactories } = useQuery({
     queryKey: ['Factories'],
     queryFn: () =>
       getApi<{ factories: Factory[] }>('/Factories', {
@@ -55,7 +55,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
       })
   })
 
-  const { data: workPlaces } = useQuery({
+  const { data: workPlaces, isSuccess: hasFetchedWorkPlaces } = useQuery({
     queryKey: ['workPlaces'],
     queryFn: () => getApi<string[]>('/Users/workPlaces')
   })
@@ -83,43 +83,54 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
           {isAdmin && (
             <div>
               <Label>المصنع</Label>
-              <Combobox
-                selectedValue={
-                  factories?.data.factories.find(
-                    (factory) => factory.id === Number(filterOptions.factoryId)
-                  ) || null
-                }
-                options={factories?.data.factories || []}
-                valueKey="id"
-                displayKey="name"
-                placeholder="أختر مصنع"
-                emptyMessage="لم يتم العثور علئ مصنع"
-                onSelect={(factory) => {
-                  setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
-                }}
-              />
+              {factories?.data.factories &&
+                factories?.data.factories.length > 0 &&
+                hasFetchedFactories && (
+                  <Combobox
+                    selectedValue={
+                      (factories?.data.factories ?? []).find(
+                        (factory) => factory.id === Number(filterOptions.factoryId)
+                      ) || null
+                    }
+                    options={factories?.data.factories ?? []}
+                    valueKey="id"
+                    displayKey="name"
+                    placeholder="أختر مصنع"
+                    emptyMessage="لم يتم العثور علئ مصنع"
+                    onSelect={(factory) => {
+                      setFilterOptions({ ...filterOptions, factoryId: String(factory?.id) })
+                    }}
+                  />
+                )}
             </div>
           )}
-          {workPlaces?.data && workPlaces.data.length > 0 && !isReseller && (
-            <div>
-              <Label>مكان العمل</Label>
-              <Combobox
-                selectedValue={
-                  filterOptions.workPlace
-                    ? { id: filterOptions.workPlace, name: filterOptions.workPlace }
-                    : null
-                }
-                options={workPlaces.data.map((place) => ({ id: place, name: place }))}
-                valueKey="id"
-                displayKey="name"
-                placeholder="أختر مكان العمل"
-                emptyMessage="لم يتم العثور على مكان عمل"
-                onSelect={(workplace) => {
-                  setFilterOptions({ ...filterOptions, workPlace: workplace?.id || '' })
-                }}
-              />
-            </div>
-          )}
+          {workPlaces?.data &&
+            workPlaces.data.length > 0 &&
+            hasFetchedWorkPlaces &&
+            !isReseller && (
+              <div>
+                <Label>مكان العمل</Label>
+                <Combobox
+                  selectedValue={
+                    filterOptions.workPlace
+                      ? { id: filterOptions.workPlace, name: filterOptions.workPlace }
+                      : null
+                  }
+                  options={
+                    Array.isArray(workPlaces.data)
+                      ? workPlaces.data.map((place) => ({ id: place, name: place }))
+                      : []
+                  }
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="أختر مكان العمل"
+                  emptyMessage="لم يتم العثور على مكان عمل"
+                  onSelect={(workplace) => {
+                    setFilterOptions({ ...filterOptions, workPlace: workplace?.id || '' })
+                  }}
+                />
+              </div>
+            )}
           {['مشرف', 'منسق طلبات'].includes(userType) && (
             <>
               <div>
