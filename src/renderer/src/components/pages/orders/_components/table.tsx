@@ -11,7 +11,7 @@ import {
 import { cn, gotRole } from '@renderer/lib/utils'
 import { Order, Roles } from '@renderer/types/api'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, CheckIcon, MoreHorizontal, X } from 'lucide-react'
 import React from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Link } from 'react-router-dom'
@@ -79,6 +79,17 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           return <div>{new Date(row.original.createAt).toISOString().split('T')[0]}</div>
         }
       },
+      ...(userType !== 'بائع'
+        ? [
+            {
+              accessorKey: 'workPlace',
+              header: 'اسم الفرع',
+              cell: ({ row }) => {
+                return row.original.workPlace ? row.original.workPlace : row.original.fullName
+              }
+            }
+          ]
+        : []),
       {
         accessorKey: 'billNo',
         header: 'رقم الفاتورة'
@@ -90,11 +101,12 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
           return (
             <Badge
               className={cn('', {
-                'bg-blue-200 text-blue-600': row.original.orderState == 0,
-                'bg-orange-200 text-orange-600': row.original.orderState == 1,
-                'bg-green-200 text-green-600': row.original.orderState == 2,
-                'bg-violet-200 text-violet-600': row.original.orderState == 3,
-                'bg-red-200 text-red-600': row.original.orderState == 4
+                'bg-indigo-100 text-indigo-900': row.original.orderState == 0,
+                'bg-amber-100 text-amber-900': row.original.orderState == 1,
+                'bg-emerald-100 text-emerald-900': row.original.orderState == 2,
+                'bg-green-100 text-green-900': row.original.orderState == 3,
+                'bg-red-100 text-red-900': row.original.orderState == 4,
+                'bg-blue-100 text-blue-900': row.original.orderState === 5
               })}
             >
               {row.original.orderState == 0 && 'جديد'}
@@ -102,16 +114,41 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
               {row.original.orderState == 2 && 'مكتمل'}
               {row.original.orderState == 3 && 'تم التسليم'}
               {row.original.orderState == 4 && 'ملغى'}
+              {row.original.orderState == 5 && 'قيد التوصيل'}
             </Badge>
           )
         }
       },
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      ['مشرف', 'بائع'].includes(userType) && {
-        accessorKey: 'sellingPrice',
-        header: 'السعر البيع'
+      {
+        accessorKey: 'id',
+        header: 'حالة السداد',
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center justify-center">
+              {row.original.payed ? (
+                <div
+                  className="p-1 bg-green-100 text-green-900 rounded-2xl
+"
+                >
+                  <CheckIcon className="h-6 w-6 " />
+                </div>
+              ) : (
+                <div className="bg-red-100 text-red-900 rounded-2xl p-1">
+                  <X />
+                </div>
+              )}
+            </div>
+          )
+        }
       },
+      ...(['مشرف', 'بائع'].includes(userType)
+        ? [
+            {
+              accessorKey: 'sellingPrice',
+              header: 'السعر البيع'
+            }
+          ]
+        : []),
 
       {
         id: 'actions',
@@ -145,7 +182,7 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
     <div>
       <StructureTable
         columns={columns.filter(Boolean)}
-        data={data.orders}
+        data={data.orders || []}
         rowClassName={rowClassName}
       />
       <TablePagination total={data.total} page={data.pageNumber} pageSize={data.pageSize} />

@@ -10,6 +10,9 @@ export default defineConfig({
         '@/lib': resolve('src/main/lib'),
         '@shared': resolve('src/shared')
       }
+    },
+    build: {
+      sourcemap: true
     }
   },
   preload: {
@@ -25,6 +28,9 @@ export default defineConfig({
         '@/components': resolve('src/renderer/src/components'),
         '@/mocks': resolve('src/renderer/src/mocks')
       }
+    },
+    build: {
+      sourcemap: true
     }
   },
   renderer: {
@@ -33,6 +39,9 @@ export default defineConfig({
         '@renderer': resolve('src/renderer/src')
       }
     },
-    plugins: [react()]
+    plugins: [react()],
+    build: {
+      sourcemap: true
+    }
   }
 })

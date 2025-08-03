@@ -47,13 +47,7 @@ const Reports = () => {
   ]
   return (
     <section className="p-5">
-      <Statistics
-        selectedRole={undefined}
-        data={StatisticsCardsData}
-        filterData={function (): void {
-          throw new Error('Function not implemented.')
-        }}
-      />
+      <Statistics selectedRole={undefined} data={StatisticsCardsData} />
       <div className="bg-white rounded-lg min-h-[500px] p-7 shadow-sm mt-6">
         <Tabs className="w-full" defaultValue={tabs.find((tab) => !tab.disabled)?.value}>
           <TabsList className="bg-transparent mb-3">

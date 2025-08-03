@@ -50,7 +50,6 @@ const fetchUser = async (userId: string) => {
 const ResetPassword = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [showDialog, setShowDialog] = useState(false)
-  const [showSelect, setShowSelect] = useState(false)
   const form = useForm<Schema>({
     resolver: zodResolver(schema)
   })
@@ -73,10 +72,6 @@ const ResetPassword = () => {
       setSelectedUser(data)
     }
   }, [isSuccess, data])
-
-  useEffect(() => {
-    if (users && users.length > 0) setShowSelect(true)
-  }, [users])
 
   const handleUserChange = (option) => {
     console.log('Option:', option)
@@ -112,7 +107,7 @@ const ResetPassword = () => {
               <h1 className="font-bold">إعادة تعيين كلمة المرور</h1>
 
               <div className="mt-4 grid grid-cols-3 gap-3">
-                {showSelect && (
+                {users && users.length > 0 && (
                   <FormField
                     control={form.control}
                     name="userId"

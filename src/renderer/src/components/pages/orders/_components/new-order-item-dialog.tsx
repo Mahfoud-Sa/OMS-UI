@@ -131,6 +131,43 @@ const NewOrderItemDialog: React.FC<NewOrderItemDialogProps> = ({
     console.log(form.getValues('images'))
   }, [productToEdit, form])
 
+  // Add new useEffect hook to clear design when product changes
+  React.useEffect(() => {
+    const productIdSubscription = form.watch('productId', 0)
+
+    // Clear design selection when product changes
+    if (productIdSubscription !== 0) {
+      form.setValue('productDesignId', 0)
+    }
+
+    return () => {}
+  }, [form.watch('productId')])
+
+  // Add new useEffect hook to clear production line and team when factory changes
+  React.useEffect(() => {
+    const factoryIdSubscription = form.watch('factoryId', 0)
+
+    // Clear production line and team when factory changes
+    if (factoryIdSubscription !== 0) {
+      form.setValue('productionLineId', 0)
+      form.setValue('productionTeamId', 0)
+    }
+
+    return () => {}
+  }, [form.watch('factoryId')])
+
+  // Add new useEffect hook to clear production team when production line changes
+  React.useEffect(() => {
+    const productionLineIdSubscription = form.watch('productionLineId', 0)
+
+    // Clear production team when production line changes
+    if (productionLineIdSubscription !== 0) {
+      form.setValue('productionTeamId', 0)
+    }
+
+    return () => {}
+  }, [form.watch('productionLineId')])
+
   const handleSave = (data: FormData) => {
     // check all fields if they are empty
     let hasError = false

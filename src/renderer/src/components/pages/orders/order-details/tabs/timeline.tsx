@@ -1,11 +1,12 @@
 import Loader from '@renderer/components/layouts/loader'
 import { Button } from '@renderer/components/ui/button'
 import { toast } from '@renderer/components/ui/use-toast_1'
-import { getApi, patchApi } from '@renderer/lib/http'
+import { getApi, patchApi, putApi } from '@renderer/lib/http'
+import { getUserType } from '@renderer/lib/user-auth-type'
 import { gotRole } from '@renderer/lib/utils'
 import { Item, Order, Roles } from '@renderer/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, LucideHand, PackageCheck, X } from 'lucide-react'
+import { Check, LucideHand, PackageCheck, SaudiRiyal, Truck, X } from 'lucide-react'
 import moment from 'moment'
 import 'moment/dist/locale/ar-ma'
 import { useParams } from 'react-router-dom'
@@ -15,6 +16,7 @@ import EditTimeLineDialog from '../_components/EditTimeLineDialog'
 const Timeline = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
+  const { isReseller } = getUserType()
 
   moment.locale('ar-ma')
 
@@ -37,6 +39,7 @@ const Timeline = () => {
         variant: 'default',
         title: `تم الغاء الطلب بنجاح`
       })
+      // Invalidate both specific queries
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
       queryClient.invalidateQueries({ queryKey: ['order', id] })
     },
@@ -54,7 +57,7 @@ const Timeline = () => {
     },
     onSuccess: () => {
       toast({
-        variant: 'default',
+        variant: 'success',
         title: `تم اكمال الطلب بنجاح`
       })
       queryClient.invalidateQueries({ queryKey: ['time_line'] })
@@ -91,6 +94,49 @@ const Timeline = () => {
       })
     }
   })
+  const { mutate: onDeliveryOrderMutate, isPending: onDeliveryOrderIsPending } = useMutation({
+    mutationFn: async () => {
+      await patchApi(`/Orders/${id}`, {
+        orderState: 5,
+        deliveryAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString()
+      })
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'success',
+        title: `الطلب قيد التسليم`
+      })
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
+  const { mutate: paidOrderMutate, isPending: paidOrderIsPending } = useMutation({
+    mutationFn: async () => {
+      await putApi(`/Orders/order/${id}/payed`, { orderState: 1 })
+    },
+    onSuccess: () => {
+      toast({
+        variant: 'success',
+        title: `تم سداد الطلب بنجاح`
+      })
+      queryClient.invalidateQueries({ queryKey: ['time_line'] })
+      queryClient.invalidateQueries({ queryKey: ['order', id] })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'فشلت العملية',
+        description: 'تأكد من صحة البيانات قد تكون مكرره أو لا يوجد أتصال بالشبكة'
+      })
+    }
+  })
 
   if (isPending)
     return (
@@ -110,6 +156,8 @@ const Timeline = () => {
             cancelOrderIsPending ||
             completeOrderIsPending ||
             deliverOrderIsPending ||
+            paidOrderIsPending ||
+            onDeliveryOrderIsPending ||
             order?.data.orderState == 4 ||
             !gotRole(Roles.UpdateOrder)
           }
@@ -125,14 +173,17 @@ const Timeline = () => {
           )}
         </Button>
         <Button
-          className="flex  gap-2 bg-blue-400 hover:bg-blue-500 "
+          className="flex  gap-2 bg-emerald-600 hover:bg-emerald-700 "
           disabled={
             completeOrderIsPending ||
             cancelOrderIsPending ||
             deliverOrderIsPending ||
+            paidOrderIsPending ||
+            onDeliveryOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
             order?.data.orderState == 2 ||
+            order?.data.orderState == 5 ||
             !gotRole(Roles.UpdateOrder)
           }
           onClick={() => completeOrderMutate()}
@@ -147,11 +198,59 @@ const Timeline = () => {
           )}
         </Button>
         <Button
+          className="flex  gap-2 bg-green-400 hover:bg-green-500 "
+          disabled={
+            !isReseller ||
+            completeOrderIsPending ||
+            cancelOrderIsPending ||
+            deliverOrderIsPending ||
+            paidOrderIsPending ||
+            onDeliveryOrderIsPending ||
+            order?.data.orderState === 3 ||
+            order?.data.orderState === 4 ||
+            order?.data.payed
+          }
+          onClick={() => paidOrderMutate()}
+        >
+          {paidOrderIsPending ? (
+            <Loader color={'#fff'} size={15} />
+          ) : (
+            <>
+              تم السداد
+              <SaudiRiyal />
+            </>
+          )}
+        </Button>
+        <Button
+          className="flex  gap-2 bg-blue-600 hover:bg-blue-700 "
+          disabled={
+            completeOrderIsPending ||
+            cancelOrderIsPending ||
+            deliverOrderIsPending ||
+            paidOrderIsPending ||
+            onDeliveryOrderIsPending ||
+            !(order?.data.orderState == 2) ||
+            !gotRole(Roles.UpdateOrder)
+          }
+          onClick={() => onDeliveryOrderMutate()}
+        >
+          {onDeliveryOrderIsPending ? (
+            <Loader color={'#fff'} size={15} />
+          ) : (
+            <>
+              الطلب قيد التسليم
+              <Truck />
+            </>
+          )}
+        </Button>
+        <Button
           className="flex  gap-2 bg-green-600 hover:bg-green-700 "
           disabled={
             completeOrderIsPending ||
             cancelOrderIsPending ||
             deliverOrderIsPending ||
+            paidOrderIsPending ||
+            onDeliveryOrderIsPending ||
             order?.data.orderState == 4 ||
             order?.data.orderState == 3 ||
             !gotRole(Roles.UpdateOrder)
@@ -181,7 +280,7 @@ const Timeline = () => {
               disabled={
                 order?.data.orderState == 4 ||
                 order?.data.orderState == 3 ||
-                order?.data.orderState === 2 ||
+                order?.data.orderState == 2 ||
                 !gotRole(Roles.UpdateOrder)
               }
               id={item.id.toString()}

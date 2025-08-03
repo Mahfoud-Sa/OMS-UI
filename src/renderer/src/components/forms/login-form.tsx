@@ -24,8 +24,12 @@ import { useToast } from '../ui/use-toast_1'
 
 const passwordSchema = z
   .object({
-    newPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' }),
-    confirmNewPassword: z.string().min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' })
+    newPassword: z
+      .string({ message: 'مطلوب' })
+      .min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' }),
+    confirmNewPassword: z
+      .string({ message: 'مطلوب' })
+      .min(8, { message: 'كلمة المرور يجب أن تكون على الأقل 8 أحرف' })
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'كلمات المرور غير متطابقة',
@@ -241,14 +245,14 @@ const LoginForm = () => {
         })
       }
       // if the evn is development you can login using default token
-        // if (process.env.RENDERER_VITE_REACT_APP_ENV === 'production') {
-        //   signIn({
-        //     token: 'default-token',
-        //     expiresIn: 360000,
-        //     tokenType: 'Bearer'
-        //   })
-        //   navigate('/')
-        // }
+      // if (process.env.VITE_REACT_APP_ENV_VALUE === 'production') {
+      //   signIn({
+      //     token: 'default-token',
+      //     expiresIn: 360000,
+      //     tokenType: 'Bearer'
+      //   })
+      //   navigate('/')
+      // }
     } finally {
       setDelayedSubmitting(false)
     }

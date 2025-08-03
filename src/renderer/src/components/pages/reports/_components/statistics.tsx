@@ -6,7 +6,6 @@ import StatisticCard from '../../../layouts/statistic-card'
 
 type StatisticsProps = {
   selectedRole: string | undefined
-  filterData: (role: string | undefined) => void
   data: {
     title: string
     icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
@@ -16,7 +15,7 @@ type StatisticsProps = {
   }[]
 }
 
-export default function Statistics({ filterData, data }: StatisticsProps) {
+export default function Statistics({ data }: StatisticsProps) {
   return (
     <div
       className={`grid gap-2 sm:grid-cols-1 md:grid-cols-${data.length >= 3 ? '3' : data.length == 2 ? '2' : '1'}`}
@@ -31,10 +30,6 @@ export default function Statistics({ filterData, data }: StatisticsProps) {
           icon={item.icon}
           iconWrapperClassName={`${item.iconBgWrapperColor}`}
           iconClassName={item.iconClassName}
-          handleClick={() => {
-            if (i == 0) filterData(undefined)
-            // setSelectedCard({ id: i == 0 ? null : i, title: item.title })
-          }}
         />
       ))}
     </div>
