@@ -85,11 +85,11 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
               <Label>المصنع</Label>
               <Combobox
                 selectedValue={
-                  factories?.data.factories.find(
+                  (factories?.data.factories ?? []).find(
                     (factory) => factory.id === Number(filterOptions.factoryId)
                   ) || null
                 }
-                options={factories?.data.factories || []}
+                options={factories?.data.factories ?? []}
                 valueKey="id"
                 displayKey="name"
                 placeholder="أختر مصنع"
@@ -109,7 +109,11 @@ const FilterSheet: React.FC<FilterSheetProps> = ({
                     ? { id: filterOptions.workPlace, name: filterOptions.workPlace }
                     : null
                 }
-                options={workPlaces.data.map((place) => ({ id: place, name: place }))}
+                options={
+                  Array.isArray(workPlaces.data)
+                    ? workPlaces.data.map((place) => ({ id: place, name: place }))
+                    : []
+                }
                 valueKey="id"
                 displayKey="name"
                 placeholder="أختر مكان العمل"
