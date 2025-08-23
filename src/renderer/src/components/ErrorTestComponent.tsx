@@ -1,4 +1,5 @@
 // Test component to verify Sentry error catching
+import * as Sentry from '@sentry/electron/renderer'
 import React from 'react'
 
 const ErrorTestComponent: React.FC = () => {
@@ -23,7 +24,6 @@ const ErrorTestComponent: React.FC = () => {
       throw new Error('Test manually captured error')
     } catch (error) {
       // This demonstrates manual error capture
-      const Sentry = require('@sentry/electron/renderer')
       Sentry.captureException(error, {
         tags: { errorType: 'manualTest', process: 'renderer' }
       })
