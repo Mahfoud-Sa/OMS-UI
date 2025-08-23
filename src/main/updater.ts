@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
+import * as Sentry from '@sentry/electron/main'
 
 autoUpdater.autoDownload = true
 // autoUpdater.forceDevUpdateConfig = true
@@ -43,6 +44,7 @@ export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
     }
     log.info('No updates available')
   })
+  
   autoUpdater.on('update-downloaded', (info) => {
     if (mainWindow) {
       mainWindow.webContents.send('update-downloaded')
@@ -59,22 +61,45 @@ export function setupAutoUpdater(mainWindow?: BrowserWindow): void {
       })
       .then((returnValue) => {
         if (returnValue.response === 0) {
-          autoUpdater.quitAndInstall(false, true)
+          try {
+            autoUpdater.quitAndInstall(false, true)
+          } catch (error) {
+            log.error('Error during quit and install:', error)
+            Sentry.captureException(error, {
+              tags: { errorType: 'updaterError', process: 'main', operation: 'quitAndInstall' }
+            })
+          }
         }
+      })
+      .catch((error) => {
+        log.error('Error showing update dialog:', error)
+        Sentry.captureException(error, {
+          tags: { errorType: 'updaterError', process: 'main', operation: 'showDialog' }
+        })
       })
   })
 
   // Error handling
   autoUpdater.on('error', (error) => {
     log.error('Auto updater error:', error)
+    Sentry.captureException(error, {
+      tags: { errorType: 'updaterError', process: 'main', operation: 'autoUpdater' }
+    })
     if (mainWindow) {
       mainWindow.webContents.send('update-error', error.message)
     }
   })
 
-  // Check for updates
-  autoUpdater.checkForUpdatesAndNotify({
-    title: 'تحديث جديد متوفر',
-    body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
-  })
+  // Check for updates with error handling
+  try {
+    autoUpdater.checkForUpdatesAndNotify({
+      title: 'تحديث جديد متوفر',
+      body: 'تم تنزيل التحديث وجاهز للتثبيت اغلق البرنامج لتثبيت التحديث ولا تبداه فورا'
+    })
+  } catch (error) {
+    log.error('Error checking for updates:', error)
+    Sentry.captureException(error, {
+      tags: { errorType: 'updaterError', process: 'main', operation: 'checkForUpdates' }
+    })
+  }
 }

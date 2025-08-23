@@ -22,7 +22,39 @@ import './assets/index.css'
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
     sendDefaultPii: true,
-    environment: import.meta.env.VITE_REACT_APP_ENV_VALUE
+    environment: import.meta.env.VITE_REACT_APP_ENV_VALUE,
+    beforeSend(event) {
+      // Add additional context for renderer process errors
+      if (event.tags) {
+        event.tags.process = 'renderer'
+      } else {
+        event.tags = { process: 'renderer' }
+      }
+      return event
+    }
+  })
+
+  // Global error handlers for renderer process
+  window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error)
+    Sentry.captureException(event.error || new Error(event.message), {
+      tags: { errorType: 'globalError', process: 'renderer' },
+      extra: {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      }
+    })
+  })
+
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason)
+    Sentry.captureException(
+      event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
+      {
+        tags: { errorType: 'unhandledRejection', process: 'renderer' }
+      }
+    )
   })
 })()
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

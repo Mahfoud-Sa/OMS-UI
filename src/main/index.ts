@@ -9,46 +9,93 @@ const env = import.meta.env.VITE_REACT_APP_ENV_VALUE
 Sentry.init({
   dsn: 'https://8b0ea8534fe0026e32065cc94267aeb0@o4509627286618112.ingest.de.sentry.io/4509627337211984',
   release: app.getVersion(),
-  environment: env
+  environment: env,
+  beforeSend(event) {
+    // Add additional context for main process errors
+    if (event.tags) {
+      event.tags.process = 'main'
+    } else {
+      event.tags = { process: 'main' }
+    }
+    return event
+  }
+})
+
+// Global error handlers for main process
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error)
+  Sentry.captureException(error, {
+    tags: { errorType: 'uncaughtException', process: 'main' }
+  })
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+  Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)), {
+    tags: { errorType: 'unhandledRejection', process: 'main' },
+    extra: { promise: promise.toString() }
+  })
 })
 
 let mainWindow: BrowserWindow
 
 function createWindow(): void {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    icon: path.join(__dirname, '../resources/app_icon_256.ico'), // Adjust path as needed
-    show: true,
-    autoHideMenuBar: true,
+  try {
+    // Create the browser window.
+    mainWindow = new BrowserWindow({
+      icon: path.join(__dirname, '../resources/app_icon_256.ico'), // Adjust path as needed
+      show: true,
+      autoHideMenuBar: true,
 
-    // fullscreen: true,
-    resizable: true,
-    fullscreenable: true,
-    frame: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      // fullscreen: true,
+      resizable: true,
+      fullscreenable: true,
+      frame: true,
+      ...(process.platform === 'linux' ? { icon } : {}),
+      webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
+        sandbox: false
+      }
+    })
+
+    mainWindow.on('ready-to-show', () => {
+      mainWindow.show()
+    })
+
+    // Add error handling for window events
+    mainWindow.on('unresponsive', () => {
+      console.error('Window became unresponsive')
+      Sentry.captureMessage('Window became unresponsive', 'warning')
+    })
+
+    mainWindow.webContents.on('render-process-gone', (event, details) => {
+      console.error('Render process gone:', { event, details })
+      Sentry.captureException(new Error('Render process gone'), {
+        tags: { errorType: 'renderProcessGone', process: 'main' },
+        extra: { details }
+      })
+    })
+
+    mainWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url)
+      return { action: 'deny' }
+    })
+
+    // HMR for renderer base on electron-vite cli.
+    // Load the remote URL for development or the local html file for production.
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+      mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    } else {
+      mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
     }
-  })
-
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    setupAutoUpdater(mainWindow)
+  } catch (error) {
+    console.error('Error creating window:', error)
+    Sentry.captureException(error, {
+      tags: { errorType: 'windowCreationError', process: 'main' }
+    })
+    throw error // Re-throw to maintain original behavior
   }
-  setupAutoUpdater(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -67,10 +114,30 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  
+  // Handle preload errors
+  ipcMain.on('preload-error', (_, errorData) => {
+    console.error('Preload script error:', errorData)
+    const error = new Error(errorData.message)
+    error.name = errorData.name
+    error.stack = errorData.stack
+    Sentry.captureException(error, {
+      tags: { errorType: 'preloadError', process: 'preload' }
+    })
+  })
+  
   // With this:
   ipcMain.on('get-app-version', (event) => {
-    // IMPORTANT: For sendSync, you MUST set event.returnValue
-    event.returnValue = app.getVersion()
+    try {
+      // IMPORTANT: For sendSync, you MUST set event.returnValue
+      event.returnValue = app.getVersion()
+    } catch (error) {
+      console.error('Error getting app version:', error)
+      Sentry.captureException(error, {
+        tags: { errorType: 'ipcError', process: 'main', ipcChannel: 'get-app-version' }
+      })
+      event.returnValue = '1.0.0' // fallback version
+    }
   })
   createWindow()
 
@@ -91,5 +158,23 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on('restart-app', () => {
-  autoUpdater.quitAndInstall()
+  try {
+    autoUpdater.quitAndInstall()
+  } catch (error) {
+    console.error('Error restarting app:', error)
+    Sentry.captureException(error, {
+      tags: { errorType: 'ipcError', process: 'main', ipcChannel: 'restart-app' }
+    })
+  }
+})
+
+// Add app-level error handlers
+app.on('web-contents-created', (_, contents) => {
+  contents.on('did-fail-load', (_, errorCode, errorDescription, validatedURL) => {
+    console.error('Failed to load:', { errorCode, errorDescription, validatedURL })
+    Sentry.captureException(new Error(`Failed to load: ${errorDescription}`), {
+      tags: { errorType: 'loadError', process: 'main' },
+      extra: { errorCode, errorDescription, validatedURL }
+    })
+  })
 })

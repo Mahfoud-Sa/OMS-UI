@@ -3,7 +3,7 @@ import { Item, Order } from '@renderer/types/api'
 
 // Configuration
 const PAGE_SIZE = 1000 // Number of orders to fetch per request
-const DRY_RUN = false // Set to false to actually delete orders
+const DRY_RUN = true // Set to false to actually delete orders
 
 /**
  * Fetches all orders from the system in batches
