@@ -24,14 +24,14 @@ class SentryErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('React Error Boundary caught an error:', error, errorInfo)
-    
+
     // Capture the error with Sentry with additional context
     Sentry.captureException(error, {
-      tags: { 
-        errorType: 'reactErrorBoundary', 
-        process: 'renderer' 
+      tags: {
+        errorType: 'reactErrorBoundary',
+        process: 'renderer'
       },
-      extra: { 
+      extra: {
         errorInfo,
         componentStack: errorInfo.componentStack,
         errorBoundary: 'SentryErrorBoundary'
@@ -49,15 +49,17 @@ class SentryErrorBoundary extends React.Component<Props, State> {
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div style={{ 
-          padding: '20px', 
-          textAlign: 'center', 
-          fontFamily: 'Arial, sans-serif',
-          color: '#333'
-        }}>
+        <div
+          style={{
+            padding: '20px',
+            textAlign: 'center',
+            fontFamily: 'Arial, sans-serif',
+            color: '#333'
+          }}
+        >
           <h2>Something went wrong</h2>
-          <p>Our team has been notified and we're working to fix this issue.</p>
-          <button 
+          <p>Our team has been notified and we&apos;re working to fix this issue.</p>
+          <button
             onClick={() => window.location.reload()}
             style={{
               padding: '10px 20px',
@@ -71,16 +73,18 @@ class SentryErrorBoundary extends React.Component<Props, State> {
           >
             Reload Application
           </button>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.VITE_REACT_APP_ENV_VALUE === 'development' && this.state.error && (
             <details style={{ marginTop: '20px', textAlign: 'left' }}>
               <summary>Error Details (Development Only)</summary>
-              <pre style={{ 
-                backgroundColor: '#f8f9fa', 
-                padding: '10px', 
-                overflow: 'auto',
-                borderRadius: '4px',
-                fontSize: '12px'
-              }}>
+              <pre
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  padding: '10px',
+                  overflow: 'auto',
+                  borderRadius: '4px',
+                  fontSize: '12px'
+                }}
+              >
                 {this.state.error.toString()}
                 {this.state.errorInfo?.componentStack}
               </pre>
