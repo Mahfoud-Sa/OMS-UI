@@ -55,7 +55,7 @@ const ResetPassword = () => {
   })
 
   const { data: users } = useQuery({
-    queryKey: ['users'],
+    queryKey: ['users_reset'],
     queryFn: fetchUsers
   })
 
