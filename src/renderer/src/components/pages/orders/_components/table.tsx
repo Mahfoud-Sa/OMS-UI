@@ -42,6 +42,10 @@ const rowClassName = (order: Order) => {
     ? 'bg-red-400'
     : ''
 }
+// const handleDeleteOrder = async (orderId: number) => {
+//   // Call API to delete order
+//   await deleteApi(`/Orders/${orderId}`)
+// }
 
 const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
   const authUser = useAuthUser()
@@ -168,6 +172,13 @@ const OrdersTable = ({ data, isAsc, setAsc }: Props) => {
                   <Link to={`/orders/${row.original?.id}`}>
                     <DropdownMenuItem className="cursor-pointer">تفاصيل</DropdownMenuItem>
                   </Link>
+                  {/* delete order button */}
+                  {/* <DropdownMenuItem
+                    className="cursor-pointe bg-red-500 text-white hover:bg-red-600"
+                    onClick={() => handleDeleteOrder(row.original?.id)}
+                  >
+                    حذف
+                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </>
             )}
