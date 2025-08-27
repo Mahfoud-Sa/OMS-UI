@@ -18,10 +18,6 @@ import './assets/index.css'
         maskAllInputs: false
       })
     ],
-    tracesSampleRate: 1.0,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-    sendDefaultPii: true,
     environment: import.meta.env.VITE_REACT_APP_ENV_VALUE,
     beforeSend(event) {
       // Add additional context for renderer process errors
