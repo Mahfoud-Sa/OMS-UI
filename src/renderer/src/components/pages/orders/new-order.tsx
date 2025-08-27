@@ -212,7 +212,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       })
       console.error('Error creating order items', error)
       captureException(error)
-      // Do not delete the order here; handled in timeline error handler
     }
   })
   const { mutate: createOrderItemsTimeline } = useMutation({
@@ -225,7 +224,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       productTeamId: number
       orderId?: number
     }) => {
-      // eslint-disable-next-line no-useless-catch
       try {
         await postApi(`/OrderItems/${id}/Timelines`, {
           productionTeamId: productTeamId.toString(),
@@ -233,6 +231,8 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
           receivedAt: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString() // Adding 3 hours
         })
       } catch (error) {
+        // If error, delete the order
+        await deleteApi(`/orders/${orderId}`)
         throw error
       }
     },
@@ -244,7 +244,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       })
       navigate('/orders')
     },
-    onError: async (error, variables) => {
+    onError: (error) => {
       toast({
         title: 'فشلت عملية الحفظ',
         description: `حصل خطأ ما`,
@@ -252,10 +252,6 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       })
       console.error('Error creating order item timeline', error)
       captureException(error)
-      // delete the order if possible
-      if (variables?.orderId) {
-        await deleteApi(`/Orders/${variables.orderId}`)
-      }
     }
   })
   const onSubmit = async (data: Schema) => {
