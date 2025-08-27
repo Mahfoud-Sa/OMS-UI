@@ -128,6 +128,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
     setProductionTeams(productionLines.find((line) => line.id === productionLineId)?.teams || [])
   const { mutate: createOrder, isPending: createOrderPending } = useMutation({
     mutationFn: (data: localNewProduct) => {
+      console.log(data)
       return postApi<NewOrderProp>('/Orders', data)
     },
     onSuccess: (response) => {
@@ -135,6 +136,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
       createOrderItems(response?.data.id)
     },
     onError: (error: any) => {
+      console.error('Error creating order:', error)
       if (error.response?.data?.error === 'DuplicateOrder') {
         const billNo = error.response?.data?.message?.match(/\d+/)?.[0] || ''
         toast({
@@ -183,7 +185,11 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
             })
           }
           try {
+            console.log('Creating order item with payload:', {
+              payloadFormData
+            })
             const orderItem = await postApi<OrderItem>(`/Orders/${id}/OrderItems`, payloadFormData)
+            console.log('Order item created successfully:', orderItem.data)
             createOrderItemsTimeline({
               id: orderItem?.data?.id,
               productTeamId: product.productionTeamId,
@@ -191,6 +197,7 @@ const NewOrder = ({ initValues }: { initValues?: Schema }) => {
             })
           } catch (err) {
             // If any error occurs, delete the order
+            console.error(err)
             await deleteApi(`/Orders/${id}`)
             throw err
           }
